@@ -89,14 +89,17 @@ if __name__ == '__main__':
         else: entries.insert(next((i for i, row in enumerate(entries) if row['id'] == 'mj'), len(entries)), ENTRY)
         write_atomic(CATALOG, json.dumps(entries, ensure_ascii=False, indent=2) + '\n')
     except Exception:
+        # Stop a first installation before removing its unit file. There may
+        # be no unit yet if the failure happened while preparing it.
+        if first:
+            subprocess.run(['systemctl', 'disable', '--now', 'gtnh-flow'], check=False)
         for path in (CONF, UNIT, CATALOG):
             saved = backup / path.name
             if saved.exists(): shutil.copy2(saved, path)
             elif path in (CONF, UNIT) and path.exists(): path.unlink()
         if previous: link(previous)
         run('systemctl', 'daemon-reload')
-        if first: run('systemctl', 'disable', '--now', 'gtnh-flow')
-        else: run('systemctl', 'restart', 'gtnh-flow')
+        if not first: run('systemctl', 'restart', 'gtnh-flow')
         nginx(['-t'])
         nginx(['-s', 'reload'])
         raise
