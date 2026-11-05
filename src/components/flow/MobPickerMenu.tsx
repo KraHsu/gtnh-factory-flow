@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { listRecipeDatasetMobs } from "@/lib/datasets/browser-loader";
 import type { RecipeSummary } from "@/lib/datasets/types";
@@ -28,15 +29,20 @@ function dropFigure(output: RecipeOutput): string {
 
 /** A kill, drawn: each drop with its icon and what one kill yields with no weapon. */
 function MobHover({ mob }: { mob: RecipeSummary }) {
+  const t = useT();
   const eec = (mob.metadata as { eec?: EecMetadata } | undefined)?.eec;
   return (
     <div className="min-w-[190px]" style={{ fontFamily: "var(--app-font)" }}>
       <p className="text-[14px] font-bold leading-4 text-white">
         {recipeChoiceName(mob.name)}
-        {eec ? <span className="text-[11px] font-normal text-slate-400"> · {eec.maxHealth} health</span> : null}
+        {eec ? (
+          <span className="text-[11px] font-normal text-slate-400"> · {eec.maxHealth} health</span>
+        ) : null}
       </p>
       {eec?.alwaysInfernal ? (
-        <p className="mt-0.5 text-[12px] leading-4 text-[var(--mc-bad)]">Always infernal: 8x power.</p>
+        <p className="mt-0.5 text-[12px] leading-4 text-[var(--mc-bad)]">
+          {t("Always infernal: 8x power.")}
+        </p>
       ) : null}
       <div className="mt-1.5 space-y-1">
         {mob.outputs.map((output, index) => (
@@ -54,11 +60,15 @@ function MobHover({ mob }: { mob: RecipeSummary }) {
             <span className="min-w-0 flex-1 truncate text-[13px] leading-4 text-slate-100">
               {output.displayName ?? output.id}
             </span>
-            <span className="shrink-0 text-[12px] tabular-nums text-slate-400">{dropFigure(output)}</span>
+            <span className="shrink-0 text-[12px] tabular-nums text-slate-400">
+              {dropFigure(output)}
+            </span>
           </div>
         ))}
       </div>
-      <p className="mt-1.5 text-[12px] leading-4 text-slate-400">Per kill, with no weapon.</p>
+      <p className="mt-1.5 text-[12px] leading-4 text-slate-400">
+        {t("Per kill, with no weapon.")}
+      </p>
     </div>
   );
 }
@@ -77,7 +87,9 @@ export function MobPickerMenu({ nodeId, onClose }: { nodeId: string; onClose: ()
   return (
     <RecipeListPicker
       cacheKey="mobs"
-      load={async (manifestUrl, version) => (await listRecipeDatasetMobs(manifestUrl, version)).mobs}
+      load={async (manifestUrl, version) =>
+        (await listRecipeDatasetMobs(manifestUrl, version)).mobs
+      }
       noun="mobs"
       toggleSelector="[data-mob-picker-toggle]"
       onPick={(recipe) => swapMachineRecipe(nodeId, recipe)}

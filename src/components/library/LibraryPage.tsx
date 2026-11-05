@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Bookmark, Factory, Folder, FolderPlus, LayoutGrid, Star, Users } from "lucide-react";
 import {
@@ -14,7 +15,11 @@ import { getUiScale } from "@/lib/ui-scale";
 import { useCommunityUser } from "@/components/community/auth";
 import { IconPicker, iconSuggestionsFromStats } from "@/components/IconPicker";
 import { formatRelativeDate } from "@/components/shelf-cards";
-import { deleteCommunityPlan, listCommunityPlans, patchCommunityPlan } from "@/lib/community/client";
+import {
+  deleteCommunityPlan,
+  listCommunityPlans,
+  patchCommunityPlan,
+} from "@/lib/community/client";
 import { sharedPlanLink } from "@/lib/community/shared-link";
 import type { CommunityPlanSummary } from "@/lib/community/types";
 import type { DesignSummary } from "@/lib/designs/design-library";
@@ -60,6 +65,7 @@ const SORTS: { value: SortKey; label: string }[] = [
 ];
 
 export function LibraryPage() {
+  const t = useT();
   const library = useLibraryTab();
   const everyDesign = useDesignStore((state) => state.designs);
   // Copies of plans shared with us live under Shared with me, not among ours.
@@ -162,7 +168,19 @@ export function LibraryPage() {
       ),
       sort,
     );
-  }, [designs, viewFolderId, favoritesOnly, search, parsedSearch.tags, myPosts, maxEuT, makesKeys, takesKeys, maxTier, sort]);
+  }, [
+    designs,
+    viewFolderId,
+    favoritesOnly,
+    search,
+    parsedSearch.tags,
+    myPosts,
+    maxEuT,
+    makesKeys,
+    takesKeys,
+    maxTier,
+    sort,
+  ]);
   const knownTags = useMemo(
     () => [...(myPosts?.values() ?? [])].flatMap((post) => post.tags ?? []),
     [myPosts],
@@ -413,7 +431,7 @@ export function LibraryPage() {
                 playBoardSound("shelfTick");
                 setLibraryView(railView(value));
               }}
-              aria-label="Where in Plans"
+              aria-label={t("Where in Plans")}
               className="h-9 w-full border-2 border-[var(--mc-33)] bg-[#17191d] px-2 text-[13px] font-bold text-neutral-100 outline-none shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607]"
             >
               <option value="all">My designs ({designs.length})</option>
@@ -425,18 +443,18 @@ export function LibraryPage() {
                   {folder.name} ({perFolder.get(folder.id) ?? 0})
                 </option>
               ))}
-              <option value="new">New collection…</option>
+              <option value="new">{t("New collection…")}</option>
               {showShared ? (
                 <option value="shared">Shared with me ({sharedCount ?? 0})</option>
               ) : null}
-              <option value="public">Community</option>
+              <option value="public">{t("Community")}</option>
               <option value="saved">Saved ({savedIds.length})</option>
             </select>
           </div>
           <aside className="flex w-[184px] shrink-0 flex-col gap-1 overflow-y-auto bg-[#101215] px-2 py-2 compact:hidden">
             <RailItem
               icon={LayoutGrid}
-              label="My designs"
+              label={t("My designs")}
               count={designs.length}
               selected={library.view.kind === "all"}
               onClick={() => setLibraryView({ kind: "all" })}
@@ -445,7 +463,7 @@ export function LibraryPage() {
                 not a name, and cannot be deleted or renamed. */}
             <RailItem
               icon={Star}
-              label="Favorites"
+              label={t("Favorites")}
               nested
               count={designs.filter((design) => design.favorite).length}
               selected={library.view.kind === "favorites"}
@@ -482,7 +500,7 @@ export function LibraryPage() {
                 <Folder className="h-3.5 w-3.5 shrink-0 text-[var(--mc-ink-muted)]" aria-hidden />
                 <InlineName
                   initialName=""
-                  placeholder="Collection name"
+                  placeholder={t("Collection name")}
                   onCommit={(name) => {
                     setNamingFolder(false);
                     if (name.trim()) {
@@ -507,13 +525,13 @@ export function LibraryPage() {
               ].join(" ")}
             >
               <FolderPlus className="h-3.5 w-3.5" aria-hidden />
-              <span className="whitespace-nowrap text-[12px] font-bold">New collection</span>
+              <span className="whitespace-nowrap text-[12px] font-bold">{t("New collection")}</span>
             </button>
 
             {showShared ? (
               <RailItem
                 icon={Users}
-                label="Shared with me"
+                label={t("Shared with me")}
                 count={sharedCount}
                 selected={library.view.kind === "shared"}
                 onClick={() => setLibraryView({ kind: "shared" })}
@@ -523,13 +541,13 @@ export function LibraryPage() {
             <div className="mx-1 my-2 border-t-2 border-[#23262d] compact:mx-2 compact:my-0 compact:h-4 compact:border-l compact:border-t-0" />
             <RailItem
               icon={Factory}
-              label="Community"
+              label={t("Community")}
               selected={library.view.kind === "public"}
               onClick={() => setLibraryView({ kind: "public" })}
             />
             <RailItem
               icon={Bookmark}
-              label="Saved"
+              label={t("Saved")}
               nested
               count={savedIds.length}
               selected={library.view.kind === "saved"}
@@ -587,7 +605,9 @@ export function LibraryPage() {
                         });
                         notifySetupsChanged();
                       } catch (thrown) {
-                        setError(thrown instanceof Error ? thrown.message : "Saving the post failed.");
+                        setError(
+                          thrown instanceof Error ? thrown.message : "Saving the post failed.",
+                        );
                       }
                     }
                   },
@@ -604,7 +624,8 @@ export function LibraryPage() {
                           {
                             label: detailPost.isPublic ? "Make it private" : "Make it public",
                             icon: detailPost.isPublic ? ("private" as const) : ("public" as const),
-                            onClick: () => void setPostVisibility(detailDesign, !detailPost.isPublic),
+                            onClick: () =>
+                              void setPostVisibility(detailDesign, !detailPost.isPublic),
                           },
                         ]
                       : signedIn
@@ -634,7 +655,7 @@ export function LibraryPage() {
                 }}
                 onClose={() => setDetailId(undefined)}
               />
-                  ) : (
+            ) : (
               <>
                 <SetupsFilterBar
                   filters={filters}
@@ -645,13 +666,17 @@ export function LibraryPage() {
 
                 {visibleSelected.size > 0 ? (
                   <div className="flex h-9 shrink-0 items-center gap-2 border-b border-[var(--mc-33)] bg-cyan-500/10 px-4 text-xs text-[var(--mc-ink)] compact:px-2">
-                    <span className="font-bold text-cyan-200">{visibleSelected.size} selected</span>
+                    <span className="font-bold text-cyan-200">
+                      {visibleSelected.size} {t("selected")}
+                    </span>
                     <span className="text-[var(--mc-ink-muted)] compact:hidden">
-                      Ctrl-click to add, Shift-click for a run
+                      {t("Ctrl-click to add, Shift-click for a run")}
                     </span>
                     <span className="ml-auto flex items-center gap-1.5">
                       {selectedIds.some((id) => !designs.find((d) => d.id === id)?.closed) ? (
-                        <BarButton onClick={() => void closeSelected()}>Close tabs</BarButton>
+                        <BarButton onClick={() => void closeSelected()}>
+                          {t("Close tabs")}
+                        </BarButton>
                       ) : null}
                       {folders.length > 0 ? (
                         <select
@@ -662,16 +687,16 @@ export function LibraryPage() {
                               void fileSelected(value === "none" ? undefined : value);
                             }
                           }}
-                          aria-label="Add the selection to a collection"
+                          aria-label={t("Add the selection to a collection")}
                           className="h-6 border-2 border-[var(--mc-33)] bg-[#17191d] px-1 text-xs text-neutral-100 outline-none shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607]"
                         >
-                          <option value="">Add to collection…</option>
+                          <option value="">{t("Add to collection…")}</option>
                           {folders.map((folder) => (
                             <option key={folder.id} value={folder.id}>
                               {folder.name}
                             </option>
                           ))}
-                          <option value="none">No collection</option>
+                          <option value="none">{t("No collection")}</option>
                         </select>
                       ) : null}
                       <BarButton
@@ -684,9 +709,9 @@ export function LibraryPage() {
                           }
                         }}
                       >
-                        {bulkDeleteArmed ? `Confirm delete ${visibleSelected.size}` : "Delete"}
+                        {bulkDeleteArmed ? `Confirm delete ${visibleSelected.size}` : t("Delete")}
                       </BarButton>
-                      <BarButton onClick={clearSelection}>Clear</BarButton>
+                      <BarButton onClick={clearSelection}>{t("Clear")}</BarButton>
                     </span>
                   </div>
                 ) : null}
@@ -696,12 +721,14 @@ export function LibraryPage() {
                   {shown.length === 0 ? (
                     <p className="px-0.5 pt-1 text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
                       {search || maxTier
-                        ? "No designs match."
+                        ? t("No designs match.")
                         : viewFolderId
-                          ? "Nothing here yet. Drag a design onto this collection, or use Add to collection in its menu."
+                          ? t(
+                              "Nothing here yet. Drag a design onto this collection, or use Add to collection in its menu.",
+                            )
                           : favoritesOnly
-                            ? "Nothing starred yet. Click the star on a design to put it here."
-                            : "Nothing here yet. Press + on the tab strip to start one."}
+                            ? t("Nothing starred yet. Click the star on a design to put it here.")
+                            : t("Nothing here yet. Press + on the tab strip to start one.")}
                     </p>
                   ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2">
@@ -745,9 +772,7 @@ export function LibraryPage() {
                             favorite={design.favorite === true}
                             onFavorite={() => void toggleFavorite(design.id)}
                             onPost={
-                              !post && signedIn
-                                ? () => void postDesign(design.id)
-                                : undefined
+                              !post && signedIn ? () => void postDesign(design.id) : undefined
                             }
                             onCopyLink={post ? () => void copyLink(design) : undefined}
                             menuOpen={tileMenu?.designId === design.id}
@@ -792,7 +817,7 @@ export function LibraryPage() {
           onClose={closeMenus}
         >
           <MenuItem
-            label="Open"
+            label={t("Open")}
             onClick={() => {
               closeMenus();
               open(menuDesign.id);
@@ -800,7 +825,7 @@ export function LibraryPage() {
           />
           {!menuDesign.closed ? (
             <MenuItem
-              label="Close tab"
+              label={t("Close tab")}
               onClick={() => {
                 closeMenus();
                 void closeDesign(menuDesign.id);
@@ -808,14 +833,14 @@ export function LibraryPage() {
             />
           ) : null}
           <MenuItem
-            label="Rename"
+            label={t("Rename")}
             onClick={() => {
               closeMenus();
               setRenamingId(menuDesign.id);
             }}
           />
           <MenuItem
-            label="Duplicate"
+            label={t("Duplicate")}
             onClick={() => {
               closeMenus();
               void copyDesign(menuDesign.id);
@@ -823,7 +848,7 @@ export function LibraryPage() {
           />
           {folders.length > 0 ? (
             <>
-              <MenuHeading>Add to collection</MenuHeading>
+              <MenuHeading>{t("Add to collection")}</MenuHeading>
               {folders.map((folder) => (
                 <MenuItem
                   key={folder.id}
@@ -845,14 +870,14 @@ export function LibraryPage() {
           {menuPost ? (
             <>
               <MenuItem
-                label="Copy link"
+                label={t("Copy link")}
                 onClick={() => {
                   closeMenus();
                   void copyLink(menuDesign);
                 }}
               />
               <MenuItem
-                label={menuPost.isPublic ? "Make private" : "Make public"}
+                label={menuPost.isPublic ? t("Make private") : t("Make public")}
                 onClick={() => {
                   closeMenus();
                   void setPostVisibility(menuDesign, !menuPost.isPublic);
@@ -861,7 +886,7 @@ export function LibraryPage() {
             </>
           ) : signedIn ? (
             <MenuItem
-              label="Post as a public setup"
+              label={t("Post as a public setup")}
               onClick={() => {
                 closeMenus();
                 void postDesign(menuDesign.id);
@@ -869,7 +894,7 @@ export function LibraryPage() {
             />
           ) : null}
           <ArmedMenuItem
-            label="Delete"
+            label={t("Delete")}
             armedLabel={menuPost ? "Confirm delete (the post comes down too)" : "Confirm delete"}
             armed={armed?.id === menuDesign.id && armed.what === "delete"}
             onArm={() => setArmed({ id: menuDesign.id, what: "delete" })}
@@ -885,14 +910,17 @@ export function LibraryPage() {
 
       {iconEditId ? (
         <IconPicker
-          title="Pick an icon"
+          title={t("Pick an icon")}
           suggestions={iconSuggestionsFromStats(detailPost?.needs, detailPost?.outputs)}
           onPick={(icon) => {
             const id = iconEditId;
             setIconEditId(undefined);
             void updateDesignIdentity(id, { icon });
             if (detailPost) {
-              void patchCommunityPlan(detailPost.id, { icon }).then(notifySetupsChanged, () => undefined);
+              void patchCommunityPlan(detailPost.id, { icon }).then(
+                notifySetupsChanged,
+                () => undefined,
+              );
             }
           }}
           onClear={
@@ -902,7 +930,10 @@ export function LibraryPage() {
                   setIconEditId(undefined);
                   void updateDesignIdentity(id, { icon: null });
                   if (detailPost) {
-                    void patchCommunityPlan(detailPost.id, { icon: null }).then(notifySetupsChanged, () => undefined);
+                    void patchCommunityPlan(detailPost.id, { icon: null }).then(
+                      notifySetupsChanged,
+                      () => undefined,
+                    );
                   }
                 }
               : undefined
@@ -919,14 +950,14 @@ export function LibraryPage() {
           onClose={closeMenus}
         >
           <MenuItem
-            label="Rename"
+            label={t("Rename")}
             onClick={() => {
               closeMenus();
               setRenamingFolderId(menuFolder.id);
             }}
           />
           <ArmedMenuItem
-            label="Delete collection"
+            label={t("Delete collection")}
             armedLabel="Confirm delete (designs stay)"
             armed={armed?.id === menuFolder.id && armed.what === "delete"}
             onArm={() => setArmed({ id: menuFolder.id, what: "delete" })}
@@ -1189,7 +1220,9 @@ function RailItem({
         <span className="min-w-0 flex-1 truncate text-left text-[12px] font-bold">{label}</span>
       )}
       {count !== undefined ? (
-        <span className="shrink-0 text-[12px] font-bold tabular-nums text-[var(--mc-ink-muted)]">{count}</span>
+        <span className="shrink-0 text-[12px] font-bold tabular-nums text-[var(--mc-ink-muted)]">
+          {count}
+        </span>
       ) : null}
       {onMenu ? (
         <button

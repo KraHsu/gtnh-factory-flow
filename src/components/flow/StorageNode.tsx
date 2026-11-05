@@ -1,7 +1,16 @@
 "use client";
+import { useT } from "@/lib/i18n";
+
 import { isInputRate, storageTargetMode } from "@/lib/model/storage-target";
 import { usePortRowBrowse } from "./use-port-row-browse";
-import { formatAmountWithSuffix, parseAmountWithSuffix, RateBox, RuleButton, trimFlow, useRateRule } from "./rate-rule";
+import {
+  formatAmountWithSuffix,
+  parseAmountWithSuffix,
+  RateBox,
+  RuleButton,
+  trimFlow,
+  useRateRule,
+} from "./rate-rule";
 import type { BrowseMode as PortBrowseMode } from "@/components/browse-menu";
 
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
@@ -14,7 +23,12 @@ import type {
   StorageThroughputResult,
 } from "@/lib/model/types";
 import { formatCompact, formatPowerValue, makeResourceKey } from "@/lib/model";
-import { effectiveBufferMode, isDrainRole, storageRoleFor, type StorageRole } from "@/lib/model/storage-role";
+import {
+  effectiveBufferMode,
+  isDrainRole,
+  storageRoleFor,
+  type StorageRole,
+} from "@/lib/model/storage-role";
 import {
   rateMultiplierForKind,
   rateSuffixForKind,
@@ -25,7 +39,12 @@ import { NodeGlanceIcon } from "./NodeGlance";
 import { isWiringConnection } from "./connection-drag";
 import { MinecraftTooltip } from "@/components/nei/MinecraftTooltip";
 import { RecipeTooltip } from "./RecipeTooltip";
-import { buildBufferKeyTooltip, buildDrainKeyTooltip, buildStorageTooltip, buildTargetTooltip } from "./storage-tooltip-data";
+import {
+  buildBufferKeyTooltip,
+  buildDrainKeyTooltip,
+  buildStorageTooltip,
+  buildTargetTooltip,
+} from "./storage-tooltip-data";
 import { useFactoryStore, useRateDisplayUnits } from "@/store/factory-store";
 import { useBoardView } from "./board-view";
 import { MotionNumberText } from "./board-motion";
@@ -42,7 +61,6 @@ import { getCategoryPresentation } from "@/lib/model/category-presentation";
 import { STORAGE_NODE_WIDTH, STORAGE_NODE_HEIGHT } from "@/lib/board-grid";
 import { resourceLabel } from "@/lib/model/resources";
 
-
 export interface StorageNodeData extends Record<string, unknown> {
   storage: FactoryStorage;
   result?: StorageThroughputResult;
@@ -58,10 +76,7 @@ export type StorageFlowNode = Node<StorageNodeData, "storageNode">;
  * they are the only cards on the board still allowed to. A buffer does no such
  * thing, so it must never wear the same badge. See `storage-role.ts`.
  */
-const ROLE_PRESENTATION: Record<
-  StorageRole,
-  { word: string; boundary: boolean }
-> = {
+const ROLE_PRESENTATION: Record<StorageRole, { word: string; boundary: boolean }> = {
   source: {
     word: "SOURCE",
     boundary: true,
@@ -88,7 +103,6 @@ const ROLE_PRESENTATION: Record<
   },
 };
 
-
 /**
  * POWER drawers wear their own tint whatever the role: EU is not a material
  * and its tile must not read as one more green product. A burnt amber, not
@@ -97,7 +111,10 @@ const ROLE_PRESENTATION: Record<
  */
 const POWER_STORAGE_TINT = "#c07c17";
 
-function storageTint(storage: Pick<FactoryStorage, "kind" | "colorTag" | "bufferMode">, role: StorageRole): string {
+function storageTint(
+  storage: Pick<FactoryStorage, "kind" | "colorTag" | "bufferMode">,
+  role: StorageRole,
+): string {
   if (storage.colorTag) {
     return GT_NODE_COLORS[storage.colorTag].swatch;
   }
@@ -196,6 +213,7 @@ function storageIconPixelSize(
 }
 
 function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
+  const t = useT();
   const { storage, result } = data;
   const category = useFactoryStore((state) =>
     getCategoryPresentation(state.project.recipes, storage.kind, storage.resourceId),
@@ -250,7 +268,7 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
     const resource = { kind: storage.kind, id: storage.resourceId };
     return Boolean(
       ports[`${storage.id}|${makeResourceHandleId("input", resource)}`] ||
-        ports[`${storage.id}|${makeResourceHandleId("output", resource)}`],
+      ports[`${storage.id}|${makeResourceHandleId("output", resource)}`],
     );
   });
   // The board-wide "where is this resource" glow, which BREATHES. It belongs to
@@ -268,11 +286,17 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
         )
       : undefined;
   const net = result?.netPerSecond ?? 0;
-  const title = resourceLabel(category ?? { id: storage.resourceId, displayName: storage.displayName });
+  const title = resourceLabel(
+    category ?? { id: storage.resourceId, displayName: storage.displayName },
+  );
   const isTank = storage.kind === "fluid";
   const isPlainFluid = isTank && !storage.iconPath && !storage.iconAtlas;
   const ratio = role === "buffer" && storage.bufferMode === "ratio";
-  const word = ratio ? "RATIO" : role === "buffer" && isStrictBuffer(storage, solveMode) ? "STRICT" : ROLE_PRESENTATION[role].word;
+  const word = ratio
+    ? "RATIO"
+    : role === "buffer" && isStrictBuffer(storage, solveMode)
+      ? "STRICT"
+      : ROLE_PRESENTATION[role].word;
   // Solve's rule row sits on source and product drawers only.
   const ruled = solveMode && (role === "source" || role === "product");
   // The card wears its JOB's colour, the side panel's dialect: red is what
@@ -311,7 +335,11 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
       mode,
     );
   };
-  const chipBrowse = usePortRowBrowse({ nodeId: storage.id, port: { displayName: title, handleId: outputHandleId }, browse });
+  const chipBrowse = usePortRowBrowse({
+    nodeId: storage.id,
+    port: { displayName: title, handleId: outputHandleId },
+    browse,
+  });
 
   return (
     <div
@@ -325,7 +353,9 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
         // Inert: mostly grey with a trace of its own colour. Only the WIRE
         // HANDLES go dead; the card still selects, deletes and drags
         // (blanking every child would also swallow the delete tool).
-        inertInPool ? "opacity-40 grayscale-[0.75] [&_[data-resource-handle]]:pointer-events-none" : "",
+        inertInPool
+          ? "opacity-40 grayscale-[0.75] [&_[data-resource-handle]]:pointer-events-none"
+          : "",
       ].join(" ")}
       style={paintCursor ? { cursor: paintCursor } : undefined}
     >
@@ -396,7 +426,8 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
             className="storage-shape-fill absolute inset-[2px]"
             style={{
               background: `color-mix(in srgb, ${tint} 24%, #101318)`,
-              boxShadow: "inset 2px 2px 0 rgba(255,255,255,0.08), inset -2px -2px 0 rgba(0,0,0,0.45)",
+              boxShadow:
+                "inset 2px 2px 0 rgba(255,255,255,0.08), inset -2px -2px 0 rgba(0,0,0,0.45)",
             }}
           />
         </span>
@@ -419,7 +450,12 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
               card sets no overflow). Node SIZE is untouched, which is what
               the router cares about. */}
           <ResourceIcon
-            resource={{ ...storage, id: storage.resourceId, amount: 1, alternatives: category?.alternatives }}
+            resource={{
+              ...storage,
+              id: storage.resourceId,
+              amount: 1,
+              alternatives: category?.alternatives,
+            }}
             showAmount={false}
             bare
             iconPixelSize={storageIconPixelSize(GLANCE_ICON_PX, storage)}
@@ -484,125 +520,162 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
           </svg>
         ) : null}
         {ratio ? (
-          <svg aria-hidden data-ratio-rim className="pointer-events-none absolute inset-0 z-20" viewBox={`0 0 ${STORAGE_NODE_WIDTH} ${STORAGE_NODE_HEIGHT}`} width="100%" height="100%">
-            <polygon points="11.9,3.75 108.1,3.75 116.1,40 108.1,76.25 11.9,76.25 3.9,40" fill="none" stroke={tint} strokeWidth={1.5} />
+          <svg
+            aria-hidden
+            data-ratio-rim
+            className="pointer-events-none absolute inset-0 z-20"
+            viewBox={`0 0 ${STORAGE_NODE_WIDTH} ${STORAGE_NODE_HEIGHT}`}
+            width="100%"
+            height="100%"
+          >
+            <polygon
+              points="11.9,3.75 108.1,3.75 116.1,40 108.1,76.25 11.9,76.25 3.9,40"
+              fill="none"
+              stroke={tint}
+              strokeWidth={1.5}
+            />
           </svg>
         ) : null}
         {/* The hover tooltip covers the WHOLE card: it is the drawer's one
             explanation, and it should not matter which pixel of a small tile
             the pointer found. The rule row carries its own. */}
         <MinecraftTooltip content={() => renderStorageHoverContent(storage, role)}>
-        <div
-          data-storage-shape={role}
-          className="storage-shape-content relative z-10 flex min-h-0 flex-1 flex-col"
-          style={{ "--storage-tint": tint } as CSSProperties}
-        >
-          {/* Colour and silhouette carry the role; the tooltip explains it.
+          <div
+            data-storage-shape={role}
+            className="storage-shape-content relative z-10 flex min-h-0 flex-1 flex-col"
+            style={{ "--storage-tint": tint } as CSSProperties}
+          >
+            {/* Colour and silhouette carry the role; the tooltip explains it.
               Keep the word available to assistive technology. */}
-          <span className="storage-node-word sr-only">{word}</span>
-          {/* The TITLE BAR is what you move the drawer by, like a machine
+            <span className="storage-node-word sr-only">{word}</span>
+            {/* The TITLE BAR is what you move the drawer by, like a machine
               card's title row. Nothing on it starts a wire. */}
-          <StorageTitleBar storage={storage} role={role} isTank={isTank} title={title} solveMode={solveMode} />
-          {/* The PORT CHIP answers like a machine's port row: click for the
+            <StorageTitleBar
+              storage={storage}
+              role={role}
+              isTank={isTank}
+              title={title}
+              solveMode={solveMode}
+            />
+            {/* The PORT CHIP answers like a machine's port row: click for the
               recipes that make the item, right click for the ones that use
               it, R and U for the same, a long press for a finger, and a drag
               to wire. One handle blankets it (z-30); what you press on it
               sits above (z-40). It is also the resource-hover trigger - the
               ITEM lights the flow, not the card around it. Wiring is a mode;
               a held wire must not also be lighting up cards. */}
-          <div
-            className={`storage-port-chip ${ruled ? "" : "storage-port-chip--centered"}`}
-            onPointerEnter={() => {
-              chipBrowse.handlers.onPointerEnter();
-              if (!isWiringConnection()) {
-                setHoveredFlowScope(buildStorageFlowScope(useFactoryStore.getState().project, storage));
-              }
-            }}
-            onPointerLeave={() => {
-              chipBrowse.handlers.onPointerLeave();
-              setHoveredFlowScope(undefined);
-            }}
-            onPointerDown={chipBrowse.handlers.onPointerDown}
-            onPointerMove={chipBrowse.handlers.onPointerMove}
-            onPointerUp={chipBrowse.handlers.onPointerUp}
-            onPointerCancel={chipBrowse.handlers.onPointerCancel}
-            onClick={chipBrowse.handlers.onClick}
-            onContextMenu={chipBrowse.handlers.onContextMenu}
-          >
-            {/* One grab point. Typed as a source so a drag can START anywhere
+            <div
+              className={`storage-port-chip ${ruled ? "" : "storage-port-chip--centered"}`}
+              onPointerEnter={() => {
+                chipBrowse.handlers.onPointerEnter();
+                if (!isWiringConnection()) {
+                  setHoveredFlowScope(
+                    buildStorageFlowScope(useFactoryStore.getState().project, storage),
+                  );
+                }
+              }}
+              onPointerLeave={() => {
+                chipBrowse.handlers.onPointerLeave();
+                setHoveredFlowScope(undefined);
+              }}
+              onPointerDown={chipBrowse.handlers.onPointerDown}
+              onPointerMove={chipBrowse.handlers.onPointerMove}
+              onPointerUp={chipBrowse.handlers.onPointerUp}
+              onPointerCancel={chipBrowse.handlers.onPointerCancel}
+              onClick={chipBrowse.handlers.onClick}
+              onContextMenu={chipBrowse.handlers.onContextMenu}
+            >
+              {/* One grab point. Typed as a source so a drag can START anywhere
                 on it; the board runs in ConnectionMode.Loose, so a wire coming
                 the other way still lands here, and the drop resolves a drawer
                 by direction rather than by which element the pointer happened
                 to be over (getStorageHandleAtPosition). */}
-            <Handle
-              id={outputHandleId}
-              type="source"
-              position={Position.Right}
-              data-resource-handle="true"
-              data-resource-node-id={storage.id}
-              data-resource-handle-id={outputHandleId}
-              aria-label={`${title}${readOnly ? "" : ". Left click or R for recipes, right click or U for uses, drag to connect"}`}
-              className="nodrag"
-              style={WELL_HANDLE}
-            />
-            {/* The input port keeps its id for WIRES (edges dock on it, plans
+              <Handle
+                id={outputHandleId}
+                type="source"
+                position={Position.Right}
+                data-resource-handle="true"
+                data-resource-node-id={storage.id}
+                data-resource-handle-id={outputHandleId}
+                aria-label={`${title}${readOnly ? "" : ". Left click or R for recipes, right click or U for uses, drag to connect"}`}
+                className="nodrag"
+                style={WELL_HANDLE}
+              />
+              {/* The input port keeps its id for WIRES (edges dock on it, plans
                 store it) but is not a grab point. Zero-sized and inert so
                 React Flow still knows the port exists. */}
-            <Handle
-              id={inputHandleId}
-              type="target"
-              position={Position.Left}
-              className="nodrag !pointer-events-none !h-0 !w-0 !min-h-0 !min-w-0 !border-0 !bg-transparent !opacity-0"
-            />
-            <span className="storage-chip-icon">
-              <ResourceIcon
-                resource={{ ...storage, id: storage.resourceId, amount: 1, alternatives: category?.alternatives }}
-                showAmount={false}
-                bare
-                iconPixelSize={storageIconPixelSize(isPlainFluid ? CHIP_ICON_PX - FLUID_BREATHE_PX : CHIP_ICON_PX, storage)}
-                className="!h-[32px] !w-[32px]"
+              <Handle
+                id={inputHandleId}
+                type="target"
+                position={Position.Left}
+                className="nodrag !pointer-events-none !h-0 !w-0 !min-h-0 !min-w-0 !border-0 !bg-transparent !opacity-0"
               />
-            </span>
-            <div className="storage-chip-text">
-              {ruled ? (
-                <>
-                  <RuleInput storage={storage} role={role} result={result} net={net} />
-                  {/* What flows, in a well of its own under what you set. */}
-                  <div className="storage-chip-reading">
-                    <ChipRate net={net} kind={storage.kind} role={role} size="small" />
-                    <RuleBar storage={storage} role={role} result={result} net={net} />
-                  </div>
-                </>
-              ) : (
-                <>
-                  {role === "buffer" && !isStrictBuffer(storage, solveMode) ? (
-                    // A non-strict buffer's rate is what it banks, the surplus
-                    // leaving the setup, so it says so.
-                    <div className="storage-chip-surplus">
-                      <ChipRate net={net} kind={storage.kind} role={role} size="large" />
-                      <span className="storage-chip-surplus-word">(surplus)</span>
-                    </div>
-                  ) : (
-                    <ChipRate net={net} kind={storage.kind} role={role} size="large" />
+              <span className="storage-chip-icon">
+                <ResourceIcon
+                  resource={{
+                    ...storage,
+                    id: storage.resourceId,
+                    amount: 1,
+                    alternatives: category?.alternatives,
+                  }}
+                  showAmount={false}
+                  bare
+                  iconPixelSize={storageIconPixelSize(
+                    isPlainFluid ? CHIP_ICON_PX - FLUID_BREATHE_PX : CHIP_ICON_PX,
+                    storage,
                   )}
-                  {ratio ? (
-                    // Its own control: a click or right click here is not a browse.
-                    <span className="contents" onClick={(event) => event.stopPropagation()} onContextMenu={(event) => { event.preventDefault(); event.stopPropagation(); }}>
-                      <RatioSetupOutput storageId={storage.id} percentage={ratioExportShare(storage) * 100} />
-                    </span>
-                  ) : null}
-                </>
-              )}
+                  className="!h-[32px] !w-[32px]"
+                />
+              </span>
+              <div className="storage-chip-text">
+                {ruled ? (
+                  <>
+                    <RuleInput storage={storage} role={role} result={result} net={net} />
+                    {/* What flows, in a well of its own under what you set. */}
+                    <div className="storage-chip-reading">
+                      <ChipRate net={net} kind={storage.kind} role={role} size="small" />
+                      <RuleBar storage={storage} role={role} result={result} net={net} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {role === "buffer" && !isStrictBuffer(storage, solveMode) ? (
+                      // A non-strict buffer's rate is what it banks, the surplus
+                      // leaving the setup, so it says so.
+                      <div className="storage-chip-surplus">
+                        <ChipRate net={net} kind={storage.kind} role={role} size="large" />
+                        <span className="storage-chip-surplus-word">{t("(surplus)")}</span>
+                      </div>
+                    ) : (
+                      <ChipRate net={net} kind={storage.kind} role={role} size="large" />
+                    )}
+                    {ratio ? (
+                      // Its own control: a click or right click here is not a browse.
+                      <span
+                        className="contents"
+                        onClick={(event) => event.stopPropagation()}
+                        onContextMenu={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        }}
+                      >
+                        <RatioSetupOutput
+                          storageId={storage.id}
+                          percentage={ratioExportShare(storage) * 100}
+                        />
+                      </span>
+                    ) : null}
+                  </>
+                )}
+              </div>
+              {chipBrowse.menu}
             </div>
-            {chipBrowse.menu}
           </div>
-        </div>
         </MinecraftTooltip>
       </div>
     </div>
   );
 }
-
 
 /**
  * The tile's LOOK alone - silhouette, role tint, title bar, port chip - for
@@ -650,11 +723,17 @@ export function StorageTileFace({
         className="storage-shape-content relative z-10 flex min-h-0 flex-1 flex-col"
         style={{ "--storage-tint": tint } as CSSProperties}
       >
-        <div className={`storage-title-bar ${isDrainRole(role) || role === "buffer" ? "" : "storage-title-bar--no-end"}`}>
+        <div
+          className={`storage-title-bar ${isDrainRole(role) || role === "buffer" ? "" : "storage-title-bar--no-end"}`}
+        >
           <span className="storage-title-side">
             <span aria-hidden className="storage-title-key storage-title-key--delete" />
           </span>
-          <StorageTitleName title={resourceLabel(category ?? { id: storage.resourceId, displayName: storage.displayName })} />
+          <StorageTitleName
+            title={resourceLabel(
+              category ?? { id: storage.resourceId, displayName: storage.displayName },
+            )}
+          />
           <span className="storage-title-side storage-title-side--end">
             {isDrainRole(role) || role === "buffer" ? (
               <span aria-hidden className="storage-title-key">
@@ -666,10 +745,18 @@ export function StorageTileFace({
         <div className="storage-port-chip storage-port-chip--centered">
           <span className="storage-chip-icon">
             <ResourceIcon
-              resource={{ ...storage, id: storage.resourceId, amount: 1, alternatives: category?.alternatives }}
+              resource={{
+                ...storage,
+                id: storage.resourceId,
+                amount: 1,
+                alternatives: category?.alternatives,
+              }}
               showAmount={false}
               bare
-              iconPixelSize={storageIconPixelSize(isPlainFluid ? CHIP_ICON_PX - FLUID_BREATHE_PX : CHIP_ICON_PX, storage)}
+              iconPixelSize={storageIconPixelSize(
+                isPlainFluid ? CHIP_ICON_PX - FLUID_BREATHE_PX : CHIP_ICON_PX,
+                storage,
+              )}
               className="!h-[32px] !w-[32px]"
             />
           </span>
@@ -684,11 +771,7 @@ export function StorageTileFace({
 
 /** The material's name, one line in the title bar, fading where it runs out. */
 function StorageTitleName({ title }: { title: string }) {
-  return (
-    <span className="storage-title-name">
-      {title}
-    </span>
-  );
+  return <span className="storage-title-name">{title}</span>;
 }
 
 // Position props change every drag frame; the component only reads `data` and
@@ -728,7 +811,11 @@ const NET_LINE_FIT_STEPS = [
   { className: "text-[7px]", perChar: 4.7 },
 ] as const;
 
-function rateFitClass(label: string, role: StorageRole, width = NET_LINE_WIDTH_BY_ROLE[role]): string {
+function rateFitClass(
+  label: string,
+  role: StorageRole,
+  width = NET_LINE_WIDTH_BY_ROLE[role],
+): string {
   for (const step of NET_LINE_FIT_STEPS) {
     if (label.length * step.perChar <= width) {
       return step.className;
@@ -742,10 +829,28 @@ function netRateColor(net: number): string {
 }
 
 /** The tile's one line of news: the net rate, sized to fit its silhouette. */
-function NetLine({ net, kind, role, width, formatRate = formatCompactRate, unsigned = false, color = netRateColor(net) }: { net: number; kind: string; role: StorageRole; width?: number; formatRate?: (value: number, kind: string) => string; unsigned?: boolean; color?: string }) {
+function NetLine({
+  net,
+  kind,
+  role,
+  width,
+  formatRate = formatCompactRate,
+  unsigned = false,
+  color = netRateColor(net),
+}: {
+  net: number;
+  kind: string;
+  role: StorageRole;
+  width?: number;
+  formatRate?: (value: number, kind: string) => string;
+  unsigned?: boolean;
+  color?: string;
+}) {
   // The fit class and the colour read the TARGET value: the size and tone
   // land immediately, and only the digits ease their way there.
-  const label = unsigned ? formatRate(Math.abs(net), kind) : `${net >= 0 ? "+" : ""}${formatRate(net, kind)}`;
+  const label = unsigned
+    ? formatRate(Math.abs(net), kind)
+    : `${net >= 0 ? "+" : ""}${formatRate(net, kind)}`;
   return (
     <div
       className={[
@@ -760,7 +865,9 @@ function NetLine({ net, kind, role, width, formatRate = formatCompactRate, unsig
         values={[net]}
         render={(shown) => {
           const value = shown[0] ?? net;
-          return unsigned ? formatRate(Math.abs(value), kind) : `${value >= 0 ? "+" : ""}${formatRate(value, kind)}`;
+          return unsigned
+            ? formatRate(Math.abs(value), kind)
+            : `${value >= 0 ? "+" : ""}${formatRate(value, kind)}`;
         }}
       />
     </div>
@@ -792,29 +899,43 @@ export function TargetLine({
   const [draft, setDraft] = useState("");
   const signed = useFactoryStore((state) => state.project.poolMode === true);
   const locked = useFactoryStore((state) => state.isReadOnly || state.checklistMode);
-  const target = storage.targetPerSecond === undefined ? undefined : Math.abs(storage.targetPerSecond) * (signed && input ? -1 : 1);
+  const target =
+    storage.targetPerSecond === undefined
+      ? undefined
+      : Math.abs(storage.targetPerSecond) * (signed && input ? -1 : 1);
   const mode = storageTargetMode(storage, input ? "source" : "product");
   const showZero = target === 0;
   const unreachable = result?.targetUnreachable === true;
-  const color = unreachable ? "var(--flow-input)"
-    : target === undefined ? "var(--flow-output)"
-    : netRateColor(input ? -Math.abs(target) : target);
+  const color = unreachable
+    ? "var(--flow-input)"
+    : target === undefined
+      ? "var(--flow-output)"
+      : netRateColor(input ? -Math.abs(target) : target);
   const rateStyle = { color, "--target-rate-color": color } as CSSProperties;
   // While the solver has NOTHING to solve for - no amount, no pin, anywhere -
   // every empty rate line blinks the ask, in step with the board's notice.
-  const askBlink = useFactoryStore((state) => !hasAnySolveNumbers(state.project) && mode !== "ignore");
+  const askBlink = useFactoryStore(
+    (state) => !hasAnySolveNumbers(state.project) && mode !== "ignore",
+  );
   const beginEdit = () => {
     if (locked) return;
     setDraft(
       target !== undefined && (target > 0 || (signed && target < 0) || showZero)
         ? Math.abs(target * rateMultiplierForKind(storage.kind)) < 1
-          ? (target * rateMultiplierForKind(storage.kind)).toLocaleString("en-US", { useGrouping: false, maximumSignificantDigits: 21 })
+          ? (target * rateMultiplierForKind(storage.kind)).toLocaleString("en-US", {
+              useGrouping: false,
+              maximumSignificantDigits: 21,
+            })
           : formatAmountWithSuffix(target * rateMultiplierForKind(storage.kind))
         : "",
     );
     setEditing(true);
   };
-  const clearRate = (event: { button: number; preventDefault: () => void; stopPropagation: () => void }) => {
+  const clearRate = (event: {
+    button: number;
+    preventDefault: () => void;
+    stopPropagation: () => void;
+  }) => {
     if (event.button !== 1) return;
     event.preventDefault();
     event.stopPropagation();
@@ -831,11 +952,19 @@ export function TargetLine({
       return;
     }
     const value = parseAmountWithSuffix(draft);
-    if (value === undefined || !Number.isFinite(value) || (!signed && value < 0) || (value === 0 && mode !== "exact" && mode !== "at-most")) {
+    if (
+      value === undefined ||
+      !Number.isFinite(value) ||
+      (!signed && value < 0) ||
+      (value === 0 && mode !== "exact" && mode !== "at-most")
+    ) {
       // Not a number: the field falls back to what it held.
       return;
     }
-    setStorageTarget(storage.id, (input && !signed ? -Math.abs(value) : value) / rateMultiplierForKind(storage.kind));
+    setStorageTarget(
+      storage.id,
+      (input && !signed ? -Math.abs(value) : value) / rateMultiplierForKind(storage.kind),
+    );
   };
 
   if (!editing) {
@@ -844,61 +973,78 @@ export function TargetLine({
       // tile draws, wrapped only to be clickable (z-40, over the wire
       // handles that blanket the well at z-30). The value, edit marks and
       // active input share one rate color, including unreachable targets.
-      <MinecraftTooltip content={() => <RecipeTooltip view={buildTargetTooltip(storage, result, signed, input)} />}>
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={(event) => {
-          event.stopPropagation();
-          beginEdit();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
+      <MinecraftTooltip
+        content={() => <RecipeTooltip view={buildTargetTooltip(storage, result, signed, input)} />}
+      >
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={(event) => {
             event.stopPropagation();
             beginEdit();
-          }
-        }}
-        onPointerDown={(event) => event.stopPropagation()}
-        onMouseDown={(event) => { event.stopPropagation(); if (event.button === 1) event.preventDefault(); }}
-        onAuxClick={clearRate}
-        aria-label="Required amount"
-        style={rateStyle}
-        className="nodrag group/target relative z-40 flex cursor-pointer justify-center hover:brightness-125"
-      >
-        {/* Two marks say "this line takes typing", both attached to the
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              event.stopPropagation();
+              beginEdit();
+            }
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
+          onMouseDown={(event) => {
+            event.stopPropagation();
+            if (event.button === 1) event.preventDefault();
+          }}
+          onAuxClick={clearRate}
+          aria-label="Required amount"
+          style={rateStyle}
+          className="nodrag group/target relative z-40 flex cursor-pointer justify-center hover:brightness-125"
+        >
+          {/* Two marks say "this line takes typing", both attached to the
             NUMBER rather than parked at the tile's edge: a dotted
             underline in the value's own colour - the editable-value
             idiom - and a pencil riding the text's right shoulder. */}
-        {/* Nudged up a couple of pixels so the dotted underline clears the
+          {/* Nudged up a couple of pixels so the dotted underline clears the
             tile's bottom edge instead of merging with it. */}
-        <div className={`relative underline decoration-dotted decoration-[1.5px] underline-offset-[3px] ${inlinePencil ? "inline-flex items-center gap-[3px]" : "-translate-y-[2px]"}`}>
-          {target !== undefined && (target > 0 || (signed && target < 0) || showZero) ? (
-            <NetLine net={input ? -Math.abs(target) : target} unsigned={input && !signed} kind={storage.kind} role={input ? "source" : "product"} formatRate={formatDisplayRate} color={color} />
-          ) : (
-            <div
-              className={[
-                "storage-net-line relative h-4 whitespace-nowrap text-center text-[12px] font-bold leading-4 tabular-nums",
-                askBlink ? "animate-pulse" : "opacity-60",
-              ].join(" ")}
-            >
-              rate?
-            </div>
-          )}
-          <Pencil
-            aria-hidden
-            // Centred on the ink-and-underline block, not the line's box:
-            // the glyphs sit low in it, so dead-centre floated the pencil.
-            className={`h-[11px] w-[11px] fill-current opacity-70 group-hover/target:opacity-100 ${inlinePencil ? "shrink-0" : "absolute left-full top-[calc(50%+2px)] ml-[2px] -translate-y-1/2"}`}
-          />
+          <div
+            className={`relative underline decoration-dotted decoration-[1.5px] underline-offset-[3px] ${inlinePencil ? "inline-flex items-center gap-[3px]" : "-translate-y-[2px]"}`}
+          >
+            {target !== undefined && (target > 0 || (signed && target < 0) || showZero) ? (
+              <NetLine
+                net={input ? -Math.abs(target) : target}
+                unsigned={input && !signed}
+                kind={storage.kind}
+                role={input ? "source" : "product"}
+                formatRate={formatDisplayRate}
+                color={color}
+              />
+            ) : (
+              <div
+                className={[
+                  "storage-net-line relative h-4 whitespace-nowrap text-center text-[12px] font-bold leading-4 tabular-nums",
+                  askBlink ? "animate-pulse" : "opacity-60",
+                ].join(" ")}
+              >
+                rate?
+              </div>
+            )}
+            <Pencil
+              aria-hidden
+              // Centred on the ink-and-underline block, not the line's box:
+              // the glyphs sit low in it, so dead-centre floated the pencil.
+              className={`h-[11px] w-[11px] fill-current opacity-70 group-hover/target:opacity-100 ${inlinePencil ? "shrink-0" : "absolute left-full top-[calc(50%+2px)] ml-[2px] -translate-y-1/2"}`}
+            />
+          </div>
         </div>
-      </div>
       </MinecraftTooltip>
     );
   }
 
   return (
-    <div className="storage-net-line relative z-40 flex h-4 items-center justify-center whitespace-nowrap text-center leading-none" style={rateStyle}>
+    <div
+      className="storage-net-line relative z-40 flex h-4 items-center justify-center whitespace-nowrap text-center leading-none"
+      style={rateStyle}
+    >
       <input
         autoFocus
         value={draft}
@@ -915,7 +1061,10 @@ export function TargetLine({
           event.stopPropagation();
         }}
         onPointerDown={(event) => event.stopPropagation()}
-        onMouseDown={(event) => { event.stopPropagation(); if (event.button === 1) event.preventDefault(); }}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+          if (event.button === 1) event.preventDefault();
+        }}
         onAuxClick={clearRate}
         onTouchStart={(event) => event.stopPropagation()}
         onClick={(event) => event.stopPropagation()}
@@ -937,9 +1086,16 @@ export function TargetLine({
 /** The ratio editor's pencil, a key in the title bar beside the mode key. */
 function RatioSplitButton({ storageId }: { storageId: string }) {
   return (
-    <button type="button" data-tooltip-stop aria-label="Edit drawer ratios" title="Edit split"
+    <button
+      type="button"
+      data-tooltip-stop
+      aria-label="Edit drawer ratios"
+      title="Edit split"
       onPointerDown={(event) => event.stopPropagation()}
-      onClick={(event) => { event.stopPropagation(); openRatioEditor(storageId); }}
+      onClick={(event) => {
+        event.stopPropagation();
+        openRatioEditor(storageId);
+      }}
       className="storage-title-key board-edit-chrome nodrag nopan"
     >
       <Pencil aria-hidden />
@@ -972,7 +1128,9 @@ function StorageTitleBar({
   const poolMode = useFactoryStore((state) => state.project.poolMode === true);
   const hasEnd = ratio || role === "buffer" || (isDrainRole(role) && !poolMode);
   return (
-    <div className={`storage-title-bar ${ratio ? "storage-title-bar--wide" : hasEnd ? "" : "storage-title-bar--no-end"}`}>
+    <div
+      className={`storage-title-bar ${ratio ? "storage-title-bar--wide" : hasEnd ? "" : "storage-title-bar--no-end"}`}
+    >
       <span className="storage-title-side">
         <button
           type="button"
@@ -1011,17 +1169,17 @@ function BufferModeSwap({ storageId, mode }: { storageId: string; mode: StorageB
 
   return (
     <MinecraftTooltip content={() => <RecipeTooltip view={buildBufferKeyTooltip(mode)} />}>
-    <button
-      type="button"
-      onClick={(event) => {
-        event.stopPropagation();
-        updateStorage(storageId, { bufferMode: next });
-      }}
-      aria-label={`Switch to ${next}`}
-      className="storage-title-key board-edit-chrome nodrag"
-    >
-      <Icon aria-hidden />
-    </button>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          updateStorage(storageId, { bufferMode: next });
+        }}
+        aria-label={`Switch to ${next}`}
+        className="storage-title-key board-edit-chrome nodrag"
+      >
+        <Icon aria-hidden />
+      </button>
     </MinecraftTooltip>
   );
 }
@@ -1062,17 +1220,17 @@ function DrainModeSwap({
 
   return (
     <MinecraftTooltip content={() => <RecipeTooltip view={buildDrainKeyTooltip(role, next)} />}>
-    <button
-      type="button"
-      onClick={(event) => {
-        event.stopPropagation();
-        setStorageDrainMode(storageId, next);
-      }}
-      aria-label={`Switch to ${next}`}
-      className="storage-title-key board-edit-chrome nodrag"
-    >
-      <Repeat aria-hidden />
-    </button>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          setStorageDrainMode(storageId, next);
+        }}
+        aria-label={`Switch to ${next}`}
+        className="storage-title-key board-edit-chrome nodrag"
+      >
+        <Repeat aria-hidden />
+      </button>
     </MinecraftTooltip>
   );
 }
@@ -1113,14 +1271,26 @@ function signedChipNumber(value: number, body: string): string {
   return value >= 0 ? `+${body}` : body.replace(/^-/, "−");
 }
 
-function ChipRate({ net, kind, role, size }: { net: number; kind: string; role: StorageRole; size: "large" | "small" }) {
+function ChipRate({
+  net,
+  kind,
+  role,
+  size,
+}: {
+  net: number;
+  kind: string;
+  role: StorageRole;
+  size: "large" | "small";
+}) {
   const parts = formatCompactRateParts(net, kind);
   const number = signedChipNumber(net, parts.body);
   const steps = CHIP_RATE_STEPS[size];
   // Small sits in the reading well: its padding and border come off the room.
   const room = CHIP_RATE_ROOM[role] - (size === "small" ? 10 : 0);
-  const fit = steps.find((step) => number.length * step.perChar + parts.unit.length * step.unitPerChar + 2 <= room)
-    ?? steps[steps.length - 1];
+  const fit =
+    steps.find(
+      (step) => number.length * step.perChar + parts.unit.length * step.unitPerChar + 2 <= room,
+    ) ?? steps[steps.length - 1];
   return (
     <div
       className={`storage-net-line storage-chip-rate storage-chip-rate--${size} whitespace-nowrap tabular-nums`}
@@ -1145,7 +1315,12 @@ function ChipRate({ net, kind, role, size }: { net: number; kind: string; role: 
 function useDrawerRule(storage: FactoryStorage, role: StorageRole) {
   const mode = storageTargetMode(storage, role);
   const target = storage.targetPerSecond;
-  return { mode, target, any: target === undefined || mode === "ignore", input: isInputRate(storage, role) };
+  return {
+    mode,
+    target,
+    any: target === undefined || mode === "ignore",
+    input: isInputRate(storage, role),
+  };
 }
 
 /**
@@ -1173,7 +1348,10 @@ export function RuleInput({
       onPointerDown={(event) => event.stopPropagation()}
       // Its own controls: a click or right click here is not a browse.
       onClick={(event) => event.stopPropagation()}
-      onContextMenu={(event) => { event.preventDefault(); event.stopPropagation(); }}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
     >
       <RuleButton rule={rule} />
       <RateBox rule={rule} />
@@ -1238,7 +1416,10 @@ function formatCompactRate(value: number, kind: string): string {
 
 /** The compact rate as its number and its unit, for faces that set the
  * unit apart. `spaced` says whether the joined form puts a space between. */
-function formatCompactRateParts(value: number, kind: string): { body: string; unit: string; spaced: boolean } {
+function formatCompactRateParts(
+  value: number,
+  kind: string,
+): { body: string; unit: string; spaced: boolean } {
   const scaled = value * rateMultiplierForKind(kind);
   const unit = rateSuffixForKind(kind).trimStart();
   if (kind === "power") return { body: formatPowerValue(scaled), unit, spaced: true };
@@ -1263,4 +1444,3 @@ function formatCompactRateParts(value: number, kind: string): { body: string; un
           : formatCompact(scaled);
   return { body, unit, spaced };
 }
-

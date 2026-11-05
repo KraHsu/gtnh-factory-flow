@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 import "./settings.css";
@@ -30,7 +31,11 @@ const DETAILS: ReadonlyArray<{ id: Detail; label: string }> = [
 ];
 
 /** What was chosen last, kept while the page is open (the mod keeps it while the game runs). */
-let chosen: { detail: Detail; title: boolean; io: boolean } = { detail: "full", title: false, io: false };
+let chosen: { detail: Detail; title: boolean; io: boolean } = {
+  detail: "full",
+  title: false,
+  io: false,
+};
 
 interface CaptureResult {
   capture?: FlowExportCapture;
@@ -47,16 +52,22 @@ const MARK = "GTNH Planner";
  * By default it is the plan and nothing else, with the small mark every picture carries.
  */
 export function ModScreenshot({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const project = useFactoryStore((state) => state.project);
   const result = useFactoryStore((state) => state.lastResult);
   const activeTabName = useDesignStore(
-    (state) => state.designs.find((design) => design.id === state.activeDesignId)?.name ?? "Untitled",
+    (state) =>
+      state.designs.find((design) => design.id === state.activeDesignId)?.name ?? "Untitled",
   );
   const rateUnit = useFactoryStore((state) => state.rateUnit);
   const [detail, setDetail] = useState<Detail>(chosen.detail);
   const [title, setTitle] = useState(chosen.title);
   const [io, setIo] = useState(chosen.io);
-  const [taken, setTaken] = useState<{ key: string; capture?: FlowExportCapture; problem?: string }>();
+  const [taken, setTaken] = useState<{
+    key: string;
+    capture?: FlowExportCapture;
+    problem?: string;
+  }>();
   const [status, setStatus] = useState<{ text: string; good: boolean }>();
   const [keeping, setKeeping] = useState(false);
   const planName = project.name || activeTabName || "My factory";
@@ -93,7 +104,10 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
       const resolve = pendingRef.current.get(detail.requestId);
       if (resolve) {
         pendingRef.current.delete(detail.requestId);
-        resolve({ capture: detail.capture, error: typeof detail.error === "string" ? detail.error : undefined });
+        resolve({
+          capture: detail.capture,
+          error: typeof detail.error === "string" ? detail.error : undefined,
+        });
       }
     };
     window.addEventListener(FLOW_IMAGE_EXPORT_COMPLETE_EVENT, handleComplete);
@@ -112,7 +126,8 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
           }),
         );
         window.setTimeout(() => {
-          if (pendingRef.current.delete(requestId)) resolve({ error: "Timed out photographing the board." });
+          if (pendingRef.current.delete(requestId))
+            resolve({ error: "Timed out photographing the board." });
         }, 120_000);
       }),
     [],
@@ -147,7 +162,10 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
     // The rate unit repaints the board, not the request: the photograph is taken again.
   }, [requestBoardCapture, detail, wantKey]);
 
-  const previewUrl = useMemo(() => (capture?.blob ? URL.createObjectURL(capture.blob) : undefined), [capture]);
+  const previewUrl = useMemo(
+    () => (capture?.blob ? URL.createObjectURL(capture.blob) : undefined),
+    [capture],
+  );
   useEffect(() => () => (previewUrl ? URL.revokeObjectURL(previewUrl) : undefined), [previewUrl]);
 
   // ---- Measuring the pieces the composite needs ----------------------------
@@ -180,7 +198,12 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
   const layout = useMemo(
     () =>
       capture
-        ? computeCompositeLayout(capture.width, capture.height, footerVisible ? footerWidth : 0, footerVisible ? footerHeight : 0)
+        ? computeCompositeLayout(
+            capture.width,
+            capture.height,
+            footerVisible ? footerWidth : 0,
+            footerVisible ? footerHeight : 0,
+          )
         : undefined,
     [capture, footerVisible, footerWidth, footerHeight],
   );
@@ -199,7 +222,8 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
   const compose = async (): Promise<Blob> => {
     if (!capture?.blob || !layout) throw new Error("The board capture is missing.");
     const wantFooter = footerVisible && footerElement !== null && layout.footerHeight > 0;
-    const fontEmbedCSS = wantFooter && footerElement ? await resolveExportFontCss(footerElement) : undefined;
+    const fontEmbedCSS =
+      wantFooter && footerElement ? await resolveExportFontCss(footerElement) : undefined;
     const footerBlob =
       wantFooter && footerElement
         ? ((await toBlob(footerElement, {
@@ -236,7 +260,10 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
       setStatus({ text: `Saved as ${name}`, good: true });
       playBoardSound("tick");
     } catch (error) {
-      setStatus({ text: `Couldn't save it: ${error instanceof Error ? error.message : "failed"}`, good: false });
+      setStatus({
+        text: `Couldn't save it: ${error instanceof Error ? error.message : "failed"}`,
+        good: false,
+      });
     } finally {
       setKeeping(false);
     }
@@ -252,7 +279,10 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
       setStatus({ text: "Copied: paste it anywhere", good: true });
       playBoardSound("tick");
     } catch (error) {
-      setStatus({ text: `Couldn't copy it: ${error instanceof Error ? error.message : "failed"}`, good: false });
+      setStatus({
+        text: `Couldn't copy it: ${error instanceof Error ? error.message : "failed"}`,
+        good: false,
+      });
     } finally {
       setKeeping(false);
     }
@@ -267,11 +297,24 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="mx mshot" role="dialog" aria-modal="true" aria-label="Screenshot" data-mod-screenshot="">
+      <div
+        className="mx mshot"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("Screenshot")}
+        data-mod-screenshot=""
+      >
         <div className="mshot-title">
-          <span>Screenshot</span>
-          <div className="ms-close" role="button" aria-label="Close" onClick={onClose}>
-            <svg width="14" height="14" viewBox="0 0 14 14" shapeRendering="crispEdges" aria-hidden fill="currentColor">
+          <span>{t("Screenshot")}</span>
+          <div className="ms-close" role="button" aria-label={t("Close")} onClick={onClose}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              shapeRendering="crispEdges"
+              aria-hidden
+              fill="currentColor"
+            >
               <path d={crossPath()} />
             </svg>
           </div>
@@ -283,7 +326,12 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={previewUrl} alt="Plan picture preview" draggable={false} />
                 {footerVisible && layout ? (
-                  <div style={{ height: layout.footerHeight * layout.footerScale * scale, overflow: "hidden" }}>
+                  <div
+                    style={{
+                      height: layout.footerHeight * layout.footerScale * scale,
+                      overflow: "hidden",
+                    }}
+                  >
                     <div
                       style={{
                         width: layout.footerWidth,
@@ -311,13 +359,17 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
                 )}
               </div>
             ) : null}
-            {capturing ? <div className="mshot-note">Taking the picture...</div> : null}
-            {problem && !capturing ? <div className="mshot-note" data-bad="">{problem}</div> : null}
+            {capturing ? <div className="mshot-note">{t("Taking the picture...")}</div> : null}
+            {problem && !capturing ? (
+              <div className="mshot-note" data-bad="">
+                {problem}
+              </div>
+            ) : null}
           </div>
           <div className="mshot-col">
             <div className="mshot-row">
-              <span>Cards</span>
-              <span className="ms-choices" role="radiogroup" aria-label="Cards">
+              <span>{t("Cards")}</span>
+              <span className="ms-choices" role="radiogroup" aria-label={t("Cards")}>
                 {DETAILS.map((entry) => (
                   <span
                     key={entry.id}
@@ -337,20 +389,31 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
                 ))}
               </span>
             </div>
-            <Toggle label="Plan name" on={title} onChange={setTitle} />
-            <Toggle label="Inputs and outputs" on={io} onChange={setIo} />
-            <div className="mshot-size">{pixels ?? "Taking the picture..."}</div>
+            <Toggle label={t("Plan name")} on={title} onChange={setTitle} />
+            <Toggle label={t("Inputs and outputs")} on={io} onChange={setIo} />
+            <div className="mshot-size">{pixels ?? t("Taking the picture...")}</div>
             {status ? (
               <div className="mshot-status" data-good={status.good ? "" : undefined}>
                 {status.text}
               </div>
             ) : null}
             <div className="mshot-keys">
-              <div className="mb-key mshot-key" role="button" data-off={ready ? undefined : ""} onClick={() => ready && void copy()}>
-                Copy
+              <div
+                className="mb-key mshot-key"
+                role="button"
+                data-off={ready ? undefined : ""}
+                onClick={() => ready && void copy()}
+              >
+                {t("Copy")}
               </div>
-              <div className="mb-key mshot-key" data-save="" role="button" data-off={ready ? undefined : ""} onClick={() => ready && void save()}>
-                Save
+              <div
+                className="mb-key mshot-key"
+                data-save=""
+                role="button"
+                data-off={ready ? undefined : ""}
+                onClick={() => ready && void save()}
+              >
+                {t("Save")}
               </div>
             </div>
           </div>
@@ -361,7 +424,15 @@ export function ModScreenshot({ onClose }: { onClose: () => void }) {
   );
 }
 
-function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange: (next: boolean) => void }) {
+function Toggle({
+  label,
+  on,
+  onChange,
+}: {
+  label: string;
+  on: boolean;
+  onChange: (next: boolean) => void;
+}) {
   return (
     <div
       className="mshot-row"
@@ -401,13 +472,20 @@ async function stampMark(blob: Blob, pixelRatio: number): Promise<Blob> {
     context.drawImage(bitmap, 0, 0);
     bitmap.close();
     const size = Math.max(10, Math.round(11 * pixelRatio));
-    const family = getComputedStyle(document.body).getPropertyValue("--font-minecraft").trim() || "monospace";
+    const family =
+      getComputedStyle(document.body).getPropertyValue("--font-minecraft").trim() || "monospace";
     context.font = `${size}px ${family}, monospace`;
     context.textAlign = "right";
     context.textBaseline = "bottom";
     context.fillStyle = "#22d3ee";
-    context.fillText(MARK, canvas.width - Math.round(8 * pixelRatio), canvas.height - Math.round(6 * pixelRatio));
-    return await new Promise<Blob>((resolve) => canvas.toBlob((out) => resolve(out ?? blob), "image/png"));
+    context.fillText(
+      MARK,
+      canvas.width - Math.round(8 * pixelRatio),
+      canvas.height - Math.round(6 * pixelRatio),
+    );
+    return await new Promise<Blob>((resolve) =>
+      canvas.toBlob((out) => resolve(out ?? blob), "image/png"),
+    );
   } catch {
     return blob;
   }

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Check, Eye, EyeOff, ImageDown, LoaderCircle, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -24,11 +25,7 @@ import {
   type ExportBorder,
 } from "@/lib/import-export/export-composite";
 import { randomUUID } from "@/lib/random-id";
-import {
-  CANVAS_THEMES,
-  getCanvasTheme,
-  type CanvasThemeId,
-} from "@/components/flow/canvas-themes";
+import { CANVAS_THEMES, getCanvasTheme, type CanvasThemeId } from "@/components/flow/canvas-themes";
 import { readBoardViewSnapshot } from "@/components/flow/board-view";
 import type { RateUnit } from "@/lib/model/rate-unit";
 import { useFactoryStore } from "@/store/factory-store";
@@ -71,8 +68,7 @@ const RATE_UNITS: Array<{ id: RateUnit; label: string }> = [
 
 /** The checkerboard every image editor uses for "nothing here". */
 const CHECKER_STYLE: React.CSSProperties = {
-  backgroundImage:
-    "repeating-conic-gradient(#3a3d42 0% 25%, #26282d 0% 50%)",
+  backgroundImage: "repeating-conic-gradient(#3a3d42 0% 25%, #26282d 0% 50%)",
   backgroundSize: "16px 16px",
 };
 
@@ -82,6 +78,7 @@ const CHECKER_STYLE: React.CSSProperties = {
  * itself; a GIF carries the motion.
  */
 export function ExportImageDialog({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialogA11y(dialogRef, { onClose });
   const project = useFactoryStore((state) => state.project);
@@ -273,8 +270,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
   }, [footerElement]);
 
   const footerVisible =
-    includeFooter &&
-    (includeTitle || (includeIo && (needs.length > 0 || outputs.length > 0)));
+    includeFooter && (includeTitle || (includeIo && (needs.length > 0 || outputs.length > 0)));
   const footerWidth = capture ? resolveExportFooterWidth(capture.width) : 0;
   const layout = useMemo(
     () =>
@@ -396,16 +392,22 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Screenshot editor" className="fixed inset-0 z-[100] grid place-items-center bg-neutral-950/50 p-4">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Screenshot editor"
+      className="fixed inset-0 z-[100] grid place-items-center bg-neutral-950/50 p-4"
+    >
       <div className="flex max-h-[calc(94*var(--ui-vh))] w-full max-w-5xl flex-col overflow-y-auto rounded border border-line-strong bg-surface p-4 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-base font-semibold">
-            <ImageDown className="h-4 w-4" /> Export an image
+            <ImageDown className="h-4 w-4" /> {t("Export an image")}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("Close")}
             className="rounded p-1 text-fg-subtle hover:bg-surface-raised"
           >
             <X className="h-4 w-4" />
@@ -475,7 +477,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
           {isCapturing ? (
             <div className="absolute inset-0 grid place-items-center bg-neutral-950/40">
               <span className="flex items-center gap-2 rounded border border-line-strong bg-surface px-3 py-1.5 text-sm text-fg-subtle">
-                <LoaderCircle className="h-4 w-4 animate-spin" /> Photographing the board
+                <LoaderCircle className="h-4 w-4 animate-spin" /> {t("Photographing the board")}
               </span>
             </div>
           ) : null}
@@ -484,7 +486,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
         <div className="mt-3 space-y-3 text-sm">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-fg-subtle">Type</span>
+              <span className="text-xs font-medium text-fg-subtle">{t("Type")}</span>
               <div className="flex overflow-hidden rounded border border-line-strong">
                 {FORMATS.map((entry) => (
                   <button
@@ -504,7 +506,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
               </div>
             </div>
             <div className={mode === "pool" ? "hidden" : "flex items-center gap-2"}>
-              <span className="text-xs font-medium text-fg-subtle">Cards</span>
+              <span className="text-xs font-medium text-fg-subtle">{t("Cards")}</span>
               <div className="flex overflow-hidden rounded border border-line-strong">
                 {CARD_DETAILS.map((entry) => (
                   <button
@@ -524,7 +526,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-fg-subtle">Rates</span>
+              <span className="text-xs font-medium text-fg-subtle">{t("Rates")}</span>
               <div className="flex overflow-hidden rounded border border-line-strong">
                 {RATE_UNITS.map((entry) => (
                   <button
@@ -546,7 +548,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="mr-1 text-xs font-medium text-fg-subtle">Paper</span>
+            <span className="mr-1 text-xs font-medium text-fg-subtle">{t("Paper")}</span>
             {CANVAS_THEMES.map((theme) => (
               <button
                 key={theme.id}
@@ -587,27 +589,23 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
                 checked={includeFooter}
                 onChange={(event) => setIncludeFooter(event.target.checked)}
               />
-              Summary bar
+              {t("Summary bar")}
             </label>
-            <label
-              className={includeFooter ? "flex items-center gap-1.5" : "hidden"}
-            >
+            <label className={includeFooter ? "flex items-center gap-1.5" : "hidden"}>
               <input
                 type="checkbox"
                 checked={includeTitle}
                 onChange={(event) => setIncludeTitle(event.target.checked)}
               />
-              Title and stats
+              {t("Title and stats")}
             </label>
-            <label
-              className={includeFooter ? "flex items-center gap-1.5" : "hidden"}
-            >
+            <label className={includeFooter ? "flex items-center gap-1.5" : "hidden"}>
               <input
                 type="checkbox"
                 checked={includeIo}
                 onChange={(event) => setIncludeIo(event.target.checked)}
               />
-              Inputs and outputs
+              {t("Inputs and outputs")}
             </label>
             <label className={mode === "pool" ? "hidden" : "flex items-center gap-1.5"}>
               <input
@@ -615,20 +613,20 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
                 checked={includeAnnotations}
                 onChange={(event) => setIncludeAnnotations(event.target.checked)}
               />
-              Annotations
+              {t("Annotations")}
             </label>
           </div>
 
           {includeFooter && includeIo ? (
             <div className="space-y-2">
               <ResourceChipRow
-                label="Inputs"
+                label={t("Inputs")}
                 stats={stats.needs}
                 excluded={excluded}
                 onToggle={(key) => setExcluded((current) => toggleKey(current, key))}
               />
               <ResourceChipRow
-                label="Outputs"
+                label={t("Outputs")}
                 stats={stats.outputs}
                 excluded={excluded}
                 onToggle={(key) => setExcluded((current) => toggleKey(current, key))}
@@ -649,7 +647,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
               onClick={onClose}
               className="rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
             >
-              Close
+              {t("Close")}
             </button>
             <button
               type="button"
@@ -662,7 +660,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
               ) : saved ? (
                 <Check className="h-4 w-4" />
               ) : null}
-              {saved ? "Saved" : `Save ${format.toUpperCase()}`}
+              {saved ? t("Saved") : `Save ${format.toUpperCase()}`}
             </button>
           </div>
         </div>

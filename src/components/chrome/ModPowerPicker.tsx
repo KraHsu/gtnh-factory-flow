@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 import "./power-picker.css";
@@ -9,7 +10,11 @@ import { playBoardSound } from "@/lib/board-sounds";
 import { getUiScale } from "@/lib/ui-scale";
 import { GT_VOLTAGE_TIERS } from "@/lib/model";
 import { getPowerMachineIcon } from "@/lib/power/planner-data";
-import { hitPlacementSettings, searchPowerSources, type PowerSearchHit } from "@/lib/power/power-search";
+import {
+  hitPlacementSettings,
+  searchPowerSources,
+  type PowerSearchHit,
+} from "@/lib/power/power-search";
 import { POWER_GROUPS, POWER_SOURCES } from "@/lib/power/registry";
 import { getPowerStructureArt } from "@/lib/power/structure-art";
 import type { PowerGroupId } from "@/lib/power/types";
@@ -17,7 +22,14 @@ import { useFactoryStore } from "@/store/factory-store";
 import { ResourceIcon } from "@/components/nei/ResourceIcon";
 import { tierChipColors } from "@/components/flow/clean/tokens";
 import { measureClean } from "@/components/flow/clean/text-measure";
-import { CHROME_SCREEN_K, ChromeMenu, chromeAnchorOf, MENU_ANCHOR_ATTR, type ChromeAnchor, type MenuEntry } from "./ChromeMenu";
+import {
+  CHROME_SCREEN_K,
+  ChromeMenu,
+  chromeAnchorOf,
+  MENU_ANCHOR_ATTR,
+  type ChromeAnchor,
+  type MenuEntry,
+} from "./ChromeMenu";
 import { PixelBolt } from "./pixel-icons";
 
 /** The sheet's width with the backdrop's side padding, in the mod's GUI pixels (power-picker.css .mp, .mp-backdrop). */
@@ -39,14 +51,25 @@ interface OtherCard {
   blurb: string;
 }
 const OTHERS: readonly OtherCard[] = [
-  { id: "custom-rate", name: "Custom Rate", blurb: "A rate you set: supplies or drains any resource, at a dial." },
-  { id: "fluid-tank", name: "Fluid Tank", blurb: "Empties a filled cell into its fluid and the empty cell, or fills cells. Free and instant." },
-  { id: "crop-farm", name: "Crop Farm", blurb: "Crops planted and harvested: pick the crop on the card." },
+  {
+    id: "custom-rate",
+    name: "Custom Rate",
+    blurb: "A rate you set: supplies or drains any resource, at a dial.",
+  },
+  {
+    id: "fluid-tank",
+    name: "Fluid Tank",
+    blurb:
+      "Empties a filled cell into its fluid and the empty cell, or fills cells. Free and instant.",
+  },
+  {
+    id: "crop-farm",
+    name: "Crop Farm",
+    blurb: "Crops planted and harvested: pick the crop on the card.",
+  },
 ];
 
-type Entry =
-  | { kind: "source"; hit: PowerSearchHit }
-  | { kind: "other"; card: OtherCard };
+type Entry = { kind: "source"; hit: PowerSearchHit } | { kind: "other"; card: OtherCard };
 
 const TIER_FILTERS = GT_VOLTAGE_TIERS.map((entry) => entry.tier).filter((tier) =>
   POWER_SOURCES.some((source) => source.unlock === tier),
@@ -60,6 +83,7 @@ const TIER_FILTERS = GT_VOLTAGE_TIERS.map((entry) => entry.tier).filter((tier) =
  * make, so "benzene" finds every machine that runs on it and places it with that fuel set.
  */
 export function ModPowerPicker() {
+  const t = useT();
   const open = useFactoryStore((state) => state.powerMenuOpen);
   const closePowerMenu = useFactoryStore((state) => state.closePowerMenu);
   const addPowerSourceNode = useFactoryStore((state) => state.addPowerSourceNode);
@@ -106,18 +130,29 @@ export function ModPowerPicker() {
       // Below the board's toolbar when there is one: its Non-recipe key closes the picker again.
       const strip = document.querySelector<HTMLElement>("header[data-board-toolbar]");
       const groups = strip ? Array.from(strip.children) : [];
-      const bottom = groups.length ? Math.max(...groups.map((group) => group.getBoundingClientRect().bottom)) : 0;
-      const bar = strip ? { getBoundingClientRect: () => ({ bottom }) } : document.querySelector<HTMLElement>("[data-mod-bar]");
+      const bottom = groups.length
+        ? Math.max(...groups.map((group) => group.getBoundingClientRect().bottom))
+        : 0;
+      const bar = strip
+        ? { getBoundingClientRect: () => ({ bottom }) }
+        : document.querySelector<HTMLElement>("[data-mod-bar]");
       // The mod's size, as the bar and its menus wear it (CHROME_SCREEN_K on the interface's zoom), or smaller where the
       // board is too narrow for the sheet: the whole picker shrinks rather than its columns cutting the names off.
       // The items list is on the right, or on the left where the settings put it there.
       const itemsLeft = main?.dataset.itemsSide === "left" && main.hasAttribute("data-plan-layout");
-      const items = (main ? Number((itemsLeft ? main.dataset.leftPx : main.dataset.rightPx) ?? 0) : 0) * getUiScale();
+      const items =
+        (main ? Number((itemsLeft ? main.dataset.leftPx : main.dataset.rightPx) ?? 0) : 0) *
+        getUiScale();
       const room = window.innerWidth - items;
       const zoom = Math.min(getUiScale() * CHROME_SCREEN_K, room / SHEET_W);
       const barBottom = bar ? bar.getBoundingClientRect().bottom : 0;
       const inset = Math.round(items / zoom);
-      setFrame({ left: itemsLeft ? inset : 0, right: itemsLeft ? 0 : inset, top: Math.round(barBottom / zoom), zoom });
+      setFrame({
+        left: itemsLeft ? inset : 0,
+        right: itemsLeft ? 0 : inset,
+        top: Math.round(barBottom / zoom),
+        zoom,
+      });
     };
     measure();
     window.addEventListener("resize", measure);
@@ -130,7 +165,11 @@ export function ModPowerPicker() {
     const out: Entry[] = [];
     if (tierFilter === "all" && (groupFilter === "all" || groupFilter === "other")) {
       for (const card of OTHERS) {
-        if (!needle || card.name.toLowerCase().includes(needle) || card.blurb.toLowerCase().includes(needle)) {
+        if (
+          !needle ||
+          card.name.toLowerCase().includes(needle) ||
+          card.blurb.toLowerCase().includes(needle)
+        ) {
           out.push({ kind: "other", card });
         }
       }
@@ -150,7 +189,10 @@ export function ModPowerPicker() {
       if (entry.kind === "other") {
         if (entry.card.id === "custom-rate") addCustomRateNode();
         else if (entry.card.id === "crop-farm") useFactoryStore.getState().addCropFarmNode();
-        else (useFactoryStore.getState() as unknown as { addFluidTankNode?: () => void }).addFluidTankNode?.();
+        else
+          (
+            useFactoryStore.getState() as unknown as { addFluidTankNode?: () => void }
+          ).addFluidTankNode?.();
         closePowerMenu();
         return;
       }
@@ -162,14 +204,21 @@ export function ModPowerPicker() {
   if (!open) return null;
 
   const searching = query.trim() !== "";
-  const groupTitle = (id: PowerGroupId) => POWER_GROUPS.find((group) => group.id === id)?.name ?? id;
+  const groupTitle = (id: PowerGroupId) =>
+    POWER_GROUPS.find((group) => group.id === id)?.name ?? id;
   const inGroup = (id: PowerGroupId) =>
-    entries.filter((entry) => (entry.kind === "other" ? id === "other" : entry.hit.source.group === id));
+    entries.filter((entry) =>
+      entry.kind === "other" ? id === "other" : entry.hit.source.group === id,
+    );
 
   const menuEntries: MenuEntry[] =
     menu?.kind === "group"
       ? [
-          { label: "All types", current: groupFilter === "all", onSelect: () => setGroupFilter("all") },
+          {
+            label: "All types",
+            current: groupFilter === "all",
+            onSelect: () => setGroupFilter("all"),
+          },
           ...POWER_GROUPS.map((group) => ({
             label: group.name,
             current: groupFilter === group.id,
@@ -177,11 +226,21 @@ export function ModPowerPicker() {
           })),
         ]
       : [
-          { label: "All tiers", current: tierFilter === "all", onSelect: () => setTierFilter("all") },
-          ...TIER_FILTERS.map((tier) => ({ label: tier, current: tierFilter === tier, onSelect: () => setTierFilter(tier) })),
+          {
+            label: "All tiers",
+            current: tierFilter === "all",
+            onSelect: () => setTierFilter("all"),
+          },
+          ...TIER_FILTERS.map((tier) => ({
+            label: tier,
+            current: tierFilter === tier,
+            onSelect: () => setTierFilter(tier),
+          })),
         ];
 
-  const columns = COLUMNS.map((groups) => groups.filter((id) => inGroup(id).length > 0)).filter((groups) => groups.length > 0);
+  const columns = COLUMNS.map((groups) => groups.filter((id) => inGroup(id).length > 0)).filter(
+    (groups) => groups.length > 0,
+  );
   const tile = (entry: Entry): ReactNode => (
     <Tile
       key={entry.kind === "other" ? `other:${entry.card.id}` : entry.hit.source.id}
@@ -201,40 +260,53 @@ export function ModPowerPicker() {
         ref={sheetRef}
         className="mp mx"
         role="dialog"
-        aria-label="Non-recipe machines"
+        aria-label={t("Non-recipe machines")}
         data-mod-power-picker=""
         onPointerDown={(event) => event.stopPropagation()}
         onScroll={() => setPreview(undefined)}
       >
         <div className="mp-head">
           <PixelBolt className="mp-bolt" />
-          <span className="mp-title">NON-RECIPE MACHINES</span>
+          <span className="mp-title">{t("NON-RECIPE MACHINES")}</span>
           <span className="mb-grow" />
           <input
             autoFocus
             className="ml-search mp-search"
-            placeholder="Machine, fuel, or product..."
-            aria-label="Machine, fuel, or product"
+            placeholder={t("Machine, fuel, or product...")}
+            aria-label={t("Machine, fuel, or product")}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
           <PickerKey
-            label={groupFilter === "all" ? "All types" : groupTitle(groupFilter)}
+            label={groupFilter === "all" ? t("All types") : groupTitle(groupFilter)}
             open={menu?.kind === "group"}
-            onOpen={(anchor) => setMenu((current) => (current?.kind === "group" ? undefined : { kind: "group", anchor }))}
+            onOpen={(anchor) =>
+              setMenu((current) =>
+                current?.kind === "group" ? undefined : { kind: "group", anchor },
+              )
+            }
           />
           <PickerKey
-            label={tierFilter === "all" ? "All tiers" : tierFilter}
+            label={tierFilter === "all" ? t("All tiers") : tierFilter}
             open={menu?.kind === "tier"}
-            onOpen={(anchor) => setMenu((current) => (current?.kind === "tier" ? undefined : { kind: "tier", anchor }))}
+            onOpen={(anchor) =>
+              setMenu((current) =>
+                current?.kind === "tier" ? undefined : { kind: "tier", anchor },
+              )
+            }
           />
-          <div className="mb-key mp-close" role="button" aria-label="Close" onClick={closePowerMenu}>
+          <div
+            className="mb-key mp-close"
+            role="button"
+            aria-label={t("Close")}
+            onClick={closePowerMenu}
+          >
             x
           </div>
         </div>
         <div className="mp-body" onScroll={() => setPreview(undefined)}>
           {entries.length === 0 ? (
-            <div className="mp-none">No machine burns, makes or is named that.</div>
+            <div className="mp-none">{t("No machine burns, makes or is named that.")}</div>
           ) : searching ? (
             <div className="mp-results">{entries.map(tile)}</div>
           ) : (
@@ -261,7 +333,7 @@ export function ModPowerPicker() {
         <ChromeMenu
           anchor={menu.anchor}
           entries={menuEntries}
-          label={menu.kind === "group" ? "Type" : "Tier"}
+          label={menu.kind === "group" ? t("Type") : t("Tier")}
           minWidth={120}
           onClose={() => setMenu(undefined)}
         />
@@ -271,7 +343,15 @@ export function ModPowerPicker() {
   );
 }
 
-function PickerKey({ label, open, onOpen }: { label: string; open: boolean; onOpen: (anchor: ChromeAnchor) => void }) {
+function PickerKey({
+  label,
+  open,
+  onOpen,
+}: {
+  label: string;
+  open: boolean;
+  onOpen: (anchor: ChromeAnchor) => void;
+}) {
   return (
     <div
       className="mb-key ml-drop"
@@ -284,7 +364,14 @@ function PickerKey({ label, open, onOpen }: { label: string; open: boolean; onOp
       }}
     >
       {label}
-      <svg width="5" height="3" viewBox="0 0 5 3" shapeRendering="crispEdges" aria-hidden fill="currentColor">
+      <svg
+        width="5"
+        height="3"
+        viewBox="0 0 5 3"
+        shapeRendering="crispEdges"
+        aria-hidden
+        fill="currentColor"
+      >
         <path d="M0 0h5v1h-5zM1 1h3v1h-3zM2 2h1v1h-1z" />
       </svg>
     </div>
@@ -294,7 +381,15 @@ function PickerKey({ label, open, onOpen }: { label: string; open: boolean; onOp
 /** The 800 ms the tips wait: the larger picture shows once the mouse has rested on a tile. */
 const REST_MS = 800;
 
-function Tile({ entry, onPlace, onRest }: { entry: Entry; onPlace: (entry: Entry) => void; onRest: (rect: DOMRect | undefined) => void }) {
+function Tile({
+  entry,
+  onPlace,
+  onRest,
+}: {
+  entry: Entry;
+  onPlace: (entry: Entry) => void;
+  onRest: (rect: DOMRect | undefined) => void;
+}) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
   const name = entry.kind === "other" ? entry.card.name : entry.hit.source.name;
@@ -322,7 +417,12 @@ function Tile({ entry, onPlace, onRest }: { entry: Entry; onPlace: (entry: Entry
       </span>
       <NameLines name={name} tier={tier} />
       {tier ? <TierTag tier={tier} /> : null}
-      {via ? <span className="mp-via">{via.direction === "takes" ? "Takes " : "Makes "}{via.name}</span> : null}
+      {via ? (
+        <span className="mp-via">
+          {via.direction === "takes" ? "Takes " : "Makes "}
+          {via.name}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -344,7 +444,11 @@ function fitText(text: string, room: number): string {
 function NameLines({ name, tier }: { name: string; tier?: string }) {
   const tagWidth = tier ? measureClean(tier, 8) + 6 : 0;
   if (measureClean(name, 8) + 4 + tagWidth <= NAME_ROOM) {
-    return <span className="mp-line" style={{ top: 11 - 1 }}>{name}</span>;
+    return (
+      <span className="mp-line" style={{ top: 11 - 1 }}>
+        {name}
+      </span>
+    );
   }
   const words = name.split(" ");
   let first = "";
@@ -357,8 +461,14 @@ function NameLines({ name, tier }: { name: string; tier?: string }) {
   const rest = words.slice(used).join(" ");
   return (
     <>
-      <span className="mp-line" style={{ top: 5 - 1 }}>{fitText(first, NAME_ROOM)}</span>
-      {rest ? <span className="mp-line" style={{ top: 16 - 1 }}>{fitText(rest, NAME_ROOM - 4 - tagWidth)}</span> : null}
+      <span className="mp-line" style={{ top: 5 - 1 }}>
+        {fitText(first, NAME_ROOM)}
+      </span>
+      {rest ? (
+        <span className="mp-line" style={{ top: 16 - 1 }}>
+          {fitText(rest, NAME_ROOM - 4 - tagWidth)}
+        </span>
+      ) : null}
     </>
   );
 }
@@ -370,7 +480,12 @@ function TierTag({ tier }: { tier: string }) {
       className="mp-tier"
       style={
         colours
-          ? { background: colours.background, boxShadow: `0 0 0 1px ${colours.border}`, color: colours.ink, textDecoration: colours.underline ? "underline" : undefined }
+          ? {
+              background: colours.background,
+              boxShadow: `0 0 0 1px ${colours.border}`,
+              color: colours.ink,
+              textDecoration: colours.underline ? "underline" : undefined,
+            }
           : undefined
       }
     >
@@ -382,7 +497,11 @@ function TierTag({ tier }: { tier: string }) {
 function MachineArt({ entry, size }: { entry: Entry; size: number }) {
   if (entry.kind === "other") {
     if (entry.card.id === "crop-farm") return <SproutArt size={size} />;
-    return entry.card.id === "custom-rate" ? <Gauge scale={size >= 40 ? 4 : 2} /> : <TankArt size={size} />;
+    return entry.card.id === "custom-rate" ? (
+      <Gauge scale={size >= 40 ? 4 : 2} />
+    ) : (
+      <TankArt size={size} />
+    );
   }
   const art = getPowerStructureArt(entry.hit.source.id);
   if (art) {
@@ -394,7 +513,14 @@ function MachineArt({ entry, size }: { entry: Entry; size: number }) {
     return (
       <span className="mp-icon" style={{ width: size, height: size }}>
         <ResourceIcon
-          resource={{ kind: "item", id: icon.id, amount: 1, displayName: icon.displayName, iconPath: icon.iconPath, dominantColor: icon.dominantColor }}
+          resource={{
+            kind: "item",
+            id: icon.id,
+            amount: 1,
+            displayName: icon.displayName,
+            iconPath: icon.iconPath,
+            dominantColor: icon.dominantColor,
+          }}
           bare
           tooltip={false}
           showAmount={false}
@@ -411,12 +537,34 @@ function MachineArt({ entry, size }: { entry: Entry; size: number }) {
 /** The custom rate card's dial (`PowerPicker.gauge`), 9 x 8. */
 function Gauge({ scale }: { scale: number }) {
   const runs: ReadonlyArray<readonly [number, number, number]> = [
-    [2, 0, 5], [1, 1, 1], [7, 1, 1], [0, 2, 1], [6, 2, 1], [8, 2, 1], [0, 3, 1], [5, 3, 1], [8, 3, 1],
-    [0, 4, 1], [4, 4, 1], [8, 4, 1], [0, 5, 1], [3, 5, 2], [8, 5, 1], [1, 6, 1], [7, 6, 1],
+    [2, 0, 5],
+    [1, 1, 1],
+    [7, 1, 1],
+    [0, 2, 1],
+    [6, 2, 1],
+    [8, 2, 1],
+    [0, 3, 1],
+    [5, 3, 1],
+    [8, 3, 1],
+    [0, 4, 1],
+    [4, 4, 1],
+    [8, 4, 1],
+    [0, 5, 1],
+    [3, 5, 2],
+    [8, 5, 1],
+    [1, 6, 1],
+    [7, 6, 1],
   ];
   const d = runs.map(([x, y, w]) => `M${x} ${y}h${w}v1h-${w}z`).join("");
   return (
-    <svg width={9 * scale} height={8 * scale} viewBox="0 0 9 8" shapeRendering="crispEdges" fill="#aebceb" aria-hidden>
+    <svg
+      width={9 * scale}
+      height={8 * scale}
+      viewBox="0 0 9 8"
+      shapeRendering="crispEdges"
+      fill="#aebceb"
+      aria-hidden
+    >
       <path d={d} />
     </svg>
   );
@@ -450,7 +598,9 @@ function TankArt({ size }: { size: number }) {
 function Preview({ entry, rect, scale }: { entry: Entry; rect: DOMRect; scale: number }) {
   const source = entry.kind === "source" ? entry.hit.source : undefined;
   const name = source?.name ?? (entry.kind === "other" ? entry.card.name : "");
-  const kind = source ? (POWER_GROUPS.find((group) => group.id === source.group)?.name ?? "") : "Other";
+  const kind = source
+    ? (POWER_GROUPS.find((group) => group.id === source.group)?.name ?? "")
+    : "Other";
   const blurb = source?.blurb ?? (entry.kind === "other" ? entry.card.blurb : "");
   const width = 190;
   const vw = window.innerWidth / scale;

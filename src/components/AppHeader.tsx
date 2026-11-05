@@ -1,6 +1,7 @@
 "use client";
 
 import "./app-chrome.css";
+import { PUBLIC_TOOL } from "@/lib/krahsu";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { OPEN_SHARE_DIALOG_EVENT } from "@/lib/setups-tab";
@@ -69,13 +70,13 @@ export function AppHeader(_props: AppHeaderProps) {
         <ChangelogDialog unseenVersions={unseenVersions} onClose={() => setChangelogOpen(false)} />
       ) : null}
       {/* The one popup that opens by itself, once per browser. */}
-      <ModAnnouncement />
+      {!PUBLIC_TOOL && <ModAnnouncement />}
       {isDevMenuOpen ? <DevMenu onClose={() => setDevMenuOpen(false)} /> : null}
-      {shareMode !== false ? <SharePlanDialog mode={shareMode} onClose={() => setShareMode(false)} /> : null}
-      {isExportOpen ? <ModScreenshot onClose={() => setExportOpen(false)} /> : null}
-      {isSettingsOpen ? (
-        <ModSettings onClose={() => setSettingsOpen(false)} />
+      {shareMode !== false ? (
+        <SharePlanDialog mode={shareMode} onClose={() => setShareMode(false)} />
       ) : null}
+      {isExportOpen ? <ModScreenshot onClose={() => setExportOpen(false)} /> : null}
+      {isSettingsOpen ? <ModSettings onClose={() => setSettingsOpen(false)} /> : null}
     </>
   );
 

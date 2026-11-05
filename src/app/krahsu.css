@@ -1,0 +1,335 @@
+:root {
+  --ks-bg: #eff1f5;
+  --ks-paper: #f7f8fa;
+  --ks-panel: #e6e9ef;
+  --ks-well: #e6e9ef;
+  --ks-text: #4c4f69;
+  --ks-muted: #6c6f85;
+  --ks-line: #ccd0da;
+  --ks-green: #357d29;
+  --ks-soft: #e2eedf;
+  --ks-red: #b5394a;
+  --ks-amber: #946216;
+  --ks-blue: #326da8;
+  --ks-serif: KraHsuSerif, "Noto Serif SC", "Songti SC", Georgia, serif;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --ks-bg: #1e1e2e;
+  --ks-paper: #242436;
+  --ks-panel: #181825;
+  --ks-well: #181825;
+  --ks-text: #cdd6f4;
+  --ks-muted: #a6adc8;
+  --ks-line: #45475a;
+  --ks-green: #a6e3a1;
+  --ks-soft: #2b3b30;
+  --ks-red: #f38ba8;
+  --ks-amber: #f9e2af;
+  --ks-blue: #89b4fa;
+  color-scheme: dark;
+}
+/* These selectors also reach body portals; the board's coordinate system stays intact. */
+html:root,
+html .cc,
+html .mb,
+html .mm,
+html .mx,
+html .pn,
+html .pn-skin {
+  --background: var(--ks-bg);
+  --foreground: var(--ks-text);
+  --surface: var(--ks-paper);
+  --surface-raised: var(--ks-panel);
+  --surface-sunken: var(--ks-well);
+  --canvas: var(--ks-bg);
+  --canvas-dot: var(--ks-line);
+  --fg: var(--ks-text);
+  --fg-subtle: var(--ks-text);
+  --fg-muted: var(--ks-muted);
+  --line: var(--ks-line);
+  --line-strong: var(--ks-line);
+  --selection: var(--ks-green);
+  --selection-soft: color-mix(in srgb, var(--ks-green) 60%, transparent);
+  --selection-line: color-mix(in srgb, var(--ks-green) 50%, transparent);
+  --selection-wash: color-mix(in srgb, var(--ks-green) 15%, transparent);
+  --selection-ink: var(--ks-green);
+  --selection-ink-dim: var(--ks-green);
+  --flow-output: var(--ks-green);
+  --flow-input: var(--ks-red);
+  --mc-ink: var(--ks-text);
+  --mc-ink-muted: var(--ks-muted);
+  --mc-muted: var(--ks-muted);
+  --mc-frame: var(--ks-line);
+  --mc-ring: var(--ks-line);
+  --mc-highlight: var(--ks-line);
+  --mc-shadow: var(--ks-line);
+  --mc-tile: var(--ks-panel);
+  --mc-key: var(--ks-paper);
+  --mc-key-hover: var(--ks-soft);
+  --mc-key-edge: var(--ks-line);
+  --mc-key-hi: var(--ks-line);
+  --mc-key-lo: var(--ks-line);
+  --mc-menu: var(--ks-paper);
+  --mc-menu-hover: var(--ks-soft);
+  --mc-bar: var(--ks-paper);
+  --mc-bar-line: var(--ks-line);
+  --mc-cyan: var(--ks-green);
+  --mc-red: var(--ks-red);
+  --mc-gold: var(--ks-amber);
+  --mc-off: var(--ks-muted);
+  --mc-good: var(--ks-green);
+  --mc-bad: var(--ks-red);
+  --mc-info: var(--ks-blue);
+  --pn-surface: var(--ks-paper);
+  --pn-edge: var(--ks-line);
+  --pn-hair: var(--ks-line);
+  --pn-well: var(--ks-well);
+  --pn-ink: var(--ks-text);
+  --pn-muted: var(--ks-muted);
+  --pn-dim: var(--ks-muted);
+  --pn-key: var(--ks-paper);
+  --pn-key-hover: var(--ks-soft);
+  --pn-key-hi: var(--ks-line);
+  --pn-key-lo: var(--ks-line);
+  --pn-cyan: var(--ks-green);
+  --pn-cyan-hover: var(--ks-green);
+  --pn-red: var(--ks-red);
+  --pn-amber: var(--ks-amber);
+  --cc-surface: var(--ks-paper);
+  --cc-edge: var(--ks-line);
+  --cc-hair: var(--ks-line);
+  --cc-ink: var(--ks-text);
+  --cc-muted: var(--ks-muted);
+  --cc-select: var(--ks-green);
+  --cc-gold: var(--ks-amber);
+  --cc-red: var(--ks-red);
+  --cc-amber: var(--ks-amber);
+  --cc-ok: var(--ks-green);
+  --cc-key: var(--ks-paper);
+  --cc-key-hover: var(--ks-soft);
+  --cc-key-edge: var(--ks-line);
+  --cc-key-hi: var(--ks-line);
+  --cc-key-lo: var(--ks-line);
+  --cc-canvas: var(--ks-bg);
+  --cc-canvas-dot: var(--ks-line);
+  --cc-prompt-off: var(--ks-muted);
+  --color-cyan-300: var(--ks-green);
+  --color-cyan-400: var(--ks-green);
+  --color-cyan-500: var(--ks-green);
+  --color-cyan-600: var(--ks-green);
+  --color-cyan-700: var(--ks-green);
+  --color-emerald-300: var(--ks-green);
+  --color-red-300: var(--ks-red);
+}
+/* The original bevel ramp remains ordered from the brightest to the darkest. */
+html:root {
+  --mc-100: var(--ks-paper);
+  --mc-98: var(--ks-paper);
+  --mc-96: var(--ks-paper);
+  --mc-93: var(--ks-paper);
+  --mc-85: var(--ks-line);
+  --mc-82: var(--ks-line);
+  --mc-81: var(--ks-line);
+  --mc-78: var(--ks-panel);
+  --mc-71: var(--ks-panel);
+  --mc-66: var(--ks-panel);
+  --mc-65: var(--ks-panel);
+  --mc-62: var(--ks-panel);
+  --mc-61: var(--ks-paper);
+  --mc-56: var(--ks-line);
+  --mc-55: var(--ks-paper);
+  --mc-54: var(--ks-paper);
+  --mc-49: var(--ks-paper);
+  --mc-47: var(--ks-paper);
+  --mc-44: var(--ks-paper);
+  --mc-36: var(--ks-bg);
+  --mc-33: var(--ks-bg);
+  --mc-29: var(--ks-bg);
+  --mc-26: var(--ks-bg);
+  --mc-25: var(--ks-bg);
+  --mc-24: var(--ks-well);
+  --mc-20: var(--ks-bg);
+  --mc-15: var(--ks-well);
+  --mc-12: var(--ks-well);
+}
+html body {
+  background: var(--ks-bg);
+  color: var(--ks-text);
+  font-family: var(--app-font);
+}
+.ks-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--ks-line);
+  background: var(--ks-bg);
+  font-family: var(--ks-serif);
+}
+.ks-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ks-text);
+  text-decoration: none;
+  font-size: 22px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+.ks-brand small {
+  display: block;
+  margin-top: 3px;
+  font:
+    9px/1.4 Georgia,
+    serif;
+  letter-spacing: 1.5px;
+  color: var(--ks-muted);
+}
+.ks-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 38px;
+  border: 1px solid var(--ks-line);
+  border-radius: 3px;
+  color: var(--ks-green);
+  font-size: 21px;
+}
+.ks-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 12px;
+  color: var(--ks-muted);
+  white-space: nowrap;
+}
+.ks-nav a {
+  text-decoration: none;
+}
+.ks-nav a:hover {
+  color: var(--ks-green);
+}
+.ks-nav select,
+.ks-nav button {
+  border: 1px solid var(--ks-line);
+  background: var(--ks-paper);
+  border-radius: 3px;
+  color: var(--ks-text);
+  padding: 5px 7px;
+  font: inherit;
+}
+.ks-nav button {
+  min-width: 30px;
+  cursor: pointer;
+}
+.ks-nav :focus-visible,
+.ks-brand:focus-visible {
+  outline: 2px solid var(--ks-green);
+  outline-offset: 3px;
+}
+.ks-local-note {
+  color: var(--ks-muted);
+  border-left: 2px solid var(--ks-green);
+  padding: 10px 14px;
+  background: var(--ks-soft);
+  font-size: 12px;
+}
+html .mb {
+  height: 24px;
+  padding: 4px 6px;
+}
+html .mb-key,
+html .mm,
+html .ms,
+html .pn,
+html .cc-card {
+  box-shadow: inset 0 0 0 1px var(--ks-line);
+  border-radius: 3px;
+}
+html .mb-key:hover,
+html .mm-row:hover {
+  background: var(--ks-soft);
+}
+html .pn-skin .text-white {
+  color: var(--ks-text);
+}
+html .pn-skin [class*="text-[#aebccd]"] {
+  color: var(--ks-muted);
+}
+html .pn-skin h1 {
+  letter-spacing: 1px;
+}
+html .pn-skin button {
+  border-radius: 3px;
+}
+/* Tooltips retain their own dark surface, matching the dark Catppuccin palette in both themes. */
+html .tp,
+html .mc-tip {
+  --pn-ink: #cdd6f4;
+  color: #cdd6f4;
+  background: #242436;
+  border-color: #45475a;
+  font-family: var(--ks-serif);
+}
+@media (max-width: 620px) {
+  .ks-header {
+    min-height: 54px;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .ks-brand {
+    font-size: 17px;
+    gap: 8px;
+    letter-spacing: 1px;
+  }
+  .ks-brand small {
+    display: none;
+  }
+  .ks-mark {
+    width: 26px;
+    height: 30px;
+    font-size: 17px;
+  }
+  .ks-nav {
+    gap: 8px;
+    font-size: 11px;
+  }
+  .ks-nav > a:first-child {
+    display: none;
+  }
+}
+html .pn-skin button.bg-cyan-400 {
+  color: var(--ks-bg);
+}
+html .nei-text {
+  color: var(--ks-text);
+  text-shadow: none;
+}
+html .mb-key,
+html .nei-btn,
+html .rail-key {
+  text-shadow: none;
+}
+html .cc-card {
+  box-shadow:
+    inset 0 0 0 1px var(--cc-frame, var(--ks-line)),
+    0 3px 10px rgb(0 0 0 / 8%);
+}
+html .cd[data-kind] {
+  --cd-body: var(--ks-paper);
+  --cd-edge: color-mix(in srgb, var(--cd-tint) 45%, var(--ks-line));
+  --cd-frame: color-mix(in srgb, var(--cd-tint) 45%, var(--ks-line));
+  --cd-bar: color-mix(in srgb, var(--cd-tint) 12%, var(--ks-paper));
+  --cd-bar-hot: color-mix(in srgb, var(--cd-tint) 20%, var(--ks-paper));
+  --cd-number: var(--ks-text);
+  --cd-name: var(--ks-muted);
+  --cd-glance: var(--ks-paper);
+  --cd-stripe: var(--ks-soft);
+}
+html .rail-sec-title {
+  color: var(--ks-text) !important;
+}

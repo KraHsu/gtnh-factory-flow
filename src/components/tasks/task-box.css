@@ -88,7 +88,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: #4a4c54 transparent;
+  scrollbar-color: var(--ks-line) transparent;
 }
 .tbx-main {
   flex: none;
@@ -146,7 +146,7 @@
   flex: 1 1 auto;
   height: 3px;
   margin: -1px 0 0 8px;
-  background: #2c2e34;
+  background: var(--ks-paper);
 }
 .tbx-progress span {
   position: absolute;
@@ -227,9 +227,9 @@
   height: 10px;
   margin-top: 0;
   padding: 0;
-  border: 1px solid #5a5d66;
+  border: 1px solid var(--ks-line);
   background: var(--tb-well);
-  color: #0b1a12;
+  color: var(--ks-well);
   cursor: pointer;
 }
 .tbx-thing[data-kind="machine"] .tbx-box,
@@ -237,7 +237,7 @@
   align-self: center;
 }
 .tbx-box:hover {
-  border-color: #8f939c;
+  border-color: var(--ks-muted);
 }
 .tbx-box[aria-checked="true"] {
   border-color: var(--tb-ok);
@@ -279,7 +279,7 @@
 }
 .tbx-thing[data-done] .tbx-words,
 .tbx-thing[data-gone] .tbx-words {
-  color: #8a8c94;
+  color: var(--ks-muted);
 }
 .tbx-thing[data-done] .tbx-words {
   text-decoration: line-through;
@@ -375,7 +375,7 @@
 }
 .tbx-comment p {
   margin-top: 1px;
-  color: #d4d5da;
+  color: var(--ks-text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   user-select: text;
@@ -410,14 +410,14 @@
   width: 100%;
   height: 18px;
   padding: 0 0 0 5px;
-  border: 1px solid color-mix(in srgb, var(--pick) 35%, #2a2c31);
-  background: color-mix(in srgb, var(--pick) 14%, #23252a);
+  border: 1px solid color-mix(in srgb, var(--pick) 35%, var(--ks-paper));
+  background: color-mix(in srgb, var(--pick) 14%, var(--ks-paper));
   text-align: left;
   cursor: pointer;
 }
 .tbx-picker:hover {
-  border-color: color-mix(in srgb, var(--pick) 50%, #2a2c31);
-  background: color-mix(in srgb, var(--pick) 22%, #23252a);
+  border-color: color-mix(in srgb, var(--pick) 50%, var(--ks-paper));
+  background: color-mix(in srgb, var(--pick) 22%, var(--ks-paper));
 }
 .tbx-picker:disabled {
   cursor: default;
@@ -469,7 +469,7 @@
   text-align: left;
 }
 .tbx-sign-in:hover {
-  color: #fff;
+  color: var(--ks-text);
 }
 .tbx-links {
   display: flex;
@@ -566,12 +566,12 @@
   box-shadow: none;
 }
 .tb-key.tbx-post[data-any] {
-  color: #0b1a1e;
+  color: var(--ks-well);
   background: var(--tb-cyan);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .tb-key.tbx-post[data-any]:hover {
-  background: #38e1f5;
+  background: var(--ks-green);
 }
 .tb-key.tbx-delete {
   margin: 0 0 4px auto;

@@ -1,4 +1,6 @@
 "use client";
+import { useT } from "@/lib/i18n";
+
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { wheelChangesValues } from "@/lib/device-settings";
 import { ChevronDown } from "lucide-react";
@@ -28,8 +30,18 @@ import { buildRatePlateTooltip } from "./storage-tooltip-data";
 /** The rule list, in the order the rule button's wheel steps through it. Any
  * is stored as "ignore": a number can wait there without applying. */
 export const RULE_STEPS: TargetMode[] = ["ignore", "at-least", "exact", "at-most"];
-export const RULE_MARK: Record<TargetMode, string> = { ignore: "~", "at-least": "≥", exact: "=", "at-most": "≤" };
-export const RULE_NAME: Record<TargetMode, string> = { ignore: "Any", "at-least": "At least", exact: "Exactly", "at-most": "At most" };
+export const RULE_MARK: Record<TargetMode, string> = {
+  ignore: "~",
+  "at-least": "≥",
+  exact: "=",
+  "at-most": "≤",
+};
+export const RULE_NAME: Record<TargetMode, string> = {
+  ignore: "Any",
+  "at-least": "At least",
+  exact: "Exactly",
+  "at-most": "At most",
+};
 
 export type RateRuleVariant = "drawer" | "table";
 
@@ -128,7 +140,9 @@ export function useRateRule({
   const input = isInputRate(storage, role);
   // While the solver has NOTHING to solve for - no amount, no pin, anywhere -
   // every empty box pulses the ask, in step with the board's notice.
-  const ask = useFactoryStore((state) => target === undefined && mode !== "ignore" && !hasAnySolveNumbers(state.project));
+  const ask = useFactoryStore(
+    (state) => target === undefined && mode !== "ignore" && !hasAnySolveNumbers(state.project),
+  );
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -146,7 +160,11 @@ export function useRateRule({
     if (locked) return;
     setOpen(false);
     setPendingMode(nextMode);
-    setDraft(perSecond === undefined ? "" : `${signed && input && perSecond !== 0 ? "-" : ""}${draftFor(perSecond, kind)}`);
+    setDraft(
+      perSecond === undefined
+        ? ""
+        : `${signed && input && perSecond !== 0 ? "-" : ""}${draftFor(perSecond, kind)}`,
+    );
     setEditing(true);
   };
   const cancelEdit = () => {
@@ -182,7 +200,10 @@ export function useRateRule({
   // rule. Never below zero, and never across it: the sign stays the row's.
   // `add` is the mod's wheel (DrawerCard.stepRate): the shown figure rounded, then plus or minus the step, not a landing on
   // whole steps.
-  const stepRate = (up: boolean, modifiers: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean; add?: boolean }) => {
+  const stepRate = (
+    up: boolean,
+    modifiers: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean; add?: boolean },
+  ) => {
     const state = useFactoryStore.getState();
     if (state.isReadOnly || state.checklistMode) return;
     const step = modifiers.shiftKey ? 100 : modifiers.ctrlKey || modifiers.metaKey ? 10 : 1;
@@ -190,7 +211,12 @@ export function useRateRule({
     const shown = (any ? Math.abs(flowing) : Math.abs(target!)) * unitScale;
     const next = modifiers.add
       ? Math.max(0, Math.round(shown) + (up ? step : -step))
-      : Math.max(0, up ? Math.floor(shown / step + 1e-9) * step + step : Math.ceil(shown / step - 1e-9) * step - step);
+      : Math.max(
+          0,
+          up
+            ? Math.floor(shown / step + 1e-9) * step + step
+            : Math.ceil(shown / step - 1e-9) * step - step,
+        );
     if (!any && Math.abs(next - shown) < 1e-9) return;
     // Scrolling down on an empty box asks for nothing: no zero rule appears.
     if (any && next === 0) return;
@@ -238,15 +264,40 @@ export function useRateRule({
   };
 
   return {
-    storage, result, flowing, kind, mode, target, any, input, signed, ask, locked, shownMode,
-    open, setOpen, editing, draft, setDraft, beginEdit, cancelEdit, choose, stepRule, stepRate, commit, clear,
+    storage,
+    result,
+    flowing,
+    kind,
+    mode,
+    target,
+    any,
+    input,
+    signed,
+    ask,
+    locked,
+    shownMode,
+    open,
+    setOpen,
+    editing,
+    draft,
+    setDraft,
+    beginEdit,
+    cancelEdit,
+    choose,
+    stepRule,
+    stepRate,
+    commit,
+    clear,
   };
 }
 
 export type RateRule = ReturnType<typeof useRateRule>;
 
 /** What the rule button needs: the rule shown, the list, and its moves. */
-export type RuleControl = Pick<RateRule, "shownMode" | "any" | "locked" | "open" | "setOpen" | "choose" | "stepRule" | "clear"> & {
+export type RuleControl = Pick<
+  RateRule,
+  "shownMode" | "any" | "locked" | "open" | "setOpen" | "choose" | "stepRule" | "clear"
+> & {
   /** Named in the button's label where several rows sit together. */
   name?: string;
 };
@@ -257,7 +308,15 @@ export type RuleControl = Pick<RateRule, "shownMode" | "any" | "locked" | "open"
  * where the Target column put it, and Any is stored as Ignore. The table
  * shows the rule as stored even with no rate typed yet.
  */
-export function useTableRule({ storage, role, name }: { storage: FactoryStorage; role: StorageRole | undefined; name: string }): RuleControl {
+export function useTableRule({
+  storage,
+  role,
+  name,
+}: {
+  storage: FactoryStorage;
+  role: StorageRole | undefined;
+  name: string;
+}): RuleControl {
   const setStorageTarget = useFactoryStore((state) => state.setStorageTarget);
   const setStorageTargetMode = useFactoryStore((state) => state.setStorageTargetMode);
   const locked = useFactoryStore((state) => state.isReadOnly || state.checklistMode);
@@ -279,7 +338,17 @@ export function useTableRule({ storage, role, name }: { storage: FactoryStorage;
     event.stopPropagation();
     if (!locked && storage.targetPerSecond !== undefined) setStorageTarget(storage.id, undefined);
   };
-  return { name, shownMode: mode, any: mode === "ignore", locked, open, setOpen, choose, stepRule, clear };
+  return {
+    name,
+    shownMode: mode,
+    any: mode === "ignore",
+    locked,
+    open,
+    setOpen,
+    choose,
+    stepRule,
+    clear,
+  };
 }
 
 /** A native, non-passive wheel listener: React's are passive and cannot stop
@@ -313,7 +382,14 @@ function clippingBox(element: HTMLElement): { top: number; bottom: number } {
 }
 
 /** The rule button and, while open, its list of four. */
-export function RuleButton({ rule, variant = "drawer" }: { rule: RuleControl; variant?: RateRuleVariant }) {
+export function RuleButton({
+  rule,
+  variant = "drawer",
+}: {
+  rule: RuleControl;
+  variant?: RateRuleVariant;
+}) {
+  const t = useT();
   const rootRef = useRef<HTMLSpanElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const [button, setButton] = useState<HTMLButtonElement | null>(null);
@@ -343,7 +419,10 @@ export function RuleButton({ rule, variant = "drawer" }: { rule: RuleControl; va
   });
   const table = variant === "table";
   return (
-    <span ref={rootRef} className={`storage-rule-anchor ${table ? "storage-rule-anchor--table" : ""}`}>
+    <span
+      ref={rootRef}
+      className={`storage-rule-anchor ${table ? "storage-rule-anchor--table" : ""}`}
+    >
       <button
         ref={setButton}
         type="button"
@@ -386,7 +465,7 @@ export function RuleButton({ rule, variant = "drawer" }: { rule: RuleControl; va
         <div
           ref={listRef}
           role="listbox"
-          aria-label="Rule"
+          aria-label={t("Rule")}
           data-tooltip-stop
           className={`storage-rule-list nodrag nowheel ${table ? "storage-rule-list--table" : ""} ${up ? "storage-rule-list--up" : ""}`}
           onPointerDown={(event) => event.stopPropagation()}
@@ -450,14 +529,28 @@ export function RateBox({ rule }: { rule: RateRule }) {
         onMouseDown={middleDownKeepsFocus}
         onAuxClick={rule.clear}
         inputMode={signed ? "text" : "decimal"}
-        placeholder={rule.flowing > 0 ? `${signed && input ? "-" : ""}${draftFor(rule.flowing, kind)}` : "rate"}
+        placeholder={
+          rule.flowing > 0 ? `${signed && input ? "-" : ""}${draftFor(rule.flowing, kind)}` : "rate"
+        }
         aria-label="Your rate"
         className="storage-rate-field storage-rate-field--editing nodrag"
       />
     );
   }
   return (
-    <MinecraftTooltip content={() => <RecipeTooltip view={buildRatePlateTooltip(storage, result, input, rule.flowing, any ? undefined : rule.mode)} />}>
+    <MinecraftTooltip
+      content={() => (
+        <RecipeTooltip
+          view={buildRatePlateTooltip(
+            storage,
+            result,
+            input,
+            rule.flowing,
+            any ? undefined : rule.mode,
+          )}
+        />
+      )}
+    >
       <button
         ref={setBox}
         type="button"
@@ -475,7 +568,11 @@ export function RateBox({ rule }: { rule: RateRule }) {
         }}
         onMouseDown={middleDownKeepsFocus}
         onAuxClick={rule.clear}
-        aria-label={any ? "Your rate: none. Click to type one." : `Your rate: ${shown} ${unit}. Click to change it.`}
+        aria-label={
+          any
+            ? "Your rate: none. Click to type one."
+            : `Your rate: ${shown} ${unit}. Click to change it.`
+        }
       >
         <span className="storage-rate-field-number">{any ? "rate?" : shown}</span>
         {any ? null : <span className="storage-rate-field-unit">{unit}</span>}

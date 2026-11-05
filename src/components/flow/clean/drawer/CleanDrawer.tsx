@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "../clean.css";
 import "./drawer.css";
@@ -88,6 +89,7 @@ export function CleanDrawer({
   selected: boolean;
   role: StorageRole;
 }) {
+  const t = useT();
   const { storage, result } = data;
   const fontEpoch = useFontEpoch();
   useEffect(() => ensureInteractionHost(), []);
@@ -139,7 +141,16 @@ export function CleanDrawer({
   );
   const view = useMemo(
     () =>
-      buildDrawerView({ storage, role, label, result, unanchored, unmet, linked: role !== "idle", spill }),
+      buildDrawerView({
+        storage,
+        role,
+        label,
+        result,
+        unanchored,
+        unmet,
+        linked: role !== "idle",
+        spill,
+      }),
     // The rate and power dials change the strings (the units are read inside).
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [storage, role, label, result, unanchored, unmet, spill, rateUnit, powerUnit, fontEpoch],
@@ -216,7 +227,8 @@ export function CleanDrawer({
   }, [rule.open]);
 
   useNativeWheel(keyEl, (event) => {
-    if (locked || event.ctrlKey || event.deltaY === 0 || !view.hasRule || !wheelChangesValues()) return;
+    if (locked || event.ctrlKey || event.deltaY === 0 || !view.hasRule || !wheelChangesValues())
+      return;
     event.preventDefault();
     event.stopPropagation();
     stepRule(event.deltaY > 0 ? 1 : -1);
@@ -418,7 +430,8 @@ export function CleanDrawer({
             onPointerDownCapture={pressed}
             onClick={(event) => {
               event.stopPropagation();
-              if (wasClick(event) && !rule.locked && !checklistLocked()) flipStorageSide(storage.id);
+              if (wasClick(event) && !rule.locked && !checklistLocked())
+                flipStorageSide(storage.id);
             }}
           />
         ) : null}
@@ -576,7 +589,7 @@ export function CleanDrawer({
             <span className="cd-forced-num" data-unit={view.spill.unit}>
               {view.spill.number}
             </span>
-            <span className="cd-forced-name">Forced out</span>
+            <span className="cd-forced-name">{t("Forced out")}</span>
           </div>
         ) : null}
         {rowBrowse.menu}
@@ -585,7 +598,7 @@ export function CleanDrawer({
         <BoardMenu
           x={menu.left}
           y={menu.bottom + 2}
-          label="Rule"
+          label={t("Rule")}
           width={210}
           onClose={() => rule.setOpen(false)}
         >

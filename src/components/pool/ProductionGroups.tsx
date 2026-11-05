@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { materialRuleHelp } from "./material-rule-help";
 
@@ -25,13 +26,14 @@ export function ProductionGroupSelect({
   disabled?: boolean;
   exclude?: Set<string>;
 }) {
+  const t = useT();
   const savedGroups = useFactoryStore((state) => state.project.productionGroups);
   const options = productionGroupTree(savedGroups ?? []).filter(
     ({ group }) => !exclude?.has(group.id),
   );
   return (
     <label className="pool-production-move">
-      <span>{exclude ? "Inside" : "Group"}</span>
+      <span>{exclude ? "Inside" : t("Group")}</span>
       <select
         className="pool-production-select"
         aria-label={label}
@@ -39,7 +41,7 @@ export function ProductionGroupSelect({
         disabled={disabled || !options.length}
         onChange={(event) => onChange(event.target.value || undefined)}
       >
-        <option value="">Top level</option>
+        <option value="">{t("Top level")}</option>
         {options.map(({ group, depth }) => (
           <option key={group.id} value={group.id}>
             {"· ".repeat(depth)}
@@ -76,23 +78,29 @@ export function ProductionScopeHeader({
   outputs: GroupFlow[];
   renderResource: (resource: ResourceAmount) => ReactNode;
 }) {
+  const t = useT();
   useRateDisplayUnits();
   const groups = useFactoryStore((state) => state.project.productionGroups);
   const { begin } = useWorksheetPointerDrag();
   const scopeRef = useRef<HTMLTableSectionElement>(null);
   useLayoutEffect(() => {
-    const sections = [...(scopeRef.current?.querySelectorAll<HTMLElement>(".pool-material-columns") ?? [])]
-      .map(element => ({ element, rates: [...element.querySelectorAll<HTMLElement>(".pool-material-rate")] }));
+    const sections = [
+      ...(scopeRef.current?.querySelectorAll<HTMLElement>(".pool-material-columns") ?? []),
+    ].map((element) => ({
+      element,
+      rates: [...element.querySelectorAll<HTMLElement>(".pool-material-rate")],
+    }));
     const measure = () => {
       for (const { element, rates } of sections) {
         // Intrinsic rate widths include the smaller unit text. Character counts
         // overestimate these, leaving room unused before the next column fits.
-        const width = Math.max(1, ...rates.map(rate => rate.offsetWidth + 1));
+        const width = Math.max(1, ...rates.map((rate) => rate.offsetWidth + 1));
         element.style.setProperty("--pool-material-rate-width", width + "px");
       }
     };
     measure();
-    const observer = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measure);
+    const observer =
+      typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measure);
     for (const { rates } of sections) for (const rate of rates) observer?.observe(rate);
     return () => observer?.disconnect();
   }, [resources, inputs, outputs]);
@@ -104,9 +112,16 @@ export function ProductionScopeHeader({
     group && (group.parentId || (groups ?? []).some((entry) => !excluded.has(entry.id)));
   // Boundary totals may include closed child pools. Only rows in this scope
   // get a rule control; a parent's rule must not pretend to change a child.
-  const materials = new Map<string, { resource: ResourceAmount; row?: ResourceRow; input: number; output: number }>();
-  for (const row of resources) materials.set(row.key, { resource: row.resource, row, input: 0, output: 0 });
-  for (const [side, flows] of [["input", inputs], ["output", outputs]] as const) {
+  const materials = new Map<
+    string,
+    { resource: ResourceAmount; row?: ResourceRow; input: number; output: number }
+  >();
+  for (const row of resources)
+    materials.set(row.key, { resource: row.resource, row, input: 0, output: 0 });
+  for (const [side, flows] of [
+    ["input", inputs],
+    ["output", outputs],
+  ] as const) {
     for (const flow of flows) {
       const key = flow.resource.kind + ":" + flow.resource.id;
       const entry = materials.get(key) ?? { resource: flow.resource, input: 0, output: 0 };
@@ -126,8 +141,13 @@ export function ProductionScopeHeader({
     const requested = entry.row?.takers.some((port) => port.storage);
     return supplied && !requested ? 0 : requested && !supplied ? 1 : 2;
   };
-  const visibleMaterials = [...materials.entries()]
-    .sort(([, a], [, b]) => direction(a) - direction(b) || (a.resource.displayName ?? a.resource.id).localeCompare(b.resource.displayName ?? b.resource.id));
+  const visibleMaterials = [...materials.entries()].sort(
+    ([, a], [, b]) =>
+      direction(a) - direction(b) ||
+      (a.resource.displayName ?? a.resource.id).localeCompare(
+        b.resource.displayName ?? b.resource.id,
+      ),
+  );
   return (
     <tbody
       ref={scopeRef}
@@ -191,18 +211,28 @@ export function ProductionScopeHeader({
             {materials.size > 0 && !collapsed ? (
               <span className="pool-balance-hint">
                 <span className="pool-balance-hint-part">
-                  <span className="pool-balance-legend" data-on><Scale aria-hidden /><strong>On:</strong></span>{" "}
+                  <span className="pool-balance-legend" data-on>
+                    <Scale aria-hidden />
+                    <strong>On:</strong>
+                  </span>{" "}
                   If recipes here both make and use a material, the amounts must match.
                 </span>{" "}
                 <span className="pool-balance-hint-part">
-                  <span className="pool-balance-legend"><Scale aria-hidden /><strong>Off:</strong></span>{" "}
-                  {group ? "Share that material with the parent group." : "Allow outside supply for shortages and let surplus leave."}
+                  <span className="pool-balance-legend">
+                    <Scale aria-hidden />
+                    <strong>Off:</strong>
+                  </span>{" "}
+                  {group
+                    ? "Share that material with the parent group."
+                    : "Allow outside supply for shortages and let surplus leave."}
                 </span>{" "}
-                <span className="pool-balance-hint-part">Materials only made here can leave; materials only used here can come in.</span>
+                <span className="pool-balance-hint-part">
+                  Materials only made here can leave; materials only used here can come in.
+                </span>
               </span>
             ) : null}
             {group && !hasContents ? (
-              <span className="pool-production-summary">Empty · drag recipes here</span>
+              <span className="pool-production-summary">{t("Empty · drag recipes here")}</span>
             ) : null}
             {group && hasContents ? <div className="pool-group-power-inline">{power}</div> : null}
             <div className="pool-group-actions">
@@ -224,18 +254,28 @@ export function ProductionScopeHeader({
                     aria-label={"Balance all materials in " + name}
                     aria-pressed={allBalanced ? true : someBalanced ? "mixed" : false}
                     disabled={!resources.length}
-                    title={"Turn Balance " + (allBalanced ? "off" : "on") + " for every material in " + name + "."}
-                    onClick={() => useFactoryStore.getState().setPoolResourceRules(
-                      group?.id, resources.map((row) => row.key), allBalanced ? (group ? "share" : "import") : undefined,
-                    )}
+                    title={
+                      "Turn Balance " +
+                      (allBalanced ? "off" : "on") +
+                      " for every material in " +
+                      name +
+                      "."
+                    }
+                    onClick={() =>
+                      useFactoryStore.getState().setPoolResourceRules(
+                        group?.id,
+                        resources.map((row) => row.key),
+                        allBalanced ? (group ? "share" : "import") : undefined,
+                      )
+                    }
                   >
                     <Scale size={14} aria-hidden />
                   </button>
                   <button
                     type="button"
                     className="pool-production-key"
-                    aria-label={group ? "Add subgroup to " + name : "Add production group"}
-                    title={group ? "Add subgroup to " + name : "Add production group"}
+                    aria-label={group ? "Add subgroup to " + name : t("Add production group")}
+                    title={group ? "Add subgroup to " + name : t("Add production group")}
                     onClick={() =>
                       useFactoryStore
                         .getState()
@@ -243,7 +283,7 @@ export function ProductionScopeHeader({
                     }
                   >
                     <FolderPlus size={14} />
-                    <span className="sr-only">Add group</span>
+                    <span className="sr-only">{t("Add group")}</span>
                   </button>
                   {group ? (
                     <button
@@ -254,59 +294,155 @@ export function ProductionScopeHeader({
                       onClick={() => useFactoryStore.getState().dissolveProductionGroup(group.id)}
                     >
                       <Trash2 size={14} />
-                      <span className="sr-only">Delete group</span>
+                      <span className="sr-only">{t("Delete group")}</span>
                     </button>
                   ) : null}
                 </>
               ) : null}
             </div>
           </div>
-            <div className="pool-scope-content">
-          {materials.size ? (
-            <section className="pool-scope-materials" aria-label={"Materials for " + name}>
-              <div className="pool-material-strip">
-                {["Inputs", "Outputs", "Internal"].map((label, index) => {
-                  const entries = visibleMaterials.filter(([, entry]) => direction(entry) === index);
-                  if (!entries.length) return null;
-                  return <table className="pool-material-table" key={label} aria-label={label + " for " + name}>
-                    <caption title={index === 2 ? "Made and used within this scope, with no net flow." : undefined}>{label}</caption>
-                    <tbody><tr>
-                      <td><div className="pool-material-columns" style={{ "--pool-material-rule-width": entries.some(([, entry]) => !entry.row) ? "80px" : "22px" } as CSSProperties}>
-                {entries.map(([key, { resource, row, input, output }]) => {
-                  const material = resource.displayName ?? resource.id;
-                  const net = output - input;
-                  const sign = Math.sign(net);
-                  const rate = formatPoolSignedRate(sign ? Math.abs(net) : 0, resource.kind, sign);
-                  const unit = rateSuffixForKind(resource.kind).trim();
-                  return <div className="pool-scope-material" key={key} data-material-key={key} data-material-draggable={!readOnly || undefined}
-                    onPointerDown={(event) => {
-                      // The icon owns its browse/drag gestures; Balance remains a button.
-                      // Rates and the rest of the row are generous pickup space.
-                      if ((event.target as Element).closest("button, input, select, a")) return;
-                      begin(event, { resource });
-                    }}>
-                    {renderResource(resource)}
-                      <span className={"pool-material-rate " + (sign < 0 ? "pool-flow-input" : sign > 0 ? "pool-flow-output" : "pool-flow-internal")}
-                        aria-label={material + ": " + (sign < 0 ? "net input " : sign > 0 ? "net output " : "no net flow ") + formatSlotRateBare(Math.abs(net), resource.kind) + unit}
-                        title={"Input: " + formatSlotRateBare(input, resource.kind) + unit + "; output: " + formatSlotRateBare(output, resource.kind) + unit}>
-                        <strong>{rate}</strong><small>{unit}</small>
-                      </span>
-                    {row ? <button type="button" className="pool-material-balance"
-                      aria-label={"Balance " + material + " in " + name} aria-pressed={!row.rule}
-                      title={materialRuleHelp(row.rule, Boolean(group))} disabled={readOnly}
-                      onClick={() => useFactoryStore.getState().setPoolResourceRule(group?.id, row.key, row.rule ? undefined : group ? "share" : "import")}>
-                      <Scale aria-hidden />
-                    </button> : <span className="pool-material-inherited" title="This total includes a child group's local material. Change its rule in that group.">Within groups</span>}
-                  </div>;
-                })}
-                      </div></td>
-                    </tr></tbody>
-                  </table>;
-                })}
-              </div>
-            </section>
-          ) : null}
-            </div>
+          <div className="pool-scope-content">
+            {materials.size ? (
+              <section className="pool-scope-materials" aria-label={"Materials for " + name}>
+                <div className="pool-material-strip">
+                  {["Inputs", "Outputs", "Internal"].map((label, index) => {
+                    const entries = visibleMaterials.filter(
+                      ([, entry]) => direction(entry) === index,
+                    );
+                    if (!entries.length) return null;
+                    return (
+                      <table
+                        className="pool-material-table"
+                        key={label}
+                        aria-label={label + " for " + name}
+                      >
+                        <caption
+                          title={
+                            index === 2
+                              ? "Made and used within this scope, with no net flow."
+                              : undefined
+                          }
+                        >
+                          {label}
+                        </caption>
+                        <tbody>
+                          <tr>
+                            <td>
+                              <div
+                                className="pool-material-columns"
+                                style={
+                                  {
+                                    "--pool-material-rule-width": entries.some(
+                                      ([, entry]) => !entry.row,
+                                    )
+                                      ? "80px"
+                                      : "22px",
+                                  } as CSSProperties
+                                }
+                              >
+                                {entries.map(([key, { resource, row, input, output }]) => {
+                                  const material = resource.displayName ?? resource.id;
+                                  const net = output - input;
+                                  const sign = Math.sign(net);
+                                  const rate = formatPoolSignedRate(
+                                    sign ? Math.abs(net) : 0,
+                                    resource.kind,
+                                    sign,
+                                  );
+                                  const unit = rateSuffixForKind(resource.kind).trim();
+                                  return (
+                                    <div
+                                      className="pool-scope-material"
+                                      key={key}
+                                      data-material-key={key}
+                                      data-material-draggable={!readOnly || undefined}
+                                      onPointerDown={(event) => {
+                                        // The icon owns its browse/drag gestures; Balance remains a button.
+                                        // Rates and the rest of the row are generous pickup space.
+                                        if (
+                                          (event.target as Element).closest(
+                                            "button, input, select, a",
+                                          )
+                                        )
+                                          return;
+                                        begin(event, { resource });
+                                      }}
+                                    >
+                                      {renderResource(resource)}
+                                      <span
+                                        className={
+                                          "pool-material-rate " +
+                                          (sign < 0
+                                            ? "pool-flow-input"
+                                            : sign > 0
+                                              ? "pool-flow-output"
+                                              : "pool-flow-internal")
+                                        }
+                                        aria-label={
+                                          material +
+                                          ": " +
+                                          (sign < 0
+                                            ? "net input "
+                                            : sign > 0
+                                              ? "net output "
+                                              : "no net flow ") +
+                                          formatSlotRateBare(Math.abs(net), resource.kind) +
+                                          unit
+                                        }
+                                        title={
+                                          "Input: " +
+                                          formatSlotRateBare(input, resource.kind) +
+                                          unit +
+                                          "; output: " +
+                                          formatSlotRateBare(output, resource.kind) +
+                                          unit
+                                        }
+                                      >
+                                        <strong>{rate}</strong>
+                                        <small>{unit}</small>
+                                      </span>
+                                      {row ? (
+                                        <button
+                                          type="button"
+                                          className="pool-material-balance"
+                                          aria-label={"Balance " + material + " in " + name}
+                                          aria-pressed={!row.rule}
+                                          title={materialRuleHelp(row.rule, Boolean(group))}
+                                          disabled={readOnly}
+                                          onClick={() =>
+                                            useFactoryStore
+                                              .getState()
+                                              .setPoolResourceRule(
+                                                group?.id,
+                                                row.key,
+                                                row.rule ? undefined : group ? "share" : "import",
+                                              )
+                                          }
+                                        >
+                                          <Scale aria-hidden />
+                                        </button>
+                                      ) : (
+                                        <span
+                                          className="pool-material-inherited"
+                                          title="This total includes a child group's local material. Change its rule in that group."
+                                        >
+                                          {t("Within groups")}
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
+          </div>
         </td>
       </tr>
     </tbody>

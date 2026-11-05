@@ -9,31 +9,31 @@
  */
 :root,
 .cc {
-  --cc-surface: #23252a;
-  --cc-edge: #34363c;
-  --cc-hair: #2c2e34;
-  --cc-ink: #e8e9ee;
-  --cc-muted: #9a9ca4;
-  --cc-gold: #ffd257;
-  --cc-select: #22d3ee;
+  --cc-surface: var(--ks-paper);
+  --cc-edge: var(--ks-paper);
+  --cc-hair: var(--ks-paper);
+  --cc-ink: var(--ks-text);
+  --cc-muted: var(--ks-muted);
+  --cc-gold: var(--ks-amber);
+  --cc-select: var(--ks-green);
   --cc-red: #e05252;
   --cc-amber: #e0a63a;
   --cc-ok: #5ee9b5;
   --cc-source: #78b6f4;
   --cc-product: #f59a5c;
-  --cc-trash: #8a93a6;
-  --cc-idle: #a8afbb;
+  --cc-trash: var(--ks-muted);
+  --cc-idle: var(--ks-text);
   --cc-accept: #4ade80;
   --cc-wire-go: #22c55e;
   --cc-wire-no: #ef4444;
-  --cc-key: #26282d;
-  --cc-key-hover: #2d2f35;
-  --cc-key-edge: #111317;
-  --cc-key-hi: #4a4c54;
-  --cc-key-lo: #17191d;
-  --cc-canvas: #141414;
-  --cc-canvas-dot: #26282d;
-  --cc-prompt-off: #6f737c;
+  --cc-key: var(--ks-paper);
+  --cc-key-hover: var(--ks-paper);
+  --cc-key-edge: var(--ks-well);
+  --cc-key-hi: var(--ks-line);
+  --cc-key-lo: var(--ks-paper);
+  --cc-canvas: var(--ks-well);
+  --cc-canvas-dot: var(--ks-paper);
+  --cc-prompt-off: var(--ks-muted);
   --cc-pulse: 1.9s;
   --cc-accept-pulse: 1.43s;
   --cc-prompt: 1s;
@@ -81,7 +81,7 @@
   --cc-frame: #b49cf0;
 }
 .cc-card[data-tone="unused"] {
-  --cc-frame: #8a8e97;
+  --cc-frame: var(--ks-muted);
 }
 .cc-card[data-tone="limited"] {
   --cc-frame: #f472b6;
@@ -351,10 +351,10 @@
  * A free end of the plan only changes the tile's colours, never its shape.
  */
 .cc-row {
-  --cc-tile: #2b2d33;
-  --cc-tile-edge: #121418;
-  --cc-tile-hi: #3b3e45;
-  --cc-tile-lo: #222428;
+  --cc-tile: var(--ks-paper);
+  --cc-tile-edge: var(--ks-well);
+  --cc-tile-hi: var(--ks-line);
+  --cc-tile-lo: var(--ks-paper);
   position: relative;
   box-sizing: border-box;
   flex: none;
@@ -379,7 +379,7 @@
   align-items: flex-end;
 }
 .cc-row[data-port]:hover {
-  --cc-tile: #31343a;
+  --cc-tile: var(--ks-paper);
 }
 /* An unwired port the plan runs through anyway is a free end of it: the tile of a source (blue, a tank) or a product
    (orange, a crate), a flat tint of it. */
@@ -387,18 +387,18 @@
   background: var(--cc-open-body);
 }
 .cc-row[data-open][data-side="input"] {
-  --cc-open-body: #292f38;
-  --cc-open-stripe: #2e3844;
+  --cc-open-body: var(--ks-paper);
+  --cc-open-stripe: var(--ks-paper);
   --cc-tile-edge: #4f6986;
-  --cc-tile-hi: #3a4757;
-  --cc-tile-lo: #22272e;
+  --cc-tile-hi: var(--ks-line);
+  --cc-tile-lo: var(--ks-paper);
 }
 .cc-row[data-open][data-side="output"] {
-  --cc-open-body: #322d2e;
-  --cc-open-stripe: #3e3431;
+  --cc-open-body: var(--ks-paper);
+  --cc-open-stripe: var(--ks-paper);
   --cc-tile-edge: #815e49;
-  --cc-tile-hi: #4b3f39;
-  --cc-tile-lo: #2a2425;
+  --cc-tile-hi: var(--ks-line);
+  --cc-tile-lo: var(--ks-paper);
 }
 .cc-row[data-open][data-side="input"] .cc-num {
   color: #94c3f3;
@@ -538,8 +538,8 @@
   letter-spacing: -0.45px;
 }
 .cc-pname[data-clip] {
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 10px), transparent);
-  mask-image: linear-gradient(90deg, #000 calc(100% - 10px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, var(--ks-well) calc(100% - 10px), transparent);
+  mask-image: linear-gradient(90deg, var(--ks-well) calc(100% - 10px), transparent);
 }
 .cc-row[data-side="output"] .cc-pname:not([data-clip]) {
   text-align: right;
@@ -559,7 +559,7 @@
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23F5B731' d='M18 3 7 18h7l-2 11 12-17h-8z'/%3E%3C/svg%3E")
       center / 24px no-repeat,
-    #2b2410;
+    var(--ks-paper);
   box-shadow: inset 0 0 0 1px #6b5a22;
   pointer-events: none;
 }
@@ -580,7 +580,7 @@
   width: 5px;
   height: 5px;
   background: #ffaa00;
-  box-shadow: 0 0 0 1px #000;
+  box-shadow: 0 0 0 1px var(--ks-well);
   pointer-events: none;
 }
 .cc-row[data-side="output"][data-choice]::after {
@@ -612,18 +612,18 @@
   align-items: flex-end;
 }
 .cc-forced[data-kind="in"] {
-  --cc-forced-body: #292f38;
-  --cc-forced-stripe: #2e3844;
+  --cc-forced-body: var(--ks-paper);
+  --cc-forced-stripe: var(--ks-paper);
   --cc-forced-edge: #4f6986;
-  --cc-forced-hi: #3a4757;
-  --cc-forced-lo: #22272e;
+  --cc-forced-hi: var(--ks-line);
+  --cc-forced-lo: var(--ks-paper);
 }
 .cc-forced[data-kind="out"] {
-  --cc-forced-body: #322d2e;
-  --cc-forced-stripe: #3e3431;
+  --cc-forced-body: var(--ks-paper);
+  --cc-forced-stripe: var(--ks-paper);
   --cc-forced-edge: #815e49;
-  --cc-forced-hi: #4b3f39;
-  --cc-forced-lo: #2a2425;
+  --cc-forced-hi: var(--ks-line);
+  --cc-forced-lo: var(--ks-paper);
 }
 .cc-forced[data-kind="in"] .cc-num {
   color: #94c3f3;
@@ -673,7 +673,7 @@
   --cc-why: #b49cf0;
 }
 .cc-row[data-why="unused"] {
-  --cc-why: #8a8e97;
+  --cc-why: var(--ks-muted);
 }
 
 /* ---- The machine's well ------------------------------------------------------ */
@@ -694,11 +694,11 @@
   justify-content: center;
   gap: 6px;
   border-radius: 3px;
-  background: #1a1c20;
+  background: var(--ks-paper);
   box-shadow:
-    inset 0 0 0 1px #0e0f12,
-    inset 2px 2px 0 0 #141518,
-    inset -1px -1px 0 1px #2f3138;
+    inset 0 0 0 1px var(--ks-well),
+    inset 2px 2px 0 0 var(--ks-well),
+    inset -1px -1px 0 1px var(--ks-paper);
 }
 /* The art fitted in an 80 px square, never stretched (the mod's RecipeCard.drawMachineArt). */
 .cc-art {
@@ -801,12 +801,12 @@
   min-width: calc(3ch + 8px);
   height: 12px;
   padding: 0 3px;
-  border: 1px solid #5a5e68;
-  background: #0f1114;
+  border: 1px solid var(--ks-line);
+  background: var(--ks-well);
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.7);
   line-height: 10px;
   text-align: center;
-  color: #6f737c;
+  color: var(--ks-muted);
 }
 .cc-count[data-pinned]::after,
 .cc-count[data-prompt]::after {
@@ -819,14 +819,14 @@
 /* What a click types into: the box. */
 .cc-count:not([data-editing]):not(:has(.cc-rule:hover)):hover::after {
   border-color: var(--cc-gold);
-  background: #15171c;
+  background: var(--ks-well);
 }
 .cc-count[data-editing]::after {
   display: none;
 }
 .cc-rule {
   line-height: 9px;
-  border-bottom: 1px dotted #5a5e68;
+  border-bottom: 1px dotted var(--ks-line);
   cursor: pointer;
 }
 .cc-rule:hover,
@@ -848,7 +848,7 @@
   padding: 0 3px;
   border: 1px solid var(--cc-gold);
   outline: 0;
-  background: #15171c;
+  background: var(--ks-well);
   color: var(--cc-gold);
   font: inherit;
   font-size: 8px;
@@ -887,8 +887,8 @@
   --fill: 0px;
   --ghost-l: 0px;
   --ghost-w: 0px;
-  --cc-foot-fill: color-mix(in srgb, var(--tone) 30%, #17191d);
-  --cc-foot-ghost: color-mix(in srgb, var(--tone) 34%, #17191d);
+  --cc-foot-fill: color-mix(in srgb, var(--tone) 30%, var(--ks-paper));
+  --cc-foot-ghost: color-mix(in srgb, var(--tone) 34%, var(--ks-paper));
   position: relative;
   grid-column: 1 / -1;
   box-sizing: border-box;
@@ -905,9 +905,9 @@
   font-size: 8px;
   font-weight: 400;
   line-height: 10px;
-  color: #c8cad0;
+  color: var(--ks-text);
   cursor: default;
-  background-color: #17191d;
+  background-color: var(--ks-paper);
   background-image:
     linear-gradient(var(--tone), var(--tone)),
     repeating-linear-gradient(135deg, var(--cc-foot-ghost) 0 3px, transparent 3px 7px),
@@ -922,8 +922,8 @@
     var(--ghost-w) calc(100% - 4px),
     var(--fill) calc(100% - 4px);
   box-shadow:
-    inset 0 0 0 1px #0d0e11,
-    inset 1px 1px 0 1px #111215;
+    inset 0 0 0 1px var(--ks-well),
+    inset 1px 1px 0 1px var(--ks-well);
 }
 /* Where your count ends and the striped run-on starts: a line in the reason's colour. */
 .cc-foot[data-ghost] {
@@ -954,7 +954,7 @@
   --tone: #b49cf0;
 }
 .cc-foot[data-tone="unused"] {
-  --tone: #8a8e97;
+  --tone: var(--ks-muted);
 }
 .cc-foot[data-tone="limited"] {
   --tone: #f472b6;
@@ -989,7 +989,7 @@
   height: 18px;
   padding: 0 5px;
   border: 1px solid var(--cc-edge);
-  background-color: #2a2c31;
+  background-color: var(--ks-paper);
   color: var(--cc-ink);
   font-size: 8px;
   font-weight: 400;
@@ -1005,8 +1005,8 @@
   color: var(--cc-muted);
 }
 .cc-sc:hover {
-  border-color: #4a4d55;
-  background-color: #33363c;
+  border-color: var(--ks-line);
+  background-color: var(--ks-paper);
 }
 .cc-sc[data-warn] {
   border-color: #6b2a2a;
@@ -1054,8 +1054,8 @@
 .cc-glance[data-bar] {
   --glance-tone: var(--cc-muted);
   --glance-bar-h: 36px;
-  --glance-track: #17191d;
-  --glance-fill-ink: color-mix(in srgb, var(--glance-tone) 45%, #17191d);
+  --glance-track: var(--ks-paper);
+  --glance-fill-ink: color-mix(in srgb, var(--glance-tone) 45%, var(--ks-paper));
   /* The picture's widest: the card's 320 less 12 a side. With its width over height (--glance-art-ratio, glance.ts)
      it stays whole on a tall card (a shared machine's), as the mod fits it: sized by the height alone it ran to
      twice the card's width there and showed a blown-up middle. Centred in the room above the bar. */
@@ -1070,7 +1070,11 @@
   background-size:
     var(--glance-fill) var(--glance-bar-h),
     100% var(--glance-bar-h),
-    auto min(calc(100% - var(--glance-bar-h) - 18px), calc(var(--glance-art-w) / var(--glance-art-ratio, 1)));
+    auto
+      min(
+        calc(100% - var(--glance-bar-h) - 18px),
+        calc(var(--glance-art-w) / var(--glance-art-ratio, 1))
+      );
   background-origin: border-box, border-box, border-box;
   font-size: 24px;
   line-height: var(--glance-bar-h);
@@ -1094,7 +1098,7 @@
   --glance-tone: #b49cf0;
 }
 .cc-glance[data-tone="unused"] {
-  --glance-tone: #8a8e97;
+  --glance-tone: var(--ks-muted);
 }
 .cc-glance[data-tone="limited"] {
   --glance-tone: #f472b6;

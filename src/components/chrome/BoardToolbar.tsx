@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 
@@ -22,7 +23,13 @@ const LIVE = isLiveConfigured();
 
 /** The rate unit key's four clocks, in the mod's order. */
 const RATE_ORDER: RateUnit[] = ["tick", "second", "minute", "hour"];
-const RATE_LABEL: Record<string, string> = { tick: "/t", second: "/s", minute: "/min", hour: "/hr", eu: "/s" };
+const RATE_LABEL: Record<string, string> = {
+  tick: "/t",
+  second: "/s",
+  minute: "/min",
+  hour: "/hr",
+  eu: "/s",
+};
 
 /** This strip has fewer keys than the top bar: it tightens at its own width (its own px); its two groups wrap by themselves. */
 const STRIP_FIT = { tightBelow: 390, foldedBelow: 0 } as const;
@@ -49,6 +56,7 @@ export function BoardToolbar() {
  * words, then Board / Chain (remembered per board in this browser) and New task at the right.
  */
 function TaskBoardHeader() {
+  const t = useT();
   const designId = useDesignStore((state) => state.activeDesignId);
   const name = useDesignStore(
     (state) => state.designs.find((entry) => entry.id === state.activeDesignId)?.name,
@@ -69,14 +77,14 @@ function TaskBoardHeader() {
     <>
       <div className="mb-group mb-group-left">
         <span className="mb-title" data-plain="" data-task-board-title="">
-          {name?.trim() ? name : "Tasks"}
+          {name?.trim() ? name : t("Tasks")}
         </span>
         <span className="mb-count" data-plain="">
-          {count === 1 ? "1 task" : `${count} tasks`}
+          {count === 1 ? t("1 task") : `${count} tasks`}
         </span>
       </div>
       <div className="mb-group mb-group-right">
-        <span className="tb-switch" role="group" aria-label="View" data-task-view-switch="">
+        <span className="tb-switch" role="group" aria-label={t("View")} data-task-view-switch="">
           {views.map((each) => (
             <button
               key={each.id}
@@ -93,9 +101,9 @@ function TaskBoardHeader() {
         </span>
         <BarKey
           id="new-task"
-          label="New task"
+          label={t("New task")}
           off={isReadOnly}
-          tip="Add a task to To do"
+          tip={t("Add a task to To do")}
           onClick={() => requestNewTask()}
         />
       </div>
@@ -104,9 +112,14 @@ function TaskBoardHeader() {
 }
 
 function BoardKeys({ tight }: { tight: boolean }) {
+  const t = useT();
   // A live plan's undo is its own (recorded inverses of this person's edits): the keys read it when it is set.
-  const canUndo = useFactoryStore((state) => (state.liveUndo ? state.liveUndo.canUndo : state.undoHistory.length > 0));
-  const canRedo = useFactoryStore((state) => (state.liveUndo ? state.liveUndo.canRedo : state.redoHistory.length > 0));
+  const canUndo = useFactoryStore((state) =>
+    state.liveUndo ? state.liveUndo.canUndo : state.undoHistory.length > 0,
+  );
+  const canRedo = useFactoryStore((state) =>
+    state.liveUndo ? state.liveUndo.canRedo : state.redoHistory.length > 0,
+  );
   const undo = useFactoryStore((state) => state.undo);
   const redo = useFactoryStore((state) => state.redo);
   const rateUnit = useFactoryStore((state) => state.rateUnit);
@@ -136,123 +149,129 @@ function BoardKeys({ tight }: { tight: boolean }) {
   return (
     <>
       <div className="mb-group mb-group-left">
-      <BarKey
-        id="nonrecipe"
-        glyph="bolt"
-        width={tight ? undefined : 78}
-        ariaLabel="Non-recipe machines"
-        tip="Non-recipe machines: generators, turbines, boilers, reactors"
-        open={powerMenuOpen}
-        off={isReadOnly}
-        onClick={() => {
-          // The key opens the picker and closes it again.
-          if (powerMenuOpen) closePowerMenu();
-          else {
-            leaveLibrary();
-            openPowerMenu();
-          }
-        }}
-        menuAnchor
-      >
-        <PixelBolt className="mb-bolt" />
-        {tight ? null : "Non-recipe"}
-      </BarKey>
-      <BarKey
-        id="undo"
-        gap
-        icon
-        off={!canUndo || isReadOnly}
-        ariaLabel="Undo"
-        tip="Undo (Ctrl+Z)"
-        onClick={() => undo()}
-      >
-        <PixelIcon name="undo" />
-      </BarKey>
-      <BarKey
-        id="redo"
-        icon
-        off={!canRedo || isReadOnly}
-        ariaLabel="Redo"
-        tip="Redo (Ctrl+Shift+Z or Ctrl+Y)"
-        onClick={() => redo()}
-      >
-        <PixelIcon name="undo" mirror />
-      </BarKey>
+        <BarKey
+          id="nonrecipe"
+          glyph="bolt"
+          width={tight ? undefined : 78}
+          ariaLabel="Non-recipe machines"
+          tip={t("Non-recipe machines: generators, turbines, boilers, reactors")}
+          open={powerMenuOpen}
+          off={isReadOnly}
+          onClick={() => {
+            // The key opens the picker and closes it again.
+            if (powerMenuOpen) closePowerMenu();
+            else {
+              leaveLibrary();
+              openPowerMenu();
+            }
+          }}
+          menuAnchor
+        >
+          <PixelBolt className="mb-bolt" />
+          {tight ? null : t("Non-recipe")}
+        </BarKey>
+        <BarKey
+          id="undo"
+          gap
+          icon
+          off={!canUndo || isReadOnly}
+          ariaLabel="Undo"
+          tip={t("Undo (Ctrl+Z)")}
+          onClick={() => undo()}
+        >
+          <PixelIcon name="undo" />
+        </BarKey>
+        <BarKey
+          id="redo"
+          icon
+          off={!canRedo || isReadOnly}
+          ariaLabel="Redo"
+          tip={t("Redo (Ctrl+Shift+Z or Ctrl+Y)")}
+          onClick={() => redo()}
+        >
+          <PixelIcon name="undo" mirror />
+        </BarKey>
       </div>
       <div className="mb-group mb-group-right">
-      <BarKey
-        id="arrange"
-        label={arrangeLabel(arrange)}
-        width={arrange.running ? 90 : undefined}
-        tip="Auto-arrange the plan (press again to stop)"
-        off={isReadOnly}
-        open={arrangeMenu !== undefined}
-        menuAnchor={hasGroups}
-        onClick={(event) => {
-          if (arrange.running || !hasGroups) {
-            pressArrange();
-          } else if (arrangeMenu) {
-            setArrangeMenu(undefined);
-          } else {
-            setArrangeMenu(chromeAnchorOf(event.currentTarget));
-          }
-        }}
-      />
-      {arrangeMenu ? (
-        <ChromeMenu
-          anchor={arrangeMenu}
-          label="Arrange"
-          minWidth={110}
-          entries={[
-            {
-              label: "Keep groups",
-              tip: "Each group moves as one block. What is inside a group stays where it is.",
-              onSelect: () => pressArrange(),
-            },
-            {
-              label: "Ungroup all",
-              tip: "Takes every group apart, then arranges all the cards. Undo brings the groups back.",
-              onSelect: () => pressArrange({ ungroup: true }),
-            },
-          ]}
-          onClose={() => setArrangeMenu(undefined)}
+        <BarKey
+          id="arrange"
+          label={arrangeLabel(arrange)}
+          width={arrange.running ? 90 : undefined}
+          tip={t("Auto-arrange the plan (press again to stop)")}
+          off={isReadOnly}
+          open={arrangeMenu !== undefined}
+          menuAnchor={hasGroups}
+          onClick={(event) => {
+            if (arrange.running || !hasGroups) {
+              pressArrange();
+            } else if (arrangeMenu) {
+              setArrangeMenu(undefined);
+            } else {
+              setArrangeMenu(chromeAnchorOf(event.currentTarget));
+            }
+          }}
         />
-      ) : null}
-      <BarKey id="fit" label="Fit" width={24} tip="Zoom to fit the whole plan" onClick={() => getBoardCommands()?.fit()} />
-      <BarKey
-        id="rate"
-        gap
-        label={RATE_LABEL[rateUnit] ?? "/s"}
-        width={32}
-        tip="Rate unit: per tick, second, minute or hour"
-        onClick={() => stepRate(1)}
-        onContext={() => stepRate(-1)}
-        onWheel={scrollChangesValues ? stepRate : undefined}
-      />
-      <BarKey
-        id="power"
-        label={isAmps ? "Amps" : "EU/t"}
-        width={36}
-        tip="Show power as EU/t, or as amps at each machine's tier"
-        onClick={togglePower}
-        onContext={togglePower}
-        onWheel={scrollChangesValues ? togglePower : undefined}
-      />
-      <BarKey
-        id="annotate"
-        gap
-        icon
-        off={isReadOnly}
-        ariaLabel="Annotations"
-        tip="Add a sticky note, box or arrow, or change the background"
-        menuAnchor
-        onClick={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          getBoardCommands()?.openBoardMenu?.({ x: rect.left, y: rect.bottom + 2 });
-        }}
-      >
-        <PixelIcon name="pencil" />
-      </BarKey>
+        {arrangeMenu ? (
+          <ChromeMenu
+            anchor={arrangeMenu}
+            label={t("Arrange")}
+            minWidth={110}
+            entries={[
+              {
+                label: "Keep groups",
+                tip: "Each group moves as one block. What is inside a group stays where it is.",
+                onSelect: () => pressArrange(),
+              },
+              {
+                label: "Ungroup all",
+                tip: "Takes every group apart, then arranges all the cards. Undo brings the groups back.",
+                onSelect: () => pressArrange({ ungroup: true }),
+              },
+            ]}
+            onClose={() => setArrangeMenu(undefined)}
+          />
+        ) : null}
+        <BarKey
+          id="fit"
+          label={t("Fit")}
+          width={24}
+          tip={t("Zoom to fit the whole plan")}
+          onClick={() => getBoardCommands()?.fit()}
+        />
+        <BarKey
+          id="rate"
+          gap
+          label={RATE_LABEL[rateUnit] ?? "/s"}
+          width={32}
+          tip={t("Rate unit: per tick, second, minute or hour")}
+          onClick={() => stepRate(1)}
+          onContext={() => stepRate(-1)}
+          onWheel={scrollChangesValues ? stepRate : undefined}
+        />
+        <BarKey
+          id="power"
+          label={isAmps ? t("Amps") : "EU/t"}
+          width={36}
+          tip={t("Show power as EU/t, or as amps at each machine's tier")}
+          onClick={togglePower}
+          onContext={togglePower}
+          onWheel={scrollChangesValues ? togglePower : undefined}
+        />
+        <BarKey
+          id="annotate"
+          gap
+          icon
+          off={isReadOnly}
+          ariaLabel="Annotations"
+          tip={t("Add a sticky note, box or arrow, or change the background")}
+          menuAnchor
+          onClick={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            getBoardCommands()?.openBoardMenu?.({ x: rect.left, y: rect.bottom + 2 });
+          }}
+        >
+          <PixelIcon name="pencil" />
+        </BarKey>
       </div>
     </>
   );

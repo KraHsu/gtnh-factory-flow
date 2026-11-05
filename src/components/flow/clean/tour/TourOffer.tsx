@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -12,6 +13,7 @@ import "./tour.css";
  * Either answer puts it away for good. It waits until a board is on screen and nothing else covers it.
  */
 export function TourOffer() {
+  const t = useT();
   const [at, setAt] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -27,8 +29,13 @@ export function TourOffer() {
       window.setTimeout(() => {
         if (tourOffered() || getTour().phase !== "idle") return;
         // Under any notices the board is showing (a converted plan's), never over their text.
-        const notices = document.querySelector<HTMLElement>(".rail-notices-top")?.getBoundingClientRect();
-        setAt({ x: r.left + 16, y: Math.max(r.top + 70, notices && notices.height > 0 ? notices.bottom + 8 : 0) });
+        const notices = document
+          .querySelector<HTMLElement>(".rail-notices-top")
+          ?.getBoundingClientRect();
+        setAt({
+          x: r.left + 16,
+          y: Math.max(r.top + 70, notices && notices.height > 0 ? notices.bottom + 8 : 0),
+        });
       }, 1200);
     }, 1500);
     return () => window.clearInterval(id);
@@ -45,18 +52,18 @@ export function TourOffer() {
       className="tour-offer ui-zoom"
       data-tour="offer"
       role="dialog"
-      aria-label="Take the tour"
+      aria-label={t("Take the tour")}
       // Drawn at the interface zoom, as the menus are: its place in real pixels, divided back.
       style={{ left: at.x / getUiScale(), top: at.y / getUiScale() }}
     >
-      <div className="tour-offer-title">New to GTNH Planner?</div>
-      <div>A quick tour shows you around in about three minutes.</div>
+      <div className="tour-offer-title">{t("New to GTNH Planner?")}</div>
+      <div>{t("A quick tour shows you around in about three minutes.")}</div>
       <div className="tour-offer-keys">
         <div role="button" className="tour-offer-key" data-primary="" onClick={() => answer(true)}>
-          Take the tour
+          {t("Take the tour")}
         </div>
         <div role="button" className="tour-offer-key" onClick={() => answer(false)}>
-          Not now
+          {t("Not now")}
         </div>
       </div>
     </div>,

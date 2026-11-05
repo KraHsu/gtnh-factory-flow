@@ -40,6 +40,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.8.0",
+    date: "2026-11-05",
+    headline: "Chinese interface and KraHsu themes",
+    notes: [
+      "Switch between English and Simplified Chinese without changing your plan.",
+      "Choose a light or dark KraHsu theme from the site header.",
+      "Use the public planner without signing in, with plans saved in your browser.",
+    ],
+  },
+  {
     version: "4.7.0",
     date: "2026-10-26",
     headline: "Arrange with or without groups",

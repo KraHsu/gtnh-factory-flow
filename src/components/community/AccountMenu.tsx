@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 
@@ -12,12 +13,17 @@ import { AuthForm, useCommunityUser } from "./auth";
  * menu when logged in.
  */
 export function AccountMenu() {
+  const t = useT();
   const { user, isLoading, setUser, signOut } = useCommunityUser();
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useDropdownDismiss(isMenuOpen, { refs: [menuRef], onClose: () => setMenuOpen(false), fade: true });
+  useDropdownDismiss(isMenuOpen, {
+    refs: [menuRef],
+    onClose: () => setMenuOpen(false),
+    fade: true,
+  });
 
   if (isLoading) {
     return <div className="h-5 w-20 animate-pulse rounded bg-surface-sunken" aria-hidden />;
@@ -31,7 +37,7 @@ export function AccountMenu() {
           onClick={() => setAuthOpen(true)}
           className="inline-flex h-5 shrink-0 items-center gap-1.5 whitespace-nowrap rounded border border-line-strong bg-surface px-2.5 font-medium text-fg hover:bg-surface-raised"
         >
-          <User className="h-3.5 w-3.5" /> Sign in
+          <User className="h-3.5 w-3.5" /> {t("Sign in")}
         </button>
         {isAuthOpen ? (
           <div
@@ -42,9 +48,9 @@ export function AccountMenu() {
               className="w-full max-w-sm rounded border border-line-strong bg-surface p-4 shadow-xl"
               onClick={(event) => event.stopPropagation()}
             >
-              <h2 className="mb-1 text-base font-semibold">Community account</h2>
+              <h2 className="mb-1 text-base font-semibold">{t("Community account")}</h2>
               <p className="mb-3 text-xs text-fg-muted">
-                Just a username and password. Needed to share plans and manage your posts.
+                {t("Just a username and password. Needed to share plans and manage your posts.")}
               </p>
               <AuthForm
                 onSignedIn={(signedInUser) => {
@@ -85,7 +91,7 @@ export function AccountMenu() {
             }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-surface-raised"
           >
-            <Factory className="h-3.5 w-3.5 text-fg-muted" /> My setups
+            <Factory className="h-3.5 w-3.5 text-fg-muted" /> {t("My setups")}
           </button>
           <button
             type="button"
@@ -95,7 +101,7 @@ export function AccountMenu() {
             }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-surface-raised"
           >
-            <LogOut className="h-3.5 w-3.5 text-fg-muted" /> Sign out
+            <LogOut className="h-3.5 w-3.5 text-fg-muted" /> {t("Sign out")}
           </button>
         </div>
       ) : null}

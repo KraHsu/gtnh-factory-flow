@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 import "./library.css";
@@ -13,6 +14,7 @@ import { CHROME_SCREEN_K, type ChromeAnchor } from "./ChromeMenu";
 
 /** The sign-in form, hung from the account key: sign in, or make an account (a name and a password, no email). */
 export function SignInPanel({ anchor, onClose }: { anchor: ChromeAnchor; onClose: () => void }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const { setUser } = useCommunityUser();
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -31,7 +33,9 @@ export function SignInPanel({ anchor, onClose }: { anchor: ChromeAnchor; onClose
     setError(undefined);
     try {
       const signedIn =
-        mode === "login" ? await loginCommunityUser(username, password) : await registerCommunityUser(username, password);
+        mode === "login"
+          ? await loginCommunityUser(username, password)
+          : await registerCommunityUser(username, password);
       setUser(signedIn);
       onClose();
     } catch (failure) {
@@ -45,9 +49,12 @@ export function SignInPanel({ anchor, onClose }: { anchor: ChromeAnchor; onClose
     <div
       ref={ref}
       role="dialog"
-      aria-label="Sign in"
+      aria-label={t("Sign in")}
       className="mm ml-signpanel ui-zoom"
-      style={{ top: anchor.bottom / scale + 2, right: Math.max(2, vw - (anchor.right ?? anchor.left) / scale) }}
+      style={{
+        top: anchor.bottom / scale + 2,
+        right: Math.max(2, vw - (anchor.right ?? anchor.left) / scale),
+      }}
       onPointerDown={(event) => event.stopPropagation()}
     >
       <form
@@ -56,31 +63,37 @@ export function SignInPanel({ anchor, onClose }: { anchor: ChromeAnchor; onClose
           void submit();
         }}
       >
-        <div className="ml-sign-title">{mode === "login" ? "Sign in" : "Create an account"}</div>
-        <div className="ml-sign-sub">Your plans are kept in your account</div>
-        <label className="ml-sign-label">USERNAME</label>
+        <div className="ml-sign-title">
+          {mode === "login" ? t("Sign in") : t("Create an account")}
+        </div>
+        <div className="ml-sign-sub">{t("Your plans are kept in your account")}</div>
+        <label className="ml-sign-label">{t("USERNAME")}</label>
         <input
           autoFocus
           className="ml-search ml-sign-field"
-          placeholder="Username"
+          placeholder={t("Username")}
           autoComplete="username"
           maxLength={24}
           value={username}
           onChange={(event) => setUsername(event.target.value)}
         />
-        <label className="ml-sign-label">PASSWORD</label>
+        <label className="ml-sign-label">{t("PASSWORD")}</label>
         <input
           className="ml-search ml-sign-field"
           type="password"
-          placeholder="Password"
+          placeholder={t("Password")}
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           maxLength={128}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
         {error ? <div className="ml-sign-error">{error}</div> : <div className="ml-sign-gap" />}
-        <button className="ml-sign-go" type="submit" disabled={busy || username.trim().length < 3 || password.length < 6}>
-          {busy ? "..." : mode === "login" ? "Sign in" : "Create account"}
+        <button
+          className="ml-sign-go"
+          type="submit"
+          disabled={busy || username.trim().length < 3 || password.length < 6}
+        >
+          {busy ? "..." : mode === "login" ? t("Sign in") : t("Create account")}
         </button>
         <div
           className="ml-sign-switch"
@@ -90,7 +103,7 @@ export function SignInPanel({ anchor, onClose }: { anchor: ChromeAnchor; onClose
             setError(undefined);
           }}
         >
-          {mode === "login" ? "No account yet? Create one" : "Have an account? Sign in"}
+          {mode === "login" ? t("No account yet? Create one") : t("Have an account? Sign in")}
         </div>
       </form>
     </div>,

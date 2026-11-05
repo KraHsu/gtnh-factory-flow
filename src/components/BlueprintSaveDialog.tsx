@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Globe, LoaderCircle, Save, X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -26,6 +27,7 @@ export function BlueprintSaveDialog() {
 }
 
 function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
+  const t = useT();
   const setSaveRequest = useBlueprintStore((state) => state.setSaveRequest);
   const save = useBlueprintStore((state) => state.save);
   const update = useBlueprintStore((state) => state.update);
@@ -113,7 +115,7 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
           <button
             type="button"
             onClick={close}
-            aria-label="Close"
+            aria-label={t("Close")}
             className="rounded p-1 text-neutral-400 hover:text-neutral-100"
           >
             <X className="h-4 w-4" />
@@ -122,8 +124,8 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
 
         {isOverwrite ? (
           <p className="mb-3 text-xs leading-relaxed text-amber-300">
-            The picked pocket replaces this one&apos;s contents. Its votes, downloads and
-            standing stay.
+            The picked pocket replaces this one&apos;s contents. Its votes, downloads and standing
+            stay.
           </p>
         ) : null}
 
@@ -152,26 +154,29 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
         <div className="mt-3 min-h-0 flex-1 overflow-y-auto rounded-[4px] border border-neutral-700 bg-[#17191d] p-3">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs tabular-nums text-neutral-400">
             <span>
-              <span className="font-semibold text-neutral-100">{cardCount}</span> cards inside
+              <span className="font-semibold text-neutral-100">{cardCount}</span>{" "}
+              {t("cards inside")}
             </span>
             <span>
-              <span className="font-semibold text-neutral-100">{machineCount}</span> machines
+              <span className="font-semibold text-neutral-100">{machineCount}</span> {t("machines")}
             </span>
             {io.highestTier ? (
               <span className="flex items-center gap-1.5">
-                up to <TierBadge tier={io.highestTier} />
+                {t("up to")} <TierBadge tier={io.highestTier} />
               </span>
             ) : null}
           </div>
           <div className="mt-2">
             {renderIoStats(io.needs, io.outputs, { layout: "side-by-side" }) ?? (
-              <p className="text-[11px] text-neutral-500">No outside needs or leftovers.</p>
+              <p className="text-[11px] text-neutral-500">{t("No outside needs or leftovers.")}</p>
             )}
           </div>
         </div>
 
         <div className="mt-3 text-sm">
-          <span className="mb-1 block text-xs font-medium text-neutral-300">Tags (optional)</span>
+          <span className="mb-1 block text-xs font-medium text-neutral-300">
+            {t("Tags (optional)")}
+          </span>
           <div className="flex flex-wrap items-center gap-1 rounded-[4px] border border-neutral-700 bg-[#17191d] px-2 py-1.5">
             {tags.map((tag) => (
               <button
@@ -207,7 +212,7 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
           />
           <Globe className="h-4 w-4 text-emerald-400" />
           <span className="min-w-0">
-            <span className="block leading-tight">Publish to everyone</span>
+            <span className="block leading-tight">{t("Publish to everyone")}</span>
             <span className="block text-[11px] leading-tight text-neutral-500">
               {isOverwrite
                 ? "Off keeps it private. It stays on your shelf either way."
@@ -224,7 +229,7 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
             onClick={close}
             className="h-9 rounded-[4px] border border-neutral-700 bg-[#17191d] px-4 text-sm text-neutral-300 hover:border-neutral-500"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"

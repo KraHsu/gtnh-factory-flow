@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useState } from "react";
 import type { FactoryPocket } from "@/lib/model/types";
@@ -14,7 +15,18 @@ import { requestGroupRename } from "./group-rename";
  * A group's right-click menu (docs/groups.md, "Menus"), the mod's rows and words: Rename, Collapse or Expand, Colour...,
  * Ungroup (keeps contents), and in red Delete group and contents. The mod's twin is `ui/group/GroupCard.openMenu`.
  */
-export function GroupMenu({ pocket, x, y, onClose }: { pocket: FactoryPocket; x: number; y: number; onClose: () => void }) {
+export function GroupMenu({
+  pocket,
+  x,
+  y,
+  onClose,
+}: {
+  pocket: FactoryPocket;
+  x: number;
+  y: number;
+  onClose: () => void;
+}) {
+  const t = useT();
   const [view, setView] = useState<"main" | "colour">("main");
   const store = () => useFactoryStore.getState();
   const run = (action: () => void) => () => {
@@ -41,8 +53,8 @@ export function GroupMenu({ pocket, x, y, onClose }: { pocket: FactoryPocket; x:
     );
   }
   return (
-    <BoardMenu x={x} y={y} label="Group" onClose={onClose}>
-      <MenuRow label="Rename" onClick={run(() => requestGroupRename(pocket.id))} />
+    <BoardMenu x={x} y={y} label={t("Group")} onClose={onClose}>
+      <MenuRow label={t("Rename")} onClick={run(() => requestGroupRename(pocket.id))} />
       {pocket.expanded ? (
         <MenuRow label="Collapse" onClick={run(() => store().minimizePocket(pocket.id))} />
       ) : (

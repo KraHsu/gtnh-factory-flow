@@ -1,0 +1,1 @@
+export const themeBootScript = `try{var t=localStorage.getItem("gtnh-theme.v1");document.documentElement.dataset.theme=t==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}`;

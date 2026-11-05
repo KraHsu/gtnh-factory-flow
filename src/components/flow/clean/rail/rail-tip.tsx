@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { createPortal } from "react-dom";
 import { wheelChangesValues } from "@/lib/device-settings";
@@ -139,6 +140,7 @@ function InputIcon({ input }: { input: TipInput }) {
 
 /** Mount once near the rail: draws the tip that is showing. */
 export function RailTipHost() {
+  const t = useT();
   const tip = useSyncExternalStore(
     subscribe,
     () => shown,
@@ -158,25 +160,25 @@ export function RailTipHost() {
   );
   return createPortal(
     <div className="rail-tip" style={style} role="tooltip" data-tooltip-stop>
-      <div className="rail-tip-title">{content.title}</div>
-      {content.sub ? <div className="rail-tip-sub">{content.sub}</div> : null}
+      <div className="rail-tip-title">{t(content.title)}</div>
+      {content.sub ? <div className="rail-tip-sub">{t(content.sub)}</div> : null}
       {content.rows?.map(([label, value]) => (
-        <div key={label} className="rail-tip-row">
-          <span>{label}</span>
-          <span>{value}</span>
+        <div key={t(label)} className="rail-tip-row">
+          <span>{t(label)}</span>
+          <span>{t(value)}</span>
         </div>
       ))}
       {content.notes?.map((note) => (
         <div key={note.text} className="rail-tip-note" data-tone={note.tone}>
-          {note.text}
+          {t(note.text)}
         </div>
       ))}
       {actions.length ? (
         <div className="rail-tip-actions">
           {actions.map((action) => (
-            <span key={`${action.input}:${action.label}`} className="rail-tip-action">
+            <span key={`${action.input}:${t(action.label)}`} className="rail-tip-action">
               <InputIcon input={action.input} />
-              {action.label}
+              {t(action.label)}
             </span>
           ))}
         </div>

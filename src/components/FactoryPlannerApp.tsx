@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import {
   noteRecipesRefreshed,
@@ -14,9 +15,7 @@ import {
   fetchDatasetManifest,
   pickDefaultDatasetVersion,
 } from "@/lib/datasets";
-import {
-  initRecipeDatasetVersion,
-} from "@/lib/datasets/browser-loader";
+import { initRecipeDatasetVersion } from "@/lib/datasets/browser-loader";
 import { loadResourceHistory, useFactoryStore } from "@/store/factory-store";
 import { useDesignStore } from "@/store/design-store";
 import { useCommunityAuthStore } from "@/store/community-auth-store";
@@ -24,13 +23,18 @@ import { recordResourceTrend, resetResourceTrends } from "@/lib/resource-trends"
 import { useWorkspaceView, writeWorkspaceView } from "@/lib/workspace-view";
 import { openCommunityPost } from "@/lib/community/open-post";
 import { openPlanCodeFromAddress } from "@/lib/open-plan-code";
-import { forgetSharedPlanId, readSharedPlanId, syncSharedPlanAddress } from "@/lib/community/shared-link";
+import {
+  forgetSharedPlanId,
+  readSharedPlanId,
+  syncSharedPlanAddress,
+} from "@/lib/community/shared-link";
 import { useIsCompactViewport } from "@/lib/compact-view";
 import { startLibrarySync } from "@/lib/library/library-sync";
 import { startDesignTabSync } from "@/store/design-store";
 import { startLiveSessions } from "@/store/live-session";
 import { useLibraryTab } from "@/lib/library/library-tab";
 import { useWelcomeTab } from "@/lib/welcome/welcome-tab";
+import { SiteHeader } from "./krahsu/SiteHeader";
 import { AppHeader } from "./AppHeader";
 import { LibraryPage } from "./library/LibraryPage";
 import { ModLibrary } from "./chrome/ModLibrary";
@@ -111,7 +115,12 @@ export function FactoryPlannerApp() {
     if (pending.length === 0) {
       return;
     }
-    noteRecipesRequested(pending, version.id, checkedRecipesRef.current, requestedRecipesRef.current);
+    noteRecipesRequested(
+      pending,
+      version.id,
+      checkedRecipesRef.current,
+      requestedRecipesRef.current,
+    );
     let cancelled = false;
     void resolveProjectRecipes(
       datasetManifestUrl ?? DEFAULT_DATASET_MANIFEST_URL,
@@ -126,7 +135,13 @@ export function FactoryPlannerApp() {
     return () => {
       cancelled = true;
     };
-  }, [datasetManifest, datasetManifestUrl, datasetVersionId, project.recipes, refreshProjectRecipes]);
+  }, [
+    datasetManifest,
+    datasetManifestUrl,
+    datasetVersionId,
+    project.recipes,
+    refreshProjectRecipes,
+  ]);
   useBoardSoundEffects();
   const skipInitialSaveRef = useRef(true);
   const saveTimeoutRef = useRef<number | undefined>(undefined);
@@ -149,7 +164,11 @@ export function FactoryPlannerApp() {
         setDataset(dataset);
         const projectRecipes = useFactoryStore.getState().project.recipes;
         if (projectRecipes.length > 0) {
-          const { refreshed, migration } = await resolveProjectRecipes(manifestUrl, version, projectRecipes);
+          const { refreshed, migration } = await resolveProjectRecipes(
+            manifestUrl,
+            version,
+            projectRecipes,
+          );
           const checked = new Map<string, boolean>();
           noteRecipesRequested(projectRecipes, version.id, checked, requestedRecipesRef.current);
           noteRecipesRefreshed(refreshed, version.id, checked);
@@ -180,8 +199,10 @@ export function FactoryPlannerApp() {
                 // Release the arrival guard, then set the address explicitly:
                 // React may already have run the viewer's address effect.
                 forgetSharedPlanId();
-                syncSharedPlanAddress(useDesignStore.getState().publicView?.id
-                  ?? useFactoryStore.getState().project.metadata?.communityPlanId);
+                syncSharedPlanAddress(
+                  useDesignStore.getState().publicView?.id ??
+                    useFactoryStore.getState().project.metadata?.communityPlanId,
+                );
               }
             }
           } catch (error) {
@@ -313,7 +334,6 @@ export function FactoryPlannerApp() {
     };
   }, [activeDesignId, project, saveActiveProject]);
 
-
   return (
     // Height in --ui-dvh (see ui-scale.ts: the shell is CSS-zoomed and viewport
     // units are not divided by zoom). dvh, not vh, so a phone's collapsing
@@ -323,6 +343,7 @@ export function FactoryPlannerApp() {
     // adds a scrollbar that skews `window.innerWidth` measurements. The board
     // and panels carry their own floors.
     <div className="ui-scale-shell flex h-[calc(100*var(--ui-dvh))] flex-col bg-canvas text-fg">
+      <SiteHeader />
       <RecipeBookOpener />
       <PlacementRevealer />
       <SharedAddressSync />
@@ -455,7 +476,9 @@ function useCoveringPage(): "welcome" | "shelf" | undefined {
   const welcome = useWelcomeTab();
   const shelf = useLibraryTab();
   const isHydrated = useDesignStore((state) => state.isHydrated);
-  const hasActiveDesign = useDesignStore((state) => state.activeDesignId !== undefined || state.publicView !== undefined);
+  const hasActiveDesign = useDesignStore(
+    (state) => state.activeDesignId !== undefined || state.publicView !== undefined,
+  );
   if (welcome.active) {
     return "welcome";
   }
@@ -466,6 +489,7 @@ function useCoveringPage(): "welcome" | "shelf" | undefined {
 }
 
 export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: WorkspaceProps) {
+  const t = useT();
   // While Welcome covers the board, the resource column (which reads the
   // hidden board's solve) folds to a blank strip WITHOUT writing the workspace
   // view, so it returns as it was.
@@ -474,7 +498,9 @@ export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: Wor
   const planLayout = usePlanLayout();
   const worksheet = poolMode;
   // A task board has no overview (the game's): its columns take the overview's room too.
-  const taskBoard = useFactoryStore((state) => TASKS_ENABLED && state.project.primaryView === "tasks");
+  const taskBoard = useFactoryStore(
+    (state) => TASKS_ENABLED && state.project.primaryView === "tasks",
+  );
   const settings = useDeviceSettings();
   const itemsLeft = settings.itemsLeft;
   const railOpen = useRailView().open;
@@ -538,14 +564,17 @@ export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: Wor
         data-left-px={columns.leftPx}
         data-right-px={columns.rightPx}
         className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden"
-        style={{
-          // Keep the toolbar's fit budget stable when Pool hides this column.
-          "--toolbar-hidden-panel-width": worksheet && !covering
-            ? `${workspace.rightPanelOpen ? INSPECTOR_WIDTH : PANEL_RAIL_WIDTH}px`
-            : "0px",
-          gridTemplateColumns: columns.template,
-          ...(header ? { gridTemplateRows: "auto minmax(0,1fr)" } : {}),
-        } as CSSProperties}
+        style={
+          {
+            // Keep the toolbar's fit budget stable when Pool hides this column.
+            "--toolbar-hidden-panel-width":
+              worksheet && !covering
+                ? `${workspace.rightPanelOpen ? INSPECTOR_WIDTH : PANEL_RAIL_WIDTH}px`
+                : "0px",
+            gridTemplateColumns: columns.template,
+            ...(header ? { gridTemplateRows: "auto minmax(0,1fr)" } : {}),
+          } as CSSProperties
+        }
       >
         {/* The bar across the whole width, over the overview, the board and the items list alike, so it has all of
             it. Which side the overview and the items take is the settings' "Item browser". */}
@@ -558,7 +587,10 @@ export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: Wor
             owns its header, so it stays a direct grid item with no wrapper. */}
         {header ? (
           <>
-            <div className="relative grid min-h-0 min-w-0" style={{ gridColumn: overviewColumn, gridRow: 2 }}>
+            <div
+              className="relative grid min-h-0 min-w-0"
+              style={{ gridColumn: overviewColumn, gridRow: 2 }}
+            >
               {overview}
               {fit.overviewOpen && !taskBoard ? (
                 <SidePanelHandle panel="overview" edge={overviewEdge} fit={fit} />
@@ -567,7 +599,10 @@ export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: Wor
             <div className="grid min-h-0 min-w-0" style={{ gridColumn: 2, gridRow: 2 }}>
               <BoardColumn />
             </div>
-            <div className="relative grid min-h-0 min-w-0" style={{ gridColumn: itemsColumn, gridRow: 2 }}>
+            <div
+              className="relative grid min-h-0 min-w-0"
+              style={{ gridColumn: itemsColumn, gridRow: 2 }}
+            >
               {items}
               {itemsOpen ? <SidePanelHandle panel="items" edge={itemsEdge} fit={fit} /> : null}
             </div>
@@ -576,7 +611,11 @@ export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: Wor
         {header ? null : planLayout ? (columns.itemsSide === "left" ? items : overview) : items}
         {header ? null : <BoardColumn />}
         {header ? null : planLayout ? (
-          columns.itemsSide === "left" ? overview : items
+          columns.itemsSide === "left" ? (
+            overview
+          ) : (
+            items
+          )
         ) : columns.inspectorShown ? (
           <InspectorPanel />
         ) : covering || worksheet ? null : (
@@ -588,19 +627,32 @@ export function ColumnWorkspace({ workspace, onLoadDatasetVersion, header }: Wor
 }
 
 /** The handle on a side column's board-side edge: drag to set its width, double-click for the default. */
-function SidePanelHandle({ panel, edge, fit }: { panel: SidePanel; edge: "left" | "right"; fit: PanelFitState }) {
+function SidePanelHandle({
+  panel,
+  edge,
+  fit,
+}: {
+  panel: SidePanel;
+  edge: "left" | "right";
+  fit: PanelFitState;
+}) {
+  const t = useT();
   const items = panel === "items";
   return (
     <PanelHandle
-      label={items ? "Resize the items list" : "Resize the overview"}
+      label={items ? t("Resize the items list") : t("Resize the overview")}
       edge={edge}
       getWidth={() => fit.widthOf(panel)}
       getLimits={() => fit.limitsOf(panel)}
       onStart={() => fit.setResizing(true)}
       onDrag={(width) => fit.preview(panel, width)}
-      onCommit={(width) => writeDeviceSettings(items ? { itemsWidth: width } : { overviewWidth: width })}
+      onCommit={(width) =>
+        writeDeviceSettings(items ? { itemsWidth: width } : { overviewWidth: width })
+      }
       onReset={() =>
-        writeDeviceSettings(items ? { itemsWidth: ITEMS_DEFAULT_WIDTH } : { overviewWidth: OVERVIEW_DEFAULT_WIDTH })
+        writeDeviceSettings(
+          items ? { itemsWidth: ITEMS_DEFAULT_WIDTH } : { overviewWidth: OVERVIEW_DEFAULT_WIDTH },
+        )
       }
       onEnd={() => fit.setResizing(false)}
     />
@@ -672,6 +724,7 @@ const TASKS_ENABLED = isLiveConfigured();
  * edge, which fires by accident whenever the mouse crosses it.
  */
 function PanelRail({ side, label }: { side: "left" | "right"; label: "Items" | "Resources" }) {
+  const t = useT();
   // The flag follows what the column holds, not which side it sits on.
   const open = () => {
     writeWorkspaceView(label === "Items" ? { leftPanelOpen: true } : { rightPanelOpen: true });
@@ -679,7 +732,8 @@ function PanelRail({ side, label }: { side: "left" | "right"; label: "Items" | "
     if (label === "Items") requestPanelOpen("items");
   };
   // The items column folds to the overview's own strip (the owner: both folded columns look and work the same).
-  if (label === "Items") return <ColumnStrip label="ITEMS" open="Open the items" side={side} onOpen={open} />;
+  if (label === "Items")
+    return <ColumnStrip label={t("ITEMS")} open="Open the items" side={side} onOpen={open} />;
 
   // One button, the whole rail: a bare chevron at the top and the name
   // running down it. No box, no tooltip; the rail is the thing you click.
@@ -724,11 +778,17 @@ function scheduleIdleWork(callback: () => void, timeout: number) {
   return () => globalThis.clearTimeout(timeoutId);
 }
 
-function ViewerAwareBrowser({ onLoadDatasetVersion }: Pick<WorkspaceProps, "onLoadDatasetVersion">) {
-  const readOnly = useFactoryStore(state => state.isReadOnly);
+function ViewerAwareBrowser({
+  onLoadDatasetVersion,
+}: Pick<WorkspaceProps, "onLoadDatasetVersion">) {
+  const readOnly = useFactoryStore((state) => state.isReadOnly);
   if (!readOnly) return <RecipeBrowser onLoadDatasetVersion={onLoadDatasetVersion} />;
-  return <div className="relative h-full min-h-0 overflow-hidden">
-    <div inert className="h-full opacity-30 grayscale"><RecipeBrowser onLoadDatasetVersion={onLoadDatasetVersion} /></div>
-    <ViewOnlyNotice />
-  </div>;
+  return (
+    <div className="relative h-full min-h-0 overflow-hidden">
+      <div inert className="h-full opacity-30 grayscale">
+        <RecipeBrowser onLoadDatasetVersion={onLoadDatasetVersion} />
+      </div>
+      <ViewOnlyNotice />
+    </div>
+  );
 }

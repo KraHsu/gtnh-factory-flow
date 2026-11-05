@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { RailKey } from "@/components/flow/clean/rail/rail-controls";
 import "@/components/flow/clean/rail/rail.css";
@@ -64,6 +65,7 @@ interface RecipeBrowserProps {
 }
 
 export function RecipeBrowser({ onLoadDatasetVersion }: RecipeBrowserProps) {
+  const t = useT();
   // Plan boards seat the items on the right: its edge, fold key and arrow face the other way.
   const itemsOnRight = useItemsOnRight();
   const isCompact = useIsCompactViewport();
@@ -240,7 +242,13 @@ export function RecipeBrowser({ onLoadDatasetVersion }: RecipeBrowserProps) {
   // asked: left click = one output condition, right click = one input - or,
   // for a refactor, every input and output of the card being replaced. Edits
   // made after that carry the browse's key and win while it stays open.
-  const browseKey = browseKeyOf(browserResource, browserMode, refactorNodeId, machinePin, seedNonce);
+  const browseKey = browseKeyOf(
+    browserResource,
+    browserMode,
+    refactorNodeId,
+    machinePin,
+    seedNonce,
+  );
   const seededStencil = useMemo<StencilClause[]>(() => {
     if (!browserResource) {
       return [];
@@ -807,7 +815,7 @@ export function RecipeBrowser({ onLoadDatasetVersion }: RecipeBrowserProps) {
     <>
       <aside
         data-help-anchor="browser"
-        className={`relative z-40 flex h-full min-h-[360px] min-w-0 compact:min-h-0 flex-col ${itemsOnRight ? "border-l" : "border-r"} border-neutral-800 bg-[#25272c] text-neutral-100`}
+        className={`relative z-40 flex h-full min-h-[360px] min-w-0 compact:min-h-0 flex-col ${itemsOnRight ? "border-l" : "border-r"} border-line bg-surface text-fg`}
       >
         {
           // The wheel pages the list from anywhere in the column, including over
@@ -826,7 +834,7 @@ export function RecipeBrowser({ onLoadDatasetVersion }: RecipeBrowserProps) {
               leading={
                 /* Folds this column away (the overview's fold key, facing the board); on a phone it closes the drawer. */
                 <RailKey
-                  label="Hide the items column"
+                  label={t("Hide the items column")}
                   className="rail-key-fold"
                   onClick={() => writeWorkspaceView({ leftPanelOpen: false })}
                   tip={() => ({ title: "Fold the items" })}

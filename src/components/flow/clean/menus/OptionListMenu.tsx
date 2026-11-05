@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useState } from "react";
 import { ArtBox } from "./ArtBox";
@@ -21,6 +22,7 @@ export function OptionListMenu({
   onPick: (optionKey: string) => void;
   onClose: () => void;
 }) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
   const shown = control.options.filter((option) => option.label.toLowerCase().includes(needle));
@@ -40,7 +42,7 @@ export function OptionListMenu({
         }}
       />
       <div className="cm-scroll">
-        {shown.length === 0 ? <div className="cm-empty">Nothing matches.</div> : null}
+        {shown.length === 0 ? <div className="cm-empty">{t("Nothing matches.")}</div> : null}
         {shown.map((option) => (
           <div
             key={option.key}
@@ -50,7 +52,7 @@ export function OptionListMenu({
             onClick={() => onPick(option.key)}
           >
             <ArtBox src={option.icon} size={18} />
-            <span className="cm-name">{option.label}</span>
+            <span className="cm-name">{t(option.label)}</span>
           </div>
         ))}
       </div>

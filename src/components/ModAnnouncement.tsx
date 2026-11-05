@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useRef, useState } from "react";
 import "./chrome/mod-panel.css";
@@ -40,6 +41,7 @@ function markDismissed(): void {
  * trailer and the download. Shown once per browser; closing it is final.
  */
 export function ModAnnouncement() {
+  const t = useT();
   const [isOpen, setOpen] = useState(false);
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export function ModAnnouncement() {
           <button
             type="button"
             onClick={close}
-            aria-label="Close"
+            aria-label={t("Close")}
             className="absolute right-3 top-3 z-10 rounded p-1.5 text-fg-subtle hover:bg-surface-raised hover:text-fg"
           >
             <X className="h-5 w-5" />
@@ -103,10 +105,10 @@ export function ModAnnouncement() {
             id="mod-announcement-title"
             className="pr-8 text-[22px] leading-tight compact:text-[16px]"
           >
-            GTNH <span className="text-cyan-400">Planner</span> is now in the game!
+            GTNH <span className="text-cyan-400">{t("Planner")}</span> {t("is now in the game!")}
           </h2>
           <p className="mt-2 text-lg text-fg-muted compact:text-base">
-            Plan your factories right from NEI, just like the site. Check out the video!
+            {t("Plan your factories right from NEI, just like the site. Check out the video!")}
           </p>
         </div>
 
@@ -118,7 +120,7 @@ export function ModAnnouncement() {
             onClick={close}
             className={`${ACTION} border-line-strong text-fg-subtle hover:bg-surface-raised`}
           >
-            Dismiss
+            {t("Dismiss")}
           </button>
           <a
             href={MOD_RELEASE_URL}
@@ -128,7 +130,7 @@ export function ModAnnouncement() {
             className={`${ACTION} border-cyan-600 bg-cyan-600/20 text-cyan-200 hover:bg-cyan-600/30`}
           >
             <Download className="h-4 w-4" aria-hidden />
-            Get the mod
+            {t("Get the mod")}
           </a>
         </div>
       </div>

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useCallback, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
@@ -64,14 +65,19 @@ export function BoardContextMenu({
   target: BoardMenuTarget;
   onClose: () => void;
 }) {
+  const t = useT();
   const [picking, setPicking] = useState(false);
   const [background, setBackground] = useState(false);
   const boardView = useBoardView();
   const annotation = useFactoryStore((state) =>
-    target.kind === "annotation" ? state.project.annotations?.find((entry) => entry.id === target.id) : undefined,
+    target.kind === "annotation"
+      ? state.project.annotations?.find((entry) => entry.id === target.id)
+      : undefined,
   );
   const group = useFactoryStore((state) =>
-    target.kind === "group" ? state.project.pockets?.find((entry) => entry.id === target.id) : undefined,
+    target.kind === "group"
+      ? state.project.pockets?.find((entry) => entry.id === target.id)
+      : undefined,
   );
   const planMode = useFactoryStore((state) => state.project.planMode === true);
   const datasetManifestUrl = useFactoryStore((state) => state.datasetManifestUrl);
@@ -128,7 +134,10 @@ export function BoardContextMenu({
     const left = Math.min(target.x / scale, window.innerWidth / scale - 340);
     const top = Math.min(target.y / scale, window.innerHeight / scale - 420);
     return createPortal(
-      <div className="ui-zoom fixed z-[100]" style={{ left: Math.max(8, left), top: Math.max(8, top) }}>
+      <div
+        className="ui-zoom fixed z-[100]"
+        style={{ left: Math.max(8, left), top: Math.max(8, top) }}
+      >
         <ItemPickerPopover
           role="makes"
           placement="below"
@@ -158,7 +167,13 @@ export function BoardContextMenu({
 
   if (background) {
     return (
-      <BoardMenu x={target.x} y={target.y} label="Background menu" title="BACKGROUND" onClose={onClose}>
+      <BoardMenu
+        x={target.x}
+        y={target.y}
+        label="Background menu"
+        title="BACKGROUND"
+        onClose={onClose}
+      >
         {CANVAS_THEMES.map((theme) => (
           <MenuRow
             key={theme.id}
@@ -185,23 +200,31 @@ export function BoardContextMenu({
     <BoardMenu x={target.x} y={target.y} label="Board menu" onClose={onClose}>
       {target.kind === "pane" && TASKS_ENABLED && selectedTaskCards().length > 0 ? (
         <MenuRow
-          label="Add to a task"
+          label={t("Add to a task")}
           onClick={() => {
             onClose();
-            void openAddToTask(selectedTaskCards(), { left: target.x, top: target.y, bottom: target.y });
+            void openAddToTask(selectedTaskCards(), {
+              left: target.x,
+              top: target.y,
+              bottom: target.y,
+            });
           }}
         />
       ) : null}
       {target.kind === "pane" && planMode ? (
         <>
-          <MenuRow label="Add sticky note" onClick={run(() => addStickyNoteAt(target.flow))} />
-          <MenuRow label="Add box" onClick={run(() => addBoxAt(target.flow))} />
-          <MenuRow label="Add arrow" onClick={run(() => addArrowAt(target.flow))} />
+          <MenuRow label={t("Add sticky note")} onClick={run(() => addStickyNoteAt(target.flow))} />
+          <MenuRow label={t("Add box")} onClick={run(() => addBoxAt(target.flow))} />
+          <MenuRow label={t("Add arrow")} onClick={run(() => addArrowAt(target.flow))} />
           <MenuLine />
         </>
       ) : null}
-      {target.kind === "pane" ? <MenuRow label="New product drawer" onClick={() => setPicking(true)} /> : null}
-      {target.kind === "pane" ? <MenuRow label="Background" onClick={() => setBackground(true)} /> : null}
+      {target.kind === "pane" ? (
+        <MenuRow label="New product drawer" onClick={() => setPicking(true)} />
+      ) : null}
+      {target.kind === "pane" ? (
+        <MenuRow label={t("Background")} onClick={() => setBackground(true)} />
+      ) : null}
       {target.kind === "node" ? (
         <CardRows
           nodeId={target.id}
@@ -209,7 +232,12 @@ export function BoardContextMenu({
           onDelete={() => store().deleteNode(target.id)}
           onAddToTask={
             TASKS_ENABLED
-              ? () => void openAddToTask(cardsForTask(target.id), { left: target.x, top: target.y, bottom: target.y })
+              ? () =>
+                  void openAddToTask(cardsForTask(target.id), {
+                    left: target.x,
+                    top: target.y,
+                    bottom: target.y,
+                  })
               : undefined
           }
           close={onClose}
@@ -219,13 +247,17 @@ export function BoardContextMenu({
         <>
           <MenuRow label="Clone drawer" onClick={run(() => store().duplicateStorage(target.id))} />
           <MenuLine />
-          <MenuRow label="Delete drawer" danger onClick={run(() => store().deleteStorage(target.id))} />
+          <MenuRow
+            label="Delete drawer"
+            danger
+            onClick={run(() => store().deleteStorage(target.id))}
+          />
         </>
       ) : null}
       {target.kind === "edge" ? (
         <>
           <MenuRow
-            label="Add a drawer here"
+            label={t("Add a drawer here")}
             disabled={!target.resource}
             onClick={run(() => {
               if (target.resource) {
@@ -235,7 +267,7 @@ export function BoardContextMenu({
           />
           <MenuLine />
           <MenuRow
-            label={target.ids.length > 1 ? "Delete wires" : "Delete wire"}
+            label={target.ids.length > 1 ? "Delete wires" : t("Delete wire")}
             danger
             onClick={run(() => store().deleteEdge(target.ids))}
           />

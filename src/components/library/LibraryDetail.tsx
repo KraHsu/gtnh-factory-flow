@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import {
   ArrowBigUp,
@@ -98,6 +99,7 @@ export function LibraryDetail({
   entry: LibraryDetailEntry;
   onClose: () => void;
 }) {
+  const t = useT();
   // The picture is probed up front: an <img> that 404s before React attaches
   // its onError never reports, leaving the frame dark.
   const [probed, setProbed] = useState<{ url: string; ok: boolean }>();
@@ -204,7 +206,7 @@ export function LibraryDetail({
           className="absolute left-3 top-3 flex h-7 items-center gap-1.5 border-2 border-[var(--mc-33)] bg-[var(--mc-61)] px-2 text-xs font-bold text-[var(--mc-ink)] hover:bg-[var(--mc-85)] compact:static compact:order-first compact:mx-2 compact:mt-2 compact:h-9 compact:w-fit compact:text-[13px]"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-          Back
+          {t("Back")}
         </button>
       </div>
 
@@ -232,7 +234,7 @@ export function LibraryDetail({
                   autoFocus
                   value={editing.name}
                   onChange={(event) => setEditing({ ...editing, name: event.target.value })}
-                  aria-label="Name"
+                  aria-label={t("Name")}
                   className="h-7 border border-cyan-500 bg-[var(--mc-33)] px-2 text-[13px] font-bold text-[var(--mc-ink)] outline-none"
                 />
                 <textarea
@@ -240,7 +242,7 @@ export function LibraryDetail({
                   onChange={(event) => setEditing({ ...editing, description: event.target.value })}
                   rows={2}
                   placeholder="Describe it"
-                  aria-label="Description"
+                  aria-label={t("Description")}
                   className="resize-none border-2 border-[var(--mc-33)] bg-[#17191d] px-2 py-1 text-[12px] text-neutral-100 outline-none shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607] placeholder:text-[var(--mc-ink-muted)]"
                 />
                 {entry.editTags ? (
@@ -261,18 +263,18 @@ export function LibraryDetail({
                     onClick={() => void saveEdit()}
                     className="flex h-7 items-center border-2 border-[var(--mc-33)] bg-[var(--mc-61)] px-3 text-[12px] font-bold text-[var(--mc-ink)] shadow-[inset_1px_1px_0_var(--mc-85)] hover:border-cyan-400 hover:text-cyan-200 disabled:opacity-50"
                   >
-                    Save
+                    {t("Save")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditing(undefined)}
                     className="flex h-7 items-center border-2 border-[var(--mc-33)] bg-[var(--mc-61)] px-3 text-[12px] font-bold text-[var(--mc-ink)] hover:bg-[var(--mc-85)]"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                   {entry.onPickIcon ? (
                     <span className="text-[11px] text-[var(--mc-ink-muted)]">
-                      Click the icon to change it.
+                      {t("Click the icon to change it.")}
                     </span>
                   ) : null}
                 </div>
@@ -286,7 +288,7 @@ export function LibraryDetail({
                   {entry.tier ? <TierBadge tier={entry.tier} /> : null}
                   {marks.open ? (
                     <span className="bg-[var(--mc-61)] px-1 text-[9px] font-black uppercase tracking-wide text-neutral-300">
-                      open
+                      {t("open")}
                     </span>
                   ) : null}
                 </div>
@@ -310,7 +312,8 @@ export function LibraryDetail({
                   </span>
                   {entry.machines !== undefined ? (
                     <span>
-                      <span className="font-bold text-neutral-300">{entry.machines}</span> machines
+                      <span className="font-bold text-neutral-300">{entry.machines}</span>{" "}
+                      {t("machines")}
                     </span>
                   ) : null}
                   {entry.euT !== undefined ? (
@@ -327,7 +330,7 @@ export function LibraryDetail({
                   {marks.posted ? (
                     <span className="flex items-center gap-1 text-emerald-400">
                       <Globe className="h-3 w-3" aria-hidden />
-                      {marks.privatePost ? "posted, private" : "posted"}
+                      {marks.privatePost ? "posted, private" : t("posted")}
                     </span>
                   ) : null}
                 </div>
@@ -401,14 +404,14 @@ export function LibraryDetail({
                 }}
                 className="h-7 border border-red-600 bg-red-700 px-3 text-[12px] font-bold text-white hover:bg-red-600"
               >
-                {confirming.icon === "delete" ? "Delete" : "Yes"}
+                {confirming.icon === "delete" ? t("Delete") : t("Yes")}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirming(undefined)}
                 className="h-7 border-2 border-[var(--mc-33)] bg-[var(--mc-61)] px-3 text-[12px] font-bold text-[var(--mc-ink)] hover:bg-[var(--mc-85)]"
               >
-                Cancel
+                {t("Cancel")}
               </button>
             </div>
           ) : null}
@@ -444,7 +447,7 @@ export function LibraryDetail({
               (entry.outputs && entry.outputs.length > 0) ? (
                 <div className="grid grid-cols-2 gap-3 compact:grid-cols-1">
                   <StatColumns label="Needs" stats={entry.needs ?? []} />
-                  <StatColumns label="Makes" stats={entry.outputs ?? []} />
+                  <StatColumns label={t("Makes")} stats={entry.outputs ?? []} />
                 </div>
               ) : null}
             </div>
@@ -530,6 +533,7 @@ function IconKey({
 
 /** One side of needs or makes: every stat, in as many columns as fit. */
 function StatColumns({ label, stats }: { label: string; stats: PlanResourceStat[] }) {
+  const t = useT();
   return (
     <div className="min-w-0 border border-[var(--mc-33)] bg-[var(--mc-25)] p-2">
       <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--mc-ink)]">
@@ -537,7 +541,7 @@ function StatColumns({ label, stats }: { label: string; stats: PlanResourceStat[
         <span className="ml-1.5 font-medium text-[var(--mc-ink-muted)]">{stats.length}</span>
       </div>
       {stats.length === 0 ? (
-        <div className="text-[11px] text-[var(--mc-ink-muted)]">Nothing</div>
+        <div className="text-[11px] text-[var(--mc-ink-muted)]">{t("Nothing")}</div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-x-3 gap-y-0.5">
           {stats.map((stat) => (
@@ -547,7 +551,6 @@ function StatColumns({ label, stats }: { label: string; stats: PlanResourceStat[
             >
               <span className="flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden">
                 <ResourceIcon
-
                   itemZoom={1.5}
                   resource={{ ...stat, id: stat.resourceId, amount: 1 }}
                   bare

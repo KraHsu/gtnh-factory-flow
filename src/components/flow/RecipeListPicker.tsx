@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 import { focusDropdownFilter } from "@/lib/dropdown-focus";
@@ -66,6 +67,7 @@ export function RecipeListPicker({
   hover,
   dimmed,
 }: RecipeListPickerProps) {
+  const t = useT();
   const datasetManifestUrl = useFactoryStore((state) => state.datasetManifestUrl);
   const datasetManifest = useFactoryStore((state) => state.datasetManifest);
   const selectedDatasetVersionId = useFactoryStore((state) => state.selectedDatasetVersionId);
@@ -118,7 +120,10 @@ export function RecipeListPicker({
     const needle = search.trim().toLowerCase();
     const matches = needle
       ? recipes.filter((recipe) =>
-          [recipeChoiceName(recipe.name), ...recipe.outputs.map((output) => output.displayName ?? output.id)]
+          [
+            recipeChoiceName(recipe.name),
+            ...recipe.outputs.map((output) => output.displayName ?? output.id),
+          ]
             .join(" ")
             .toLowerCase()
             .includes(needle),
@@ -146,7 +151,13 @@ export function RecipeListPicker({
   // As wide as the card's window and ABOVE it when there is room, the way
   // the machine menu sits: over the canvas, not over the card's own knobs.
   const anchorRef = useRef<HTMLSpanElement>(null);
-  const [anchorAt, setAnchorAt] = useState<{ left: number; top?: number; bottom?: number; width: number; maxHeight?: number }>();
+  const [anchorAt, setAnchorAt] = useState<{
+    left: number;
+    top?: number;
+    bottom?: number;
+    width: number;
+    maxHeight?: number;
+  }>();
   useEffect(() => {
     const parent = anchorRef.current?.parentElement;
     const card = anchorRef.current?.closest("[data-node-glance-root]");
@@ -164,8 +175,17 @@ export function RecipeListPicker({
       const roomAbove = Math.round(cardRect.top) - 12;
       setAnchorAt(
         roomAbove >= MENU_MIN_HEIGHT * scale
-          ? { left: shell(left), width: shell(width), bottom: shell(window.innerHeight - Math.round(cardRect.top) + 4), maxHeight: shell(roomAbove) }
-          : { left: shell(left), width: shell(width), top: shell(Math.min(rect.bottom + 2, window.innerHeight - 120)) },
+          ? {
+              left: shell(left),
+              width: shell(width),
+              bottom: shell(window.innerHeight - Math.round(cardRect.top) + 4),
+              maxHeight: shell(roomAbove),
+            }
+          : {
+              left: shell(left),
+              width: shell(width),
+              top: shell(Math.min(rect.bottom + 2, window.innerHeight - 120)),
+            },
       );
     }
   }, []);
@@ -187,7 +207,16 @@ export function RecipeListPicker({
     <div
       ref={rootRef}
       // The game font, as every menu on the mod's cards (the crop and mob pickers open from clean cards).
-      style={{ position: "fixed", left: anchorAt.left, top: anchorAt.top, bottom: anchorAt.bottom, width: anchorAt.width, maxHeight: anchorAt.maxHeight, fontFamily: "var(--app-font)", WebkitFontSmoothing: "none" }}
+      style={{
+        position: "fixed",
+        left: anchorAt.left,
+        top: anchorAt.top,
+        bottom: anchorAt.bottom,
+        width: anchorAt.width,
+        maxHeight: anchorAt.maxHeight,
+        fontFamily: "var(--app-font)",
+        WebkitFontSmoothing: "none",
+      }}
       // "nowheel" stops React Flow from zooming the canvas when scrolling the
       // list: its native wheel handler runs before React's synthetic one, so
       // stopPropagation alone is not enough.
@@ -212,7 +241,7 @@ export function RecipeListPicker({
       />
       {isLoading ? (
         <div className="flex items-center gap-2 px-2 py-3 text-[12px] font-bold text-[var(--mc-ink)]">
-          <LoaderCircle className="h-4 w-4 animate-spin" /> Loading {noun}...
+          <LoaderCircle className="h-4 w-4 animate-spin" /> {t("Loading")} {noun}...
         </div>
       ) : error ? (
         <div className="px-2 py-3 text-[12px] font-bold text-[var(--mc-bad)]">{error}</div>
@@ -221,7 +250,8 @@ export function RecipeListPicker({
           {filtered.map((recipe, index) => {
             const section = sectionOf?.(recipe);
             const previous = index > 0 ? filtered[index - 1] : undefined;
-            const opensSection = section !== undefined && (!previous || sectionOf?.(previous) !== section);
+            const opensSection =
+              section !== undefined && (!previous || sectionOf?.(previous) !== section);
             const face = tileResource(recipe);
             const current = recipe.id === currentRecipeId;
             return (
@@ -233,44 +263,45 @@ export function RecipeListPicker({
                   </div>
                 ) : null}
                 <MinecraftTooltip content={() => hover(recipe)}>
-                <button
-                  type="button"
-                  onClick={() => void handlePick(recipe)}
-                  aria-current={current || undefined}
-                  // The left item shelf's language: a bare icon over its
-                  // name, no box of its own, a quiet hover wash.
-                  className={[
-                    "flex flex-col items-center gap-0.5 p-0.5 pb-1 text-[var(--mc-ink)] hover:bg-[var(--mc-85)]",
-                    current ? "bg-[var(--mc-85)] outline outline-1 -outline-offset-1 outline-[var(--selection)]" : "",
-                    dimmed?.(recipe) ? "opacity-35 saturate-50" : "",
-                  ].join(" ")}
-                >
-                  <span className="grid h-12 w-12 place-items-center overflow-hidden">
-                    {face ? (
-                      <ResourceIcon
-
-                        itemZoom={1.4}
-                        // Chance badges are spelled out in the hover instead.
-                        resource={{ ...face, chance: undefined }}
-                        bare
-                        tooltip={false}
-                        showAmount={false}
-                        showConsumedState={false}
-                        size="md"
-                      />
-                    ) : null}
-                  </span>
-                  <span className="w-full overflow-hidden text-center text-[8px] font-bold leading-[9px]">
-                    {recipeChoiceName(recipe.name)}
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => void handlePick(recipe)}
+                    aria-current={current || undefined}
+                    // The left item shelf's language: a bare icon over its
+                    // name, no box of its own, a quiet hover wash.
+                    className={[
+                      "flex flex-col items-center gap-0.5 p-0.5 pb-1 text-[var(--mc-ink)] hover:bg-[var(--mc-85)]",
+                      current
+                        ? "bg-[var(--mc-85)] outline outline-1 -outline-offset-1 outline-[var(--selection)]"
+                        : "",
+                      dimmed?.(recipe) ? "opacity-35 saturate-50" : "",
+                    ].join(" ")}
+                  >
+                    <span className="grid h-12 w-12 place-items-center overflow-hidden">
+                      {face ? (
+                        <ResourceIcon
+                          itemZoom={1.4}
+                          // Chance badges are spelled out in the hover instead.
+                          resource={{ ...face, chance: undefined }}
+                          bare
+                          tooltip={false}
+                          showAmount={false}
+                          showConsumedState={false}
+                          size="md"
+                        />
+                      ) : null}
+                    </span>
+                    <span className="w-full overflow-hidden text-center text-[8px] font-bold leading-[9px]">
+                      {recipeChoiceName(recipe.name)}
+                    </span>
+                  </button>
                 </MinecraftTooltip>
               </Fragment>
             );
           })}
           {filtered.length === 0 ? (
             <div className="col-span-5 px-2 py-3 text-[12px] font-bold text-[var(--mc-ink-muted)]">
-              No {noun} match.
+              {t("No")} {noun} match.
             </div>
           ) : null}
         </div>

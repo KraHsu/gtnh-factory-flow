@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Handle, Position, useStoreApi, type Node, type NodeProps } from "@xyflow/react";
 import { memo, type CSSProperties } from "react";
@@ -103,20 +104,14 @@ function TrashCanPixelArt({ width = 64, height = 68 }: { width?: number; height?
       className="pointer-events-none"
     >
       {CAN_RECTS.map((rect, index) => (
-        <rect
-          key={index}
-          x={rect.x}
-          y={rect.y}
-          width={rect.width}
-          height={1}
-          fill={rect.fill}
-        />
+        <rect key={index} x={rect.x} y={rect.y} width={rect.width} height={1} fill={rect.fill} />
       ))}
     </svg>
   );
 }
 
 function TrashNodeComponent({ data, selected }: NodeProps<TrashFlowNode>) {
+  const t = useT();
   const { projectNode } = data;
   const reactFlowStore = useStoreApi();
   // The invisible wire handle blankets the well, and React Flow does not
@@ -213,7 +208,7 @@ function TrashNodeComponent({ data, selected }: NodeProps<TrashFlowNode>) {
             <Copy aria-hidden className="h-2.5 w-2.5" />
           </button>
           <div className="minecraft-title min-w-0 flex-1 truncate text-left text-[11px] leading-4">
-            Trash
+            {t("Trash")}
           </div>
         </div>
         <MinecraftTooltip content={'Voids any input. Never shows up as an "Output".'}>

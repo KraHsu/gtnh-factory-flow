@@ -15,7 +15,7 @@
   content: "";
   position: absolute;
   inset: -2px;
-  outline: 1px solid #22d3ee;
+  outline: 1px solid var(--ks-green);
   pointer-events: none;
 }
 .dw-box {
@@ -99,7 +99,7 @@
   height: 12px;
   margin: -6px 0 0 -6px;
   box-sizing: border-box;
-  background: #22d3ee;
+  background: var(--ks-green);
   border: 1px solid #0e7490;
   cursor: crosshair;
   display: none;

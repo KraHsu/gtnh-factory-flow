@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useFactoryStore } from "@/store/factory-store";
 import { BoardMenu, MenuLine, MenuRow } from "./BoardMenu";
@@ -26,6 +27,7 @@ export function CardRows({
   onAddToTask?: () => void;
   close: () => void;
 }) {
+  const t = useT();
   const recipeRows = useCardRecipeRows(nodeId);
   const run = (action: () => void) => () => {
     close();
@@ -36,7 +38,7 @@ export function CardRows({
       <MenuRow label="Clone node" onClick={run(onClone)} />
       {recipeRows.addRecipe ? (
         <MenuRow
-          label="Add another recipe"
+          label={t("Add another recipe")}
           onClick={run(() => useFactoryStore.getState().browseMachineRecipes(nodeId))}
         />
       ) : null}
@@ -46,9 +48,9 @@ export function CardRows({
           onClick={run(() => useFactoryStore.getState().beginRecipeRefactor(nodeId))}
         />
       ) : null}
-      {onAddToTask ? <MenuRow label="Add to a task" onClick={run(onAddToTask)} /> : null}
+      {onAddToTask ? <MenuRow label={t("Add to a task")} onClick={run(onAddToTask)} /> : null}
       <MenuLine />
-      <MenuRow label="Delete node" danger onClick={run(onDelete)} />
+      <MenuRow label={t("Delete node")} danger onClick={run(onDelete)} />
     </>
   );
 }
@@ -69,8 +71,9 @@ export function CardActionsMenu({
   onDelete: () => void;
   onAddToTask?: () => void;
 }) {
+  const t = useT();
   return (
-    <BoardMenu x={anchor.left} y={anchor.bottom + 2} label="Card actions" onClose={onClose}>
+    <BoardMenu x={anchor.left} y={anchor.bottom + 2} label={t("Card actions")} onClose={onClose}>
       <CardRows
         nodeId={nodeId}
         onClone={onClone}

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "../chrome/mod-panel.css";
 
@@ -11,6 +12,7 @@ import { openPlanCode } from "@/lib/open-plan-code";
  * (`chrome/mod-panel.css`). The other half of Copy plan code.
  */
 export function PastePlanDialog({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialogA11y(dialogRef, { onClose, initialFocus: "textarea" });
   const [text, setText] = useState("");
@@ -42,13 +44,21 @@ export function PastePlanDialog({ onClose }: { onClose: () => void }) {
         }
       }}
     >
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Paste a plan" className="pn">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("Paste a plan")}
+        className="pn"
+      >
         <div className="pn-title">
-          <span>Paste a plan</span>
-          <button type="button" onClick={onClose} aria-label="Close" className="pn-x" />
+          <span>{t("Paste a plan")}</span>
+          <button type="button" onClick={onClose} aria-label={t("Close")} className="pn-x" />
         </div>
         <div className="pn-body">
-          <p className="pn-note">Paste a plan link, a code or a plan file&apos;s text. It opens in a new tab.</p>
+          <p className="pn-note">
+            {t("Paste a plan link, a code or a plan file's text. It opens in a new tab.")}
+          </p>
           <textarea
             autoFocus
             value={text}
@@ -68,7 +78,7 @@ export function PastePlanDialog({ onClose }: { onClose: () => void }) {
           {error ? <p className="pn-err">{error}</p> : null}
           <div className="pn-keys">
             <button type="button" onClick={onClose} className="pn-key">
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="button"
@@ -77,7 +87,7 @@ export function PastePlanDialog({ onClose }: { onClose: () => void }) {
               data-primary=""
               className="pn-key"
             >
-              Open
+              {t("Open")}
             </button>
           </div>
         </div>

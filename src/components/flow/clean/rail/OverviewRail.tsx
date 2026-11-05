@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./rail.css";
 import { fluidSwatchStyle } from "../fluid-swatch";
@@ -108,7 +109,7 @@ const INK: Record<string, string> = {
   INPUTS: CC.source,
   OUTPUTS: CC.product,
   INTERNAL: "#D4D4D4",
-  MACHINES: CC.ink,
+  MACHINES: "var(--ks-text)",
 };
 const SIGN: Record<"inputs" | "outputs" | "internal", string> = {
   inputs: "-",
@@ -209,9 +210,10 @@ export function OverviewRail({
 }
 
 function FoldedStrip({ side, onOpen }: { side: "left" | "right"; onOpen?: () => void }) {
+  const t = useT();
   return (
     <ColumnStrip
-      label="OVERVIEW"
+      label={t("OVERVIEW")}
       open="Open the overview"
       side={side}
       helpAnchor="overview-rail"
@@ -242,6 +244,7 @@ export function ColumnStrip({
   helpAnchor?: string;
   onOpen: () => void;
 }) {
+  const t = useT();
   return (
     <div
       className="rail-strip"
@@ -257,12 +260,13 @@ export function ColumnStrip({
       {...tipProps(`rail|open|${label}`, () => ({ title: open }))}
     >
       <FoldGlyph direction={side === "left" ? "right" : "left"} />
-      <span className="rail-strip-label">{label}</span>
+      <span className="rail-strip-label">{t(label)}</span>
     </div>
   );
 }
 
 function OpenRail({ side, fitWidth }: { side: "left" | "right"; fitWidth: boolean }) {
+  const t = useT();
   useRateDisplayUnits();
   const view = useRailView();
   const { rail, spares } = useRailData();
@@ -398,65 +402,65 @@ function OpenRail({ side, fitWidth }: { side: "left" | "right"; fitWidth: boolea
 
   return (
     <RailWidthContext.Provider value={width}>
-    <div
-      ref={root}
-      className="rail-root"
-      data-side={side}
-      data-help-anchor="overview-rail"
-      onPointerDownCapture={(event) => {
-        // A press anywhere on the rail sets what was being typed.
-        if (editing && !(event.target instanceof HTMLInputElement)) {
-          (document.activeElement as HTMLElement | null)?.blur?.();
-        }
-      }}
-    >
-      <div className="rail-head">
-        <span className="rail-head-title">OVERVIEW</span>
-        <RailKey
-          label="Fold the overview"
-          className="rail-key-fold"
-          onClick={() => writeRailView({ open: false })}
-          tip={() => ({ title: "Fold the overview" })}
-        >
-          <FoldGlyph direction={side} />
-        </RailKey>
-      </div>
-      <input
-        className="rail-filter"
-        placeholder="Filter resources..."
-        value={filter}
-        spellCheck={false}
-        onChange={(event) => setFilter(event.target.value)}
-        aria-label="Filter resources"
-      />
       <div
-        ref={scroller}
-        className="rail-list"
-        onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
-        onPointerLeave={() => {
-          anchorKey.current = null;
+        ref={root}
+        className="rail-root"
+        data-side={side}
+        data-help-anchor="overview-rail"
+        onPointerDownCapture={(event) => {
+          // A press anywhere on the rail sets what was being typed.
+          if (editing && !(event.target instanceof HTMLInputElement)) {
+            (document.activeElement as HTMLElement | null)?.blur?.();
+          }
         }}
       >
-        <div className="rail-canvas" style={{ height: layout.height }}>
-          {visible.map((placed) => (
-            <div
-              key={placed.key}
-              className="rail-item"
-              style={{ top: placed.top, height: placed.height }}
-              onPointerEnter={() => {
-                anchorKey.current = placed.item.t === "spare" ? placed.item.spare.key : null;
-                if (placed.item.t === "spare") anchorTop.current = placed.top;
-              }}
-            >
-              <ItemView placed={placed} state={state} euText={euText} peak={peak} />
-            </div>
-          ))}
+        <div className="rail-head">
+          <span className="rail-head-title">{t("OVERVIEW")}</span>
+          <RailKey
+            label={t("Fold the overview")}
+            className="rail-key-fold"
+            onClick={() => writeRailView({ open: false })}
+            tip={() => ({ title: "Fold the overview" })}
+          >
+            <FoldGlyph direction={side} />
+          </RailKey>
         </div>
+        <input
+          className="rail-filter"
+          placeholder={t("Filter resources...")}
+          value={filter}
+          spellCheck={false}
+          onChange={(event) => setFilter(event.target.value)}
+          aria-label={t("Filter resources")}
+        />
+        <div
+          ref={scroller}
+          className="rail-list"
+          onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+          onPointerLeave={() => {
+            anchorKey.current = null;
+          }}
+        >
+          <div className="rail-canvas" style={{ height: layout.height }}>
+            {visible.map((placed) => (
+              <div
+                key={placed.key}
+                className="rail-item"
+                style={{ top: placed.top, height: placed.height }}
+                onPointerEnter={() => {
+                  anchorKey.current = placed.item.t === "spare" ? placed.item.spare.key : null;
+                  if (placed.item.t === "spare") anchorTop.current = placed.top;
+                }}
+              >
+                <ItemView placed={placed} state={state} euText={euText} peak={peak} />
+              </div>
+            ))}
+          </div>
+        </div>
+        {menu ? (
+          <RuleMenu drawer={menu.drawer} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />
+        ) : null}
       </div>
-      {menu ? (
-        <RuleMenu drawer={menu.drawer} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />
-      ) : null}
-    </div>
     </RailWidthContext.Provider>
   );
 }
@@ -472,12 +476,13 @@ const ItemView = memo(function ItemView({
   euText: string;
   peak: boolean;
 }) {
+  const t = useT();
   const { item } = placed;
   switch (item.t) {
     case "section":
       return <SectionBar item={item} euText={euText} peak={peak} />;
     case "empty":
-      return <div className="rail-empty">{item.text}</div>;
+      return <div className="rail-empty">{t(item.text)}</div>;
     case "line":
       return <LineRow item={item} state={state} />;
     case "spare":
@@ -485,7 +490,7 @@ const ItemView = memo(function ItemView({
     case "power":
       return (
         <div className="rail-power" style={{ height: placed.height }}>
-          <span style={{ color: CC.muted }}>{item.label}</span>
+          <span style={{ color: "var(--ks-muted)" }}>{t(item.label)}</span>
           <b
             style={{
               color: item.label === "Made" ? "#FCD34D" : item.value >= 0 ? CC.ok : CC.red,
@@ -514,6 +519,7 @@ function SectionBar({
   euText: string;
   peak: boolean;
 }) {
+  const t = useT();
   const shown = item.shown !== item.count;
   const filtering = shown;
   return (
@@ -535,7 +541,7 @@ function SectionBar({
     >
       <span className="rail-sec-tri" />
       <span className="rail-sec-title" style={{ color: INK[item.id] }}>
-        {item.id}
+        {t(item.id)}
       </span>
       <span className="rail-sec-badge">
         {filtering ? `${item.shown} / ${item.count}` : item.count}
@@ -545,7 +551,7 @@ function SectionBar({
           <>
             <span>{euText}</span>
             <RailKey
-              label={peak ? "Peak power" : "Average power"}
+              label={peak ? t("Peak power") : t("Average power")}
               onClick={() => writeWorkspaceView({ averageMachineDraw: peak })}
               onContext={() => writeWorkspaceView({ averageMachineDraw: peak })}
               tip={() => ({
@@ -561,7 +567,7 @@ function SectionBar({
                 actions: [{ input: "left", label: peak ? "Show the average" : "Show the peak" }],
               })}
             >
-              {peak ? "Peak" : "Avg"}
+              {peak ? t("Peak") : t("Avg")}
             </RailKey>
           </>
         ) : item.id === "INTERNAL" ? null : (
@@ -597,7 +603,7 @@ const LineRow = memo(function LineRow({
   const { line, section, amount, setters } = item;
   const [hot, setHot] = useState(false);
   const setHovered = useFactoryStore((s) => s.setHoveredFlowResourceKey);
-  const ink = INK[section.toUpperCase()] ?? CC.ink;
+  const ink = INK[section.toUpperCase()] ?? "var(--ks-text)";
   const mult = rateMultiplierForKind(line.kind);
   const shown = amount * mult;
   const number = `${amount > 0 ? SIGN[section] : ""}${formatCompact(shown)}`;
@@ -954,9 +960,10 @@ function RuleMenu({
   y: number;
   onClose: () => void;
 }) {
+  const t = useT();
   // The board's own menu, so it follows the interface zoom as every other menu does.
   return (
-    <BoardMenu x={x} y={y} label="Rule" width={210} onClose={onClose}>
+    <BoardMenu x={x} y={y} label={t("Rule")} width={210} onClose={onClose}>
       {RULE_STEPS.map((rule) => (
         <MenuRow
           key={rule}
@@ -1029,7 +1036,7 @@ function GroupRow({ name, entries }: { name: string; entries: RailMachine[] }) {
     >
       <div className="rail-row" style={{ top: 0, height: ROW_H }}>
         <MachineGlyph entry={entries[0]!} />
-        <span className="rail-name" style={{ color: hot ? CC.gold : CC.ink }}>
+        <span className="rail-name" style={{ color: hot ? "var(--ks-amber)" : "var(--ks-text)" }}>
           {name}
         </span>
       </div>
@@ -1140,9 +1147,10 @@ const MachineRow = memo(function MachineRow({
   };
   const lines: TipContent = {
     title: entry.label,
-    sub: upTo && entry.pinned
-      ? `${machinesText(entry.count)} of ${machinesText(entry.pin!)} machines`
-      : `${machinesText(entry.count)} machines${entry.pinned ? " (exactly)" : ""}`,
+    sub:
+      upTo && entry.pinned
+        ? `${machinesText(entry.count)} of ${machinesText(entry.pin!)} machines`
+        : `${machinesText(entry.count)} machines${entry.pinned ? " (exactly)" : ""}`,
     notes: [
       ...(upTo && entry.upTo?.reason
         ? [

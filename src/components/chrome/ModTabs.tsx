@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 
@@ -27,7 +28,13 @@ import {
   TAB_GLIDE_MS,
   type TabBox,
 } from "./tab-reorder";
-import { ChromeMenu, chromeAnchorOf, MENU_ANCHOR_ATTR, type ChromeAnchor, type MenuEntry } from "./ChromeMenu";
+import {
+  ChromeMenu,
+  chromeAnchorOf,
+  MENU_ANCHOR_ATTR,
+  type ChromeAnchor,
+  type MenuEntry,
+} from "./ChromeMenu";
 import { libraryRows } from "./library-rows";
 import { copyPlanCode } from "./share-actions";
 import type { ShareMode } from "@/components/community/SharePlanDialog";
@@ -72,6 +79,7 @@ type TabMenu =
 
 /** The plan tabs of the top bar (the mod's PlanTabs): one per open plan, then "+". */
 export function ModTabs({ onPaste, onShare }: ModTabsActions) {
+  const t = useT();
   const allDesigns = useDesignStore((state) => state.designs);
   const publicViews = useDesignStore((state) => state.publicViews);
   const publicView = useDesignStore((state) => state.publicView);
@@ -100,7 +108,10 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
   const allDesignsRef = useRef(allDesigns);
   const canClose = designs.length + publicViews.length > 1;
   // One tab is in the Tab order (roving): the open plan's, else the first. The arrows move among the rest.
-  const tabIds = [...publicViews.map((view) => `public:${view.id}`), ...designs.map((design) => design.id)];
+  const tabIds = [
+    ...publicViews.map((view) => `public:${view.id}`),
+    ...designs.map((design) => design.id),
+  ];
   const wanted = publicView ? `public:${publicView.id}` : activeDesignId;
   const tabStop = wanted && tabIds.includes(wanted) ? wanted : tabIds[0];
   useLayoutEffect(() => {
@@ -114,7 +125,9 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
     if (!strip) return;
     const max = strip.scrollWidth - strip.clientWidth;
     const next = { left: strip.scrollLeft > 1, right: strip.scrollLeft < max - 1 };
-    setFade((previous) => (previous.left === next.left && previous.right === next.right ? previous : next));
+    setFade((previous) =>
+      previous.left === next.left && previous.right === next.right ? previous : next,
+    );
   }, []);
 
   const keepActiveInView = useCallback(() => {
@@ -124,7 +137,8 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
     const left = tab.offsetLeft;
     const right = left + tab.offsetWidth;
     if (left < strip.scrollLeft) strip.scrollLeft = left;
-    else if (right > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = right - strip.clientWidth;
+    else if (right > strip.scrollLeft + strip.clientWidth)
+      strip.scrollLeft = right - strip.clientWidth;
   }, []);
 
   // The strip narrowing (the window, the bar's keys) must not push the open plan's tab out of sight.
@@ -151,7 +165,9 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
     (openOrder: string[]) => {
       const open = new Set(designIdsRef.current);
       let next = 0;
-      const full = allDesignsRef.current.map((design) => (open.has(design.id) ? openOrder[next++] : design.id));
+      const full = allDesignsRef.current.map((design) =>
+        open.has(design.id) ? openOrder[next++] : design.id,
+      );
       void reorderDesigns(full);
     },
     [reorderDesigns],
@@ -164,11 +180,13 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
     const strip = stripRef.current;
     if (!strip || event.button !== 0 || event.pointerType === "touch" || grabRef.current) return;
     if ((event.target as HTMLElement).closest(".mt-close, input")) return;
-    const boxes = [...strip.querySelectorAll<HTMLElement>(".mt-tab[data-design-id]")].map((tab) => ({
-      id: tab.dataset.designId ?? "",
-      left: tab.offsetLeft,
-      width: tab.offsetWidth,
-    }));
+    const boxes = [...strip.querySelectorAll<HTMLElement>(".mt-tab[data-design-id]")].map(
+      (tab) => ({
+        id: tab.dataset.designId ?? "",
+        left: tab.offsetLeft,
+        width: tab.offsetWidth,
+      }),
+    );
     const me = boxes.findIndex((box) => box.id === id);
     if (me < 0 || boxes.length < 2) return;
     const grab: TabGrab = {
@@ -176,7 +194,10 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
       startX: event.clientX,
       startScroll: strip.scrollLeft,
       pointerX: event.clientX,
-      scale: strip.offsetWidth > 0 && strip.getBoundingClientRect().width > 0 ? strip.getBoundingClientRect().width / strip.offsetWidth : 1,
+      scale:
+        strip.offsetWidth > 0 && strip.getBoundingClientRect().width > 0
+          ? strip.getBoundingClientRect().width / strip.offsetWidth
+          : 1,
       boxes,
       held: false,
       slot: me,
@@ -190,8 +211,12 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
       if (!mine) return;
       const first = grab.boxes[0];
       const last = grab.boxes[grab.boxes.length - 1];
-      const raw = (grab.pointerX - grab.startX) / grab.scale + (strip.scrollLeft - grab.startScroll);
-      const dx = Math.max(first.left - mine.left, Math.min(last.left + last.width - mine.left - mine.width, raw));
+      const raw =
+        (grab.pointerX - grab.startX) / grab.scale + (strip.scrollLeft - grab.startScroll);
+      const dx = Math.max(
+        first.left - mine.left,
+        Math.min(last.left + last.width - mine.left - mine.width, raw),
+      );
       const slot = slotAt(grab.boxes, id, mine.left + mine.width / 2 + dx);
       if (slot !== grab.slot) {
         grab.slot = slot;
@@ -211,7 +236,9 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
             : 0;
       if (into !== 0) {
         const before = strip.scrollLeft;
-        strip.scrollLeft += Math.sign(into) * Math.min(TAB_EDGE_SPEED, 2 + (Math.abs(into) / TAB_EDGE_ZONE) * TAB_EDGE_SPEED);
+        strip.scrollLeft +=
+          Math.sign(into) *
+          Math.min(TAB_EDGE_SPEED, 2 + (Math.abs(into) / TAB_EDGE_ZONE) * TAB_EDGE_SPEED);
         if (strip.scrollLeft !== before) update();
       }
       grab.frame = requestAnimationFrame(edgeScroll);
@@ -238,7 +265,8 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
       setDrag({ id, dx: shifts[id] ?? 0, shifts, settling: true });
       window.setTimeout(() => {
         setDrag(undefined);
-        if (commit && final.some((other, at) => other !== designIdsRef.current[at])) commitOrder(final);
+        if (commit && final.some((other, at) => other !== designIdsRef.current[at]))
+          commitOrder(final);
         window.setTimeout(() => {
           suppressClick.current = false;
         }, 0);
@@ -300,7 +328,10 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
 
   const copyCode = async (id: string) => {
     try {
-      const project = id === activeDesignId ? useFactoryStore.getState().project : (await readDesign(id))?.project;
+      const project =
+        id === activeDesignId
+          ? useFactoryStore.getState().project
+          : (await readDesign(id))?.project;
       if (!project) return;
       await copyPlanCode(project);
     } catch (error) {
@@ -319,7 +350,12 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
   const openTabMenu = (event: React.MouseEvent<HTMLElement>, id: string, name: string) => {
     event.preventDefault();
     const rect = event.currentTarget.getBoundingClientRect();
-    setMenu({ kind: "tab", id, name, anchor: { left: rect.left, top: rect.top, bottom: rect.bottom + 1 } });
+    setMenu({
+      kind: "tab",
+      id,
+      name,
+      anchor: { left: rect.left, top: rect.top, bottom: rect.bottom + 1 },
+    });
   };
 
   const entries = (m: TabMenu): MenuEntry[] => {
@@ -349,10 +385,23 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
               },
             ]
           : []),
-        { label: "Open a plan...", detail: "My plans", onSelect: () => openLibrary({ kind: "all" }) },
-        { label: "Open plan file...", detail: ".json", onSelect: () => document.querySelector<HTMLInputElement>("[data-plan-file-input]")?.click() },
+        {
+          label: "Open a plan...",
+          detail: "My plans",
+          onSelect: () => openLibrary({ kind: "all" }),
+        },
+        {
+          label: "Open plan file...",
+          detail: ".json",
+          onSelect: () =>
+            document.querySelector<HTMLInputElement>("[data-plan-file-input]")?.click(),
+        },
         { label: "Paste plan", detail: "a plan link, code or file", onSelect: onPaste },
-        { label: "Browse Community", detail: "public plans", onSelect: () => openLibrary({ kind: "public" }) },
+        {
+          label: "Browse Community",
+          detail: "public plans",
+          onSelect: () => openLibrary({ kind: "public" }),
+        },
       ];
     }
     if (m.kind === "delete") {
@@ -365,7 +414,11 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
       { label: "Rename", onSelect: () => setRenaming(m.id) },
       { label: "Copy plan code", detail: "to paste or share", onSelect: () => void copyCode(m.id) },
       ...libraryRows(
-        Boolean(m.id === activeDesignId ? linkedPostId : designs.find((design) => design.id === m.id)?.communityPlanId),
+        Boolean(
+          m.id === activeDesignId
+            ? linkedPostId
+            : designs.find((design) => design.id === m.id)?.communityPlanId,
+        ),
         (mode) => {
           void (async () => {
             if (m.id !== activeDesignId) await activate(m.id);
@@ -405,14 +458,19 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
           className="mt-strip"
           onScroll={syncFade}
           role="tablist"
-          aria-label="Open plans"
+          aria-label={t("Open plans")}
           onKeyDown={(event) => {
             if (event.target instanceof HTMLInputElement) return;
             const tabs = [...event.currentTarget.querySelectorAll<HTMLElement>(".mt-tab")];
             const at = tabs.indexOf(document.activeElement as HTMLElement);
             if (at < 0) return;
             const held = tabs[at].dataset.designId;
-            if (held && event.ctrlKey && event.shiftKey && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+            if (
+              held &&
+              event.ctrlKey &&
+              event.shiftKey &&
+              (event.key === "ArrowLeft" || event.key === "ArrowRight")
+            ) {
               moveTabByKey(event, held, event.key === "ArrowLeft" ? -1 : 1);
               return;
             }
@@ -446,7 +504,10 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
                 tabIndex={tabStop === `public:${view.id}` ? 0 : -1}
                 onKeyDown={(event) => {
                   activateOnKey(event);
-                  if ((event.key === "Delete" || event.key === "Backspace") && event.target === event.currentTarget) {
+                  if (
+                    (event.key === "Delete" || event.key === "Backspace") &&
+                    event.target === event.currentTarget
+                  ) {
                     void useDesignStore.getState().closePublicView(view.id);
                   }
                 }}
@@ -471,7 +532,7 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
                 <span
                   className="mt-close"
                   role="button"
-                  aria-label="Close public setup view"
+                  aria-label={t("Close public setup view")}
                   onClick={(event) => {
                     event.stopPropagation();
                     void useDesignStore.getState().closePublicView(view.id);
@@ -533,7 +594,7 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
               >
                 {isRenaming ? (
                   <RenameField
-                    initial={design.name}
+                    initial={design.name === "Untitled design" ? t("Untitled design") : design.name}
                     onDone={(name) => {
                       setRenaming(undefined);
                       if (name && name !== design.name) void renameDesign(design.id, name);
@@ -542,20 +603,30 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
                 ) : (
                   <>
                     {design.taskBoard ? <ChecklistIcon className="mt-tasks" /> : null}
-                    <span className="mt-name">{design.name}</span>
+                    <span className="mt-name">
+                      {design.name === "Untitled design" ? t("Untitled design") : design.name}
+                    </span>
                   </>
                 )}
-                {active && solving ? <span className="mt-solving" aria-label="Still working out this plan's numbers" /> : null}
+                {active && solving ? (
+                  <span
+                    className="mt-solving"
+                    aria-label={t("Still working out this plan's numbers")}
+                  />
+                ) : null}
                 {canClose && !isRenaming ? (
                   <span
                     className="mt-close"
                     role="button"
-                    aria-label={`Close ${design.name}`}
+                    aria-label={`Close ${design.name === "Untitled design" ? t("Untitled design") : design.name}`}
                     onClick={(event) => {
                       event.stopPropagation();
                       void close(design.id);
                     }}
-                    {...tipAttrs({ id: `tab|close:${design.id}`, title: "Close tab (the plan is kept in My plans)" })}
+                    {...tipAttrs({
+                      id: `tab|close:${design.id}`,
+                      title: "Close tab (the plan is kept in My plans)",
+                    })}
                   >
                     <CloseGlyph />
                   </span>
@@ -570,7 +641,7 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
       <div
         className="mt-plus"
         role="button"
-        aria-label="New plan"
+        aria-label={t("New plan")}
         aria-haspopup="menu"
         aria-expanded={menu?.kind === "plus"}
         tabIndex={0}
@@ -591,7 +662,7 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
         accept="application/json,.json"
         className="hidden"
         data-plan-file-input=""
-        aria-label="Open plan file"
+        aria-label={t("Open plan file")}
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = "";
@@ -599,7 +670,10 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
           leaveWelcomeTab();
           leaveLibrary();
           openPlanFile(file).catch((error) =>
-            flashNotice("warn", error instanceof Error ? error.message : "That plan file could not be opened."),
+            flashNotice(
+              "warn",
+              error instanceof Error ? error.message : "That plan file could not be opened.",
+            ),
           );
         }}
       />
@@ -607,7 +681,7 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
         <ChromeMenu
           anchor={menu.anchor}
           entries={entries(menu)}
-          label={menu.kind === "plus" ? "New plan" : `Plan options for ${menu.name}`}
+          label={menu.kind === "plus" ? t("New plan") : `Plan options for ${menu.name}`}
           title={menu.kind === "delete" ? `Delete '${menu.name}' for good?` : undefined}
           minWidth={menu.kind === "plus" ? 190 : menu.kind === "delete" ? 150 : 170}
           onClose={closeMenu}
@@ -624,13 +698,21 @@ function CloseGlyph() {
     d.push(`M${2 + k} ${2 + k}h1v1h-1z`, `M${6 - k} ${2 + k}h1v1h-1z`);
   }
   return (
-    <svg width="9" height="9" viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden fill="currentColor">
+    <svg
+      width="9"
+      height="9"
+      viewBox="0 0 9 9"
+      shapeRendering="crispEdges"
+      aria-hidden
+      fill="currentColor"
+    >
       <path d={d.join("")} />
     </svg>
   );
 }
 
 function RenameField({ initial, onDone }: { initial: string; onDone: (name: string) => void }) {
+  const t = useT();
   const [value, setValue] = useState(initial);
   const doneRef = useRef(false);
   const finish = (commit: boolean) => {
@@ -642,7 +724,7 @@ function RenameField({ initial, onDone }: { initial: string; onDone: (name: stri
     <input
       autoFocus
       className="mt-rename"
-      aria-label="Plan name"
+      aria-label={t("Plan name")}
       value={value}
       onFocus={(event) => event.currentTarget.select()}
       onChange={(event) => setValue(event.target.value)}

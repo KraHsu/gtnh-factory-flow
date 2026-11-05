@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useReactFlow, useStore, useStoreApi } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -18,10 +19,14 @@ import "./minimap.css";
  */
 
 function isTyping(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && Boolean(target.closest("input, textarea, select, [contenteditable='true']"));
+  return (
+    target instanceof HTMLElement &&
+    Boolean(target.closest("input, textarea, select, [contenteditable='true']"))
+  );
 }
 
 export function BoardMinimap({ hidden = false }: { hidden?: boolean }) {
+  const t = useT();
   const settings = useMinimapSettings();
   const flow = useReactFlow();
   const storeApi = useStoreApi();
@@ -63,7 +68,8 @@ export function BoardMinimap({ hidden = false }: { hidden?: boolean }) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
-      if ((event.key === "n" || event.key === "N") && !event.shiftKey) setMinimap({ show: !getMinimap().show });
+      if ((event.key === "n" || event.key === "N") && !event.shiftKey)
+        setMinimap({ show: !getMinimap().show });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -108,7 +114,7 @@ export function BoardMinimap({ hidden = false }: { hidden?: boolean }) {
         ref={canvasRef}
         className="mmap-canvas"
         style={{ width: size, height: size }}
-        aria-label="Minimap"
+        aria-label={t("Minimap")}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -125,8 +131,8 @@ export function BoardMinimap({ hidden = false }: { hidden?: boolean }) {
       />
       <div
         role="button"
-        aria-label="Minimap settings"
-        title="Minimap settings"
+        aria-label={t("Minimap settings")}
+        title={t("Minimap settings")}
         className="mmap-gear"
         onClick={() => setSettingsOpen((open) => !open)}
       />

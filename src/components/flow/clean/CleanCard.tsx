@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./clean.css";
 import { fluidSwatchStyle } from "./fluid-swatch";
@@ -106,6 +107,7 @@ export function CleanPortRow({
   wasClick: (event: MouseEvent) => boolean;
   unset?: boolean;
 }) {
+  const t = useT();
   const browseResource = useFactoryStore((state) => state.browseResource);
   const setHoveredFlowScope = useFactoryStore((state) => state.setHoveredFlowScope);
   const readOnly = useFactoryStore((state) => state.isReadOnly);
@@ -116,7 +118,9 @@ export function CleanPortRow({
     (state) => (state.hoveredFlowResourceKey ?? state.selectedFlowResourceKey) === p.resourceKey,
   );
   // This row's Forced tile lights with the rest of its spill (the buffer's tile and its other makers').
-  const spillLit = useSpillHover((state) => p.spillTo !== undefined && state.drawerId === p.spillTo);
+  const spillLit = useSpillHover(
+    (state) => p.spillTo !== undefined && state.drawerId === p.spillTo,
+  );
   const [mobOpen, setMobOpen] = useState(false);
   const { port } = p;
   const isInput = p.side === "input";
@@ -162,7 +166,13 @@ export function CleanPortRow({
         className="cc-row"
         data-side={p.side}
         data-controller={controller ? "" : undefined}
-        title={controller ? undefined : bee ? `${p.name}: stays in the housing, not used up` : `${p.name}: free input, no supply needed`}
+        title={
+          controller
+            ? undefined
+            : bee
+              ? `${p.name}: stays in the housing, not used up`
+              : `${p.name}: free input, no supply needed`
+        }
         style={{ opacity: controller || bee ? 0.85 : 0.6 }}
         {...(controller
           ? {
@@ -293,7 +303,7 @@ export function CleanPortRow({
           <span className="cc-num" data-unit={p.forced.unit}>
             {p.forced.number}
           </span>
-          <span className="cc-pname">Forced</span>
+          <span className="cc-pname">{t("Forced")}</span>
         </div>
       ) : null}
       {!p.wired && !p.forced && port.kind !== "power" ? (
@@ -721,6 +731,7 @@ export function AmpsChip({
   onSet: (value: number) => void;
   wasClick: (event: MouseEvent) => boolean;
 }) {
+  const t = useT();
   const [draft, setDraft] = useState<string>();
   // The chip's width as the box opens: the box fills exactly that, so typing never widens the head.
   const [openWidth, setOpenWidth] = useState<number>();
@@ -784,7 +795,7 @@ export function AmpsChip({
           autoFocus
           value={draft}
           inputMode="numeric"
-          aria-label="Amps"
+          aria-label={t("Amps")}
           size={1}
           className="nodrag"
           onChange={(event) => setDraft(event.target.value)}
@@ -872,6 +883,7 @@ export interface CleanCardProps {
 
 /** The clean recipe card: header, hairline, port rails around the picture, power row, settings strip. */
 export function CleanCard({ view, actions, context, recipe, node }: CleanCardProps) {
+  const t = useT();
   const { wasClick, onPointerDownCapture } = useClickSlop();
   const { zoomedOutNames: glanceNames, problemOutlines } = useDeviceSettings();
   const glance = glanceFace(view.glanceArt ? `url(${view.glanceArt})` : undefined, view.glance);
@@ -956,7 +968,7 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
           className="cc-key"
           data-glyph="menu"
           data-hatch-menu-anchor=""
-          aria-label="Card actions"
+          aria-label={t("Card actions")}
           aria-haspopup="menu"
           aria-expanded={menu?.kind === "actions"}
           {...tipAttrs(menuTip(view.nodeId))}
@@ -969,7 +981,7 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
           data-glyph="gear"
           data-hatch-menu-anchor=""
           data-warn={undefined}
-          aria-label="Machine settings"
+          aria-label={t("Machine settings")}
           aria-haspopup="menu"
           data-menu-anchor=""
           aria-expanded={sheetAnchor !== undefined}

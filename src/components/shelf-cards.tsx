@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import type { ReactNode } from "react";
 import type { PlanResourceStat } from "@/lib/community/types";
@@ -75,6 +76,7 @@ function IoSection({
       so the two columns keep their headings aligned. */
   muted?: boolean;
 }) {
+  const t = useT();
   if (stats.length === 0 && !muted) {
     return null;
   }
@@ -82,7 +84,7 @@ function IoSection({
     <div className="min-w-0 flex-1">
       <div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</div>
       {stats.length === 0 ? (
-        <div className="py-0.5 text-[11px] text-slate-500">Nothing</div>
+        <div className="py-0.5 text-[11px] text-slate-500">{t("Nothing")}</div>
       ) : null}
       {stats.slice(0, limit).map((stat) => (
         <div key={`${stat.kind}:${stat.resourceId}`} className="flex items-center gap-1.5 py-0.5">
@@ -108,7 +110,9 @@ function IoSection({
         </div>
       ))}
       {stats.length > limit ? (
-        <div className="text-[10px] text-slate-500">+{stats.length - limit} more</div>
+        <div className="text-[10px] text-slate-500">
+          +{stats.length - limit} {t("more")}
+        </div>
       ) : null}
     </div>
   );

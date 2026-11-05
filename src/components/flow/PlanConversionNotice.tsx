@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { memo } from "react";
 import { X } from "lucide-react";
@@ -11,6 +12,7 @@ import { useFactoryStore } from "@/store/factory-store";
  * The plan itself is not touched until the player edits it.
  */
 export const PlanConversionNotice = memo(function PlanConversionNotice() {
+  const t = useT();
   const notice = useFactoryStore((state) => state.planNotice);
   const dismiss = useFactoryStore((state) => state.dismissPlanNotice);
   // Plan boards say it in the notices bar (clean/rail/NoticeBar); this dress is for any board that has none.
@@ -33,7 +35,7 @@ export const PlanConversionNotice = memo(function PlanConversionNotice() {
       <button
         type="button"
         onClick={dismiss}
-        aria-label="Dismiss"
+        aria-label={t("Dismiss")}
         className="shrink-0 border border-[#6f9cff] bg-[#273957] p-0.5 text-[#dce7ff] hover:bg-[#334b70]"
       >
         <X className="h-3.5 w-3.5" />

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
@@ -91,6 +92,7 @@ function putDrawerHere(bearer: SpareBearerView): void {
 }
 
 export function SparePopupHost() {
+  const t = useT();
   const state = useSyncExternalStore(
     subscribe,
     () => popup,
@@ -146,7 +148,7 @@ export function SparePopupHost() {
             putDrawerHere(here);
           }}
         >
-          <span>or put a drawer here</span>
+          <span>{t("or put a drawer here")}</span>
         </div>
       ) : null}
     </div>,

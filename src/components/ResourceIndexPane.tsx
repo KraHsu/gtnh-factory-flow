@@ -1,7 +1,16 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Zap } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import type { DragEvent, PointerEvent, ReactNode, RefObject, WheelEvent } from "react";
 import { createPortal } from "react-dom";
 import { writeResourceDrag } from "@/lib/resource-drag";
@@ -27,7 +36,12 @@ import { POWER_EU_CLAUSE_ID } from "@/lib/power/power-search";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import { isEchoOfTouch } from "@/lib/pointer-kind";
 import { isFromBrowseMenu, useBrowseMenu } from "./browse-menu";
-import { ChromeMenu, chromeAnchorOf, MENU_ANCHOR_ATTR, type ChromeAnchor } from "./chrome/ChromeMenu";
+import {
+  ChromeMenu,
+  chromeAnchorOf,
+  MENU_ANCHOR_ATTR,
+  type ChromeAnchor,
+} from "./chrome/ChromeMenu";
 import "./chrome/mod-panel.css";
 import "./nei/nei.css";
 import { isEditableKeyboardTarget } from "./flow/keyboard";
@@ -67,6 +81,7 @@ export function ResourceIndexPane({
   /** Keys at the start of the page row (the column's fold key). */
   leading?: ReactNode;
 }) {
+  const t = useT();
   const datasetManifestUrl = useFactoryStore((state) => state.datasetManifestUrl);
   const selectedDatasetVersion = useFactoryStore((state) =>
     state.datasetManifest?.versions.find((entry) => entry.id === state.selectedDatasetVersionId),
@@ -121,10 +136,7 @@ export function ResourceIndexPane({
       : resourceResults;
   const displayedTotal = onBoard ? boardResults.total : resourceTotal;
   const displayedOutcome = onBoard ? boardResults.outcome : resourceSearchOutcome;
-  const resourcePageCount = Math.max(
-    1,
-    Math.ceil(displayedTotal / Math.max(1, resourcePageSize)),
-  );
+  const resourcePageCount = Math.max(1, Math.ceil(displayedTotal / Math.max(1, resourcePageSize)));
   /**
    * The wheel turns the page anywhere in the column, since the paged list
    * does not scroll. Deltas accumulate so a trackpad flick moves a page or
@@ -292,7 +304,10 @@ export function ResourceIndexPane({
     () => false,
   );
   const searchNone =
-    !resourceQueryLoading && debouncedRecipeSearch.trim() !== "" && displayedTotal === 0 && !!dataset;
+    !resourceQueryLoading &&
+    debouncedRecipeSearch.trim() !== "" &&
+    displayedTotal === 0 &&
+    !!dataset;
   const searchField = (
     <NeiSearchField
       inputRef={inputRef}
@@ -320,7 +335,7 @@ export function ResourceIndexPane({
             <span className="nei-pager-count nei-text"> </span>
           </div>
           <div className="nei-empty">
-            {isDatasetLoading ? "Loading recipe index..." : "Recipe index is not loaded yet."}
+            {isDatasetLoading ? t("Loading recipe index...") : t("Recipe index is not loaded yet.")}
           </div>
           <div className="min-h-0 flex-1" />
         </>
@@ -358,7 +373,7 @@ export function ResourceIndexPane({
             ? `Showing results for ${displayedOutcome.corrections
                 .map((correction) => correction.to)
                 .join(", ")}`
-            : "No item has all those words. Showing the closest."}
+            : t("No item has all those words. Showing the closest.")}
         </p>
       ) : null}
 
@@ -690,23 +705,13 @@ function useBoardResourceResults(
           ? EXACT_SEARCH
           : { phase: resolved.phase, corrections: resolved.query.corrections },
     };
-  }, [
-    enabled,
-    request.limit,
-    request.mod,
-    request.offset,
-    request.query,
-    request.sort,
-    resources,
-  ]);
+  }, [enabled, request.limit, request.mod, request.offset, request.query, request.sort, resources]);
 }
-
 
 interface ResourceQueryCacheEntry {
   result: RecipeDatasetResourceQueryResult;
   expiresAt: number;
 }
-
 
 /** More than one row of the widest column could ever show. */
 const RECENT_STRIP_LIMIT = 24;
@@ -722,6 +727,7 @@ function RecentResourceStrip({
 }: {
   onBrowse: (resource: IndexedResource, mode: "recipes" | "uses") => void;
 }) {
+  const t = useT();
   const history = useFactoryStore((state) => state.recipeResourceHistory);
   const activeResource = useFactoryStore((state) => state.recipeBrowserResource);
   const recent = useMemo(
@@ -734,7 +740,7 @@ function RecentResourceStrip({
   }
 
   return (
-    <div className="nei-recent" aria-label="Recently viewed" role="listbox">
+    <div className="nei-recent" aria-label={t("Recently viewed")} role="listbox">
       <NeiSlots
         resources={recent}
         activeResource={activeResource}
@@ -773,6 +779,7 @@ function VirtualResourceResultList({
   leading?: ReactNode;
   trailing?: ReactNode;
 }) {
+  const t = useT();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { pageSize, gridColumns } = useResourcePageSize(containerRef, onPageSizeChange);
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -793,7 +800,7 @@ function VirtualResourceResultList({
           className="nei-btn"
           onClick={handlePreviousPage}
           disabled={pageCount <= 1}
-          aria-label="Previous resource page"
+          aria-label={t("Previous resource page")}
         >
           <NeiArrow direction="left" />
         </button>
@@ -806,7 +813,7 @@ function VirtualResourceResultList({
           className="nei-btn"
           onClick={handleNextPage}
           disabled={pageCount <= 1}
-          aria-label="Next resource page"
+          aria-label={t("Next resource page")}
         >
           <NeiArrow direction="right" />
         </button>
@@ -817,7 +824,7 @@ function VirtualResourceResultList({
         ) : isLoading && resources.length === 0 ? (
           <ResourceResultSkeleton pageSize={pageSize} gridColumns={gridColumns} />
         ) : resources.length === 0 ? (
-          <div className="nei-empty">{emptyLabel ?? "No matching resource."}</div>
+          <div className="nei-empty">{emptyLabel ?? t("No matching resource.")}</div>
         ) : (
           <ResourceResultPage
             resources={resources}
@@ -858,12 +865,13 @@ function ResourceResultSkeleton({
   pageSize: number;
   gridColumns: number;
 }) {
+  const t = useT();
   const count = Math.max(3, Math.min(pageSize, 200));
   return (
     <div
       className="nei-grid"
       style={{ gridTemplateColumns: `repeat(${gridColumns}, var(--nei-cell, ${NEI_SLOT}px))` }}
-      aria-label="Loading resources"
+      aria-label={t("Loading resources")}
     >
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="nei-skel" />
@@ -889,6 +897,7 @@ function NeiSearchField({
   flashing: boolean;
   none: boolean;
 }) {
+  const t = useT();
   const [focused, setFocused] = useState(false);
   return (
     <label
@@ -915,8 +924,8 @@ function NeiSearchField({
             event.currentTarget.blur();
           }
         }}
-        placeholder="Search..."
-        aria-label="Search items and fluids"
+        placeholder={t("Search...")}
+        aria-label={t("Search items and fluids")}
         spellCheck={false}
         autoComplete="off"
         className="compact:!text-base"
@@ -937,17 +946,19 @@ function NeiListMenu({
   onFilter: (filter: ResourceFilterMode) => void;
   onSort: (sort: ResourceSortMode) => void;
 }) {
+  const t = useT();
   const [anchor, setAnchor] = useState<ChromeAnchor>();
   const close = useCallback(() => setAnchor(undefined), []);
   const changed = filter !== "all" || sort !== "popular";
-  const filterLabel = RESOURCE_FILTER_CHOICES.find((choice) => choice.mode === filter)?.title ?? filter;
+  const filterLabel =
+    RESOURCE_FILTER_CHOICES.find((choice) => choice.mode === filter)?.title ?? filter;
   const sortLabel = RESOURCE_SORT_CHOICES.find((choice) => choice.value === sort)?.label ?? sort;
   return (
     <>
       <button
         type="button"
         className="nei-btn"
-        aria-label="Show and sort"
+        aria-label={t("Show and sort")}
         aria-haspopup="menu"
         aria-expanded={anchor !== undefined}
         title={`Showing ${filterLabel.toLowerCase()}, ${sortLabel.toLowerCase()}`}
@@ -958,14 +969,21 @@ function NeiListMenu({
           setAnchor((open) => (open ? undefined : next));
         }}
       >
-        <svg width={10} height={10} viewBox="0 0 5 5" shapeRendering="crispEdges" fill="currentColor" aria-hidden>
+        <svg
+          width={10}
+          height={10}
+          viewBox="0 0 5 5"
+          shapeRendering="crispEdges"
+          fill="currentColor"
+          aria-hidden
+        >
           <path d="M0 0h5v1H0zM0 2h5v1H0zM0 4h5v1H0z" />
         </svg>
       </button>
       {anchor ? (
         <ChromeMenu
           anchor={anchor}
-          label="Show and sort"
+          label={t("Show and sort")}
           align="right"
           zIndex={80}
           minWidth={170}
@@ -1020,7 +1038,10 @@ function useResourceBrowseMenu(
     pressProps: (resource: IndexedResource) => ({
       draggable: canDrag && resource.kind !== "aspect",
       onDragStart: (event: DragEvent<HTMLElement>) => {
-        if (!canDrag || resource.kind === "aspect") { event.preventDefault(); return; }
+        if (!canDrag || resource.kind === "aspect") {
+          event.preventDefault();
+          return;
+        }
         writeResourceDrag(event.dataTransfer, { ...resource, amount: 1 });
       },
       onPointerDown: (event: PointerEvent<HTMLElement>) => {
@@ -1066,6 +1087,7 @@ function ResourceResultPage({
   isRefreshing: boolean;
   onBrowseResource: (resource: IndexedResource, mode: "recipes" | "uses") => void;
 }) {
+  const t = useT();
   const [, startBrowseTransition] = useTransition();
 
   const browse = useCallback(
@@ -1082,7 +1104,7 @@ function ResourceResultPage({
         gridTemplateColumns: `repeat(${gridColumns}, var(--nei-cell, ${NEI_SLOT}px))`,
         opacity: isRefreshing ? 0.6 : undefined,
       }}
-      aria-label="Resource results"
+      aria-label={t("Resource results")}
       role="listbox"
     >
       <NeiSlots resources={resources} activeResource={activeResource} onBrowse={browse} />
@@ -1108,6 +1130,7 @@ function NeiSlots({
   /** A dim line under the tooltip's name (the recent row says what it is). */
   hint?: string;
 }) {
+  const t = useT();
   const rowBrowse = useResourceBrowseMenu(onBrowse);
   // The hovered slot by its place and item: a page that changes under a still
   // pointer (typing, paging with the wheel) leaves no tooltip, and no R or U,
@@ -1187,7 +1210,9 @@ function NeiSlots({
             onDragEnd={() => {
               dragging.current = false;
             }}
-            aria-label={resource.id === POWER_EU_CLAUSE_ID ? "Power (EU/t)" : resourceLabel(resource)}
+            aria-label={
+              resource.id === POWER_EU_CLAUSE_ID ? t("Power (EU/t)") : resourceLabel(resource)
+            }
             role="option"
             aria-selected={active}
           >
@@ -1247,7 +1272,11 @@ async function queryResourcesInChunks(
       queryRecipeDatasetResources(
         manifestUrl,
         version,
-        { ...query, offset: query.offset + at, limit: Math.min(RESOURCE_QUERY_MAX, query.limit - at) },
+        {
+          ...query,
+          offset: query.offset + at,
+          limit: Math.min(RESOURCE_QUERY_MAX, query.limit - at),
+        },
         options,
       ),
     );
@@ -1279,7 +1308,6 @@ export function deferStateUpdate(callback: () => void) {
   };
 }
 
-
 export function getDatasetVersionCacheKey(version: {
   id: string;
   checksumSha256?: string;
@@ -1287,7 +1315,6 @@ export function getDatasetVersionCacheKey(version: {
 }) {
   return [version.id, version.checksumSha256 ?? version.publishedAt].join("@");
 }
-
 
 function getResourceQueryCacheKey({
   versionId,
@@ -1308,8 +1335,6 @@ function getResourceQueryCacheKey({
 }) {
   return [versionId, query.trim().toLowerCase(), offset, limit, filter, mod, sort].join("|");
 }
-
-
 
 function getCachedResourceQuery(cache: Map<string, ResourceQueryCacheEntry>, key: string) {
   const entry = cache.get(key);
@@ -1345,5 +1370,3 @@ function trimResourceQueryCache(cache: Map<string, ResourceQueryCacheEntry>) {
     cache.delete(oldestKey);
   }
 }
-
-

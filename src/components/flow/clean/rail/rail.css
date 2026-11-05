@@ -10,20 +10,20 @@
  */
 
 .rail-root {
-  --rail-ink: #e8e9ee;
-  --rail-muted: #9a9ca4;
-  --rail-gold: #ffd257;
+  --rail-ink: var(--ks-text);
+  --rail-muted: var(--ks-muted);
+  --rail-gold: var(--ks-amber);
   --rail-source: #78b6f4;
   --rail-product: #f59a5c;
-  --rail-internal: #d4d4d4;
+  --rail-internal: var(--ks-text);
   --rail-hover: rgba(232, 179, 74, 0.1);
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
   min-height: 0;
-  background: #202226;
-  border-right: 1px solid #0c0d10;
+  background: var(--ks-paper);
+  border-right: 1px solid var(--ks-well);
   color: var(--rail-ink);
   font-family: var(--cc-font);
   font-size: 13px;
@@ -36,7 +36,7 @@
 /* Right of the board (the settings' "Item browser" puts the items on the left): the edge on its other side. */
 .rail-root[data-side="right"] {
   border-right: 0;
-  border-left: 1px solid #0c0d10;
+  border-left: 1px solid var(--ks-well);
 }
 
 .rail-head {
@@ -46,7 +46,7 @@
   /* The mod's 18 px heading, its fold key 4 in from the right. */
   height: 30px;
   padding: 0 7px 0 10px;
-  background: #2a2d33;
+  background: var(--ks-paper);
 }
 .rail-head-title {
   flex: 1;
@@ -60,17 +60,17 @@
   height: 24px;
   margin: 3px 7px 7px;
   padding: 0 6px;
-  background: #000;
-  border: 1px solid #a0a0a0;
+  background: var(--ks-well);
+  border: 1px solid var(--ks-muted);
   color: var(--rail-ink);
   font-size: 13px;
   outline: none;
 }
 .rail-filter::placeholder {
-  color: #6a6c74;
+  color: var(--ks-muted);
 }
 .rail-filter:focus {
-  border-color: #e0e0e0;
+  border-color: var(--ks-text);
 }
 
 .rail-list {
@@ -81,14 +81,14 @@
   overflow-x: hidden;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: #6a6c74 transparent;
+  scrollbar-color: var(--ks-muted) transparent;
 }
 .rail-list::-webkit-scrollbar {
   width: 5px;
 }
 .rail-list::-webkit-scrollbar-thumb {
   min-height: 14px;
-  background: #6a6c74;
+  background: var(--ks-muted);
 }
 .rail-list::-webkit-scrollbar-thumb:hover {
   background: var(--rail-ink);
@@ -112,11 +112,11 @@
   min-width: 60px;
   height: 18px;
   padding: 0 4px;
-  background: #202329;
-  border: 1px solid #111317;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-well);
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d;
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper);
   cursor: pointer;
 }
 .rail-key span {
@@ -125,23 +125,23 @@
   color: var(--rail-ink);
 }
 .rail-key:hover {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 .rail-key[data-disabled] {
   cursor: default;
 }
 .rail-key[data-disabled] span {
-  color: #8a8d96;
+  color: var(--ks-muted);
 }
 .rail-key[data-disabled]:hover {
-  background: #202329;
+  background: var(--ks-paper);
 }
 .rail-key-fold {
   min-width: 24px;
   width: 24px;
   height: 24px;
   padding: 0;
-  background: #26282d;
+  background: var(--ks-paper);
 }
 
 /* Section bars. */
@@ -151,11 +151,11 @@
   gap: 6px;
   height: 20px;
   padding: 0 8px;
-  background: #2a2d33;
+  background: var(--ks-paper);
   cursor: pointer;
 }
 .rail-sec:hover {
-  background: #30333a;
+  background: var(--ks-paper);
 }
 .rail-sec-tri {
   flex: none;
@@ -181,8 +181,8 @@
 .rail-sec-badge {
   padding: 0 4px;
   height: 14px;
-  background: #353942;
-  color: #a3a3a3;
+  background: var(--ks-paper);
+  color: var(--ks-muted);
   font-size: 13px;
   line-height: 17px;
 }
@@ -209,7 +209,7 @@
 
 .rail-empty {
   padding: 5px 8px;
-  color: #6a6c74;
+  color: var(--ks-muted);
   font-size: 13px;
 }
 
@@ -302,13 +302,13 @@
   justify-content: center;
   width: 20px;
   height: 18px;
-  background: #34373e;
-  border: 1px solid #111317;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-well);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   cursor: pointer;
 }
 .rail-rule:hover {
-  background: #454952;
+  background: var(--ks-line);
 }
 .rail-rule span {
   font-size: 15px;
@@ -328,8 +328,8 @@
   justify-content: center;
   width: 64px;
   height: 18px;
-  background: #0f1114;
-  border: 1px solid #5a5e68;
+  background: var(--ks-well);
+  border: 1px solid var(--ks-line);
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.7);
   cursor: text;
   overflow: hidden;
@@ -338,7 +338,7 @@
   font-size: 13px;
   line-height: 17px;
   font-variant-numeric: tabular-nums;
-  color: #6f737c;
+  color: var(--ks-muted);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -346,7 +346,7 @@
   color: var(--rail-gold);
 }
 .rail-box:hover {
-  background: #15171c;
+  background: var(--ks-well);
   border-color: var(--rail-gold);
 }
 .rail-box[data-unmet] {
@@ -360,7 +360,7 @@ input.rail-box-edit {
   text-align: center;
   font-size: 13px;
   color: var(--rail-ink);
-  background: #15171c;
+  background: var(--ks-well);
   border-color: var(--rail-gold);
   outline: none;
 }
@@ -413,7 +413,7 @@ input.rail-box-edit {
   color: var(--rail-ink);
 }
 .rail-spare-row[data-off] .rail-spare-name {
-  color: #9a9da6;
+  color: var(--ks-muted);
 }
 .rail-spare-row[data-hot] .rail-spare-name,
 .rail-spare-row[data-hot] .rail-spare-amount {
@@ -434,7 +434,7 @@ input.rail-box-edit {
   position: relative;
   width: 88px;
   height: 20px;
-  background: #15171c;
+  background: var(--ks-well);
   cursor: ew-resize;
   touch-action: none;
 }
@@ -459,15 +459,15 @@ input.rail-box-edit {
   position: fixed;
   z-index: 70;
   padding: 6px;
-  background: #26282d;
-  border: 1px solid #111317;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-well);
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d,
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     2px 3px 6px rgba(0, 0, 0, 0.35);
   font-family: var(--cc-font);
   font-size: 13px;
-  color: var(--rail-ink, #e8e9ee);
+  color: var(--rail-ink, var(--ks-text));
   user-select: none;
 }
 .rail-popup-link {
@@ -478,10 +478,10 @@ input.rail-box-edit {
 .rail-popup-link span {
   font-size: 9px;
   line-height: 12px;
-  color: #9a9da6;
+  color: var(--ks-muted);
 }
 .rail-popup-link:hover span {
-  color: #ffd257;
+  color: var(--ks-amber);
 }
 
 /* Resource menus (the rule list). */
@@ -490,14 +490,14 @@ input.rail-box-edit {
   z-index: 70;
   min-width: 120px;
   padding: 2px;
-  background: #26282d;
-  border: 1px solid #111317;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-well);
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d,
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     2px 3px 6px rgba(0, 0, 0, 0.35);
   font-family: var(--cc-font);
-  color: #e8e9ee;
+  color: var(--ks-text);
 }
 .rail-menu-item {
   display: flex;
@@ -518,10 +518,10 @@ input.rail-box-edit {
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: #ffd257;
+  color: var(--ks-amber);
 }
 .rail-menu-item[data-on] span {
-  color: #ffd257;
+  color: var(--ks-amber);
 }
 
 /* Machines. */
@@ -609,17 +609,17 @@ input.rail-box-edit {
   width: 100%;
   height: 100%;
   padding-top: 6px;
-  background: #202226;
-  border-right: 1px solid #0c0d10;
-  color: var(--rail-muted, #9a9ca4);
+  background: var(--ks-paper);
+  border-right: 1px solid var(--ks-well);
+  color: var(--rail-muted, var(--ks-muted));
   cursor: pointer;
 }
 .rail-strip[data-side="right"] {
   border-right: 0;
-  border-left: 1px solid #0c0d10;
+  border-left: 1px solid var(--ks-well);
 }
 .rail-strip:hover {
-  background: #2a2d33;
+  background: var(--ks-paper);
 }
 .rail-strip-label {
   font-size: 12px;
@@ -635,24 +635,24 @@ input.rail-box-edit {
   z-index: 80;
   max-width: 420px;
   padding: 10px 13px;
-  background: #26282d;
-  border: 1px solid #111317;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-well);
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d,
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     2px 3px 6px rgba(0, 0, 0, 0.2);
   font-family: var(--cc-font);
   font-size: 14px;
   line-height: 21px;
-  color: #e5e5e5;
+  color: var(--ks-text);
   pointer-events: none;
 }
 .rail-tip-title {
-  color: #f5f5f5;
+  color: var(--ks-text);
   font-weight: 600;
 }
 .rail-tip-sub {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .rail-tip-row {
   display: flex;
@@ -660,17 +660,17 @@ input.rail-box-edit {
   gap: 16px;
 }
 .rail-tip-row span:first-child {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .rail-tip-row span:last-child {
-  color: #f5f5f5;
+  color: var(--ks-text);
 }
 .rail-tip-note {
   margin-top: 2px;
-  color: #e5e5e5;
+  color: var(--ks-text);
 }
 .rail-tip-note[data-tone="muted"] {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .rail-tip-note[data-tone="warn"] {
   color: #ffd236;
@@ -684,13 +684,13 @@ input.rail-box-edit {
   gap: 4px 10px;
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid #3a3b40;
+  border-top: 1px solid var(--ks-line);
 }
 .rail-tip-action {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #e5e5e5;
+  color: var(--ks-text);
 }
 
 /* The notices bar. */
@@ -713,7 +713,7 @@ input.rail-box-edit {
   background: rgba(24, 26, 31, 0.88);
   border-left: 3px solid var(--sev);
   font-family: var(--cc-font);
-  color: #e8e9ee;
+  color: var(--ks-text);
 }
 .rail-notice[data-severity="error"] {
   --sev: #e05252;
@@ -740,15 +740,15 @@ input.rail-box-edit {
   margin-right: 8px;
   padding: 1px 5px;
   background: var(--alarm);
-  color: #18151d;
+  color: var(--ks-well);
   font-size: 14px;
   line-height: 16px;
 }
 :root[data-cc-blink] .rail-notice[data-alarm] {
-  --sev: color-mix(in srgb, var(--alarm) 35%, #181a1f);
+  --sev: color-mix(in srgb, var(--alarm) 35%, var(--ks-paper));
 }
 :root[data-cc-blink] .rail-notice-tag {
-  background: color-mix(in srgb, var(--alarm) 35%, #181a1f);
+  background: color-mix(in srgb, var(--alarm) 35%, var(--ks-paper));
   color: var(--alarm);
 }
 .rail-notice-text {
@@ -758,11 +758,11 @@ input.rail-box-edit {
   text-overflow: ellipsis;
   font-size: 14px;
   line-height: 16px;
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+  -webkit-mask-image: linear-gradient(to right, var(--ks-well) calc(100% - 12px), transparent);
+  mask-image: linear-gradient(to right, var(--ks-well) calc(100% - 12px), transparent);
 }
 .rail-notice-more .rail-notice-text {
-  color: #9a9ca4;
+  color: var(--ks-muted);
   -webkit-mask-image: none;
   mask-image: none;
 }
@@ -771,13 +771,13 @@ input.rail-box-edit {
   margin-left: 10px;
   font-size: 14px;
   line-height: 16px;
-  color: #22d3ee;
+  color: var(--ks-green);
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 .rail-notice-show:hover {
-  color: #fff;
+  color: var(--ks-text);
 }
 .rail-notice-text:not([data-clipped=""]) {
   -webkit-mask-image: none;
@@ -787,10 +787,10 @@ input.rail-box-edit {
 /* Popups and menus: the mod's menu fill (#3c3e45) with its bevel and hard drop shadow. */
 .rail-popup,
 .rail-menu {
-  background: #3c3e45;
+  background: var(--ks-line);
   box-shadow:
-    inset 1px 1px 0 #5a5c65,
-    inset -1px -1px 0 #1d1f23,
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     4px 4px 0 rgba(0, 0, 0, 0.35);
 }
 .rail-spare-name {

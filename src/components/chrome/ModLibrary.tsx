@@ -1,9 +1,11 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 import "./library.css";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PUBLIC_TOOL } from "@/lib/krahsu";
 import { requestShareDialog } from "@/lib/setups-tab";
 import { openDesigns, type DesignSummary } from "@/lib/designs/design-library";
 import { readDesign } from "@/lib/designs/design-storage";
@@ -21,7 +23,13 @@ import { Face } from "@/components/library/LibraryTile";
 import { SETUP_SORTS, SetupsGrid } from "@/components/library/SetupsGrid";
 import { useSetupFilters } from "@/components/library/SetupsFilterBar";
 import { useCommunityUser } from "@/components/community/auth";
-import { ChromeMenu, chromeAnchorOf, MENU_ANCHOR_ATTR, type ChromeAnchor, type MenuEntry } from "./ChromeMenu";
+import {
+  ChromeMenu,
+  chromeAnchorOf,
+  MENU_ANCHOR_ATTR,
+  type ChromeAnchor,
+  type MenuEntry,
+} from "./ChromeMenu";
 import { SharedWithMe } from "@/components/live/SharedWithMe";
 import { isLiveConfigured } from "@/lib/live/live-config";
 import { useCloudLibraryStore } from "@/lib/library/cloud-library";
@@ -36,6 +44,7 @@ const LIVE = isLiveConfigured();
  * key and a close key; the shelf below. It takes the board's place and closes back onto it.
  */
 export function ModLibrary() {
+  const t = useT();
   const library = useLibraryTab();
   const everyDesign = useDesignStore((state) => state.designs);
   // Copies of plans shared with us are listed under Shared with me, never among ours.
@@ -62,7 +71,8 @@ export function ModLibrary() {
       if (event.key !== "Escape") return;
       const active = document.activeElement;
       if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) return;
-      if (document.querySelector("[data-mod-menu], [data-mod-settings], [data-mod-screenshot]")) return;
+      if (document.querySelector("[data-mod-menu], [data-mod-settings], [data-mod-screenshot]"))
+        return;
       leaveLibrary();
     };
     window.addEventListener("keydown", onKey);
@@ -94,27 +104,34 @@ export function ModLibrary() {
   return (
     <div className="ml mx" data-mod-library="">
       <div className="ml-head">
-        <ShelfTab label="MY PLANS" count={String(designs.length)} on={shelf === "mine"} onClick={() => setLibraryView({ kind: "all" })} />
+        <ShelfTab
+          label={t("MY PLANS")}
+          count={String(designs.length)}
+          on={shelf === "mine"}
+          onClick={() => setLibraryView({ kind: "all" })}
+        />
         {showShared ? (
           <ShelfTab
-            label="SHARED WITH ME"
+            label={t("SHARED WITH ME")}
             count={sharedCount === undefined ? "..." : String(sharedCount)}
             on={shelf === "shared"}
             onClick={() => setLibraryView({ kind: "shared" })}
           />
         ) : null}
-        <ShelfTab
-          label="COMMUNITY"
-          count={publicTotal === undefined ? "..." : compact(publicTotal)}
-          on={shelf === "public"}
-          onClick={() => setLibraryView({ kind: "public" })}
-        />
+        {!PUBLIC_TOOL && (
+          <ShelfTab
+            label={t("COMMUNITY")}
+            count={publicTotal === undefined ? "..." : compact(publicTotal)}
+            on={shelf === "public"}
+            onClick={() => setLibraryView({ kind: "public" })}
+          />
+        )}
         {shelf === "shared" ? null : shelf === "mine" ? (
           <input
             className="ml-search"
             style={{ width: 240 }}
-            placeholder="Find a plan"
-            aria-label="Find a plan"
+            placeholder={t("Find a plan")}
+            aria-label={t("Find a plan")}
             value={mineQuery}
             onChange={(event) => setMineQuery(event.target.value)}
           />
@@ -122,8 +139,8 @@ export function ModLibrary() {
           <input
             className="ml-search"
             style={{ width: 300 }}
-            placeholder="Search setups (#tag, @name)"
-            aria-label="Search setups"
+            placeholder={t("Search setups (#tag, @name)")}
+            aria-label={t("Search setups")}
             value={filters.query}
             onChange={(event) => filters.setQuery(event.target.value)}
           />
@@ -134,26 +151,26 @@ export function ModLibrary() {
             <DropKey
               label={sortLabel}
               open={menu?.kind === "sort"}
-              tip="How the public list is ordered"
+              tip={t("How the public list is ordered")}
               onOpen={(anchor) => setMenu({ kind: "sort", anchor })}
             />
             <DropKey
               label={tierLabel}
               open={menu?.kind === "tier"}
-              tip="Hide setups that need a higher tier"
+              tip={t("Hide setups that need a higher tier")}
               onOpen={(anchor) => setMenu({ kind: "tier", anchor })}
             />
           </>
         ) : null}
         {user ? (
           <span className="ml-as" data-signed-in-as="">
-            Signed in as {user.username}
+            {t("Signed in as")} {user.username}
           </span>
         ) : null}
         <div
           className="mb-key ml-close"
           role="button"
-          aria-label="Close the panel"
+          aria-label={t("Close the panel")}
           onClick={() => {
             playBoardSound("tick");
             leaveLibrary();
@@ -172,7 +189,13 @@ export function ModLibrary() {
           </div>
         ) : (
           <div className="ml-public">
-            <SetupsGrid scope="network" presetQuery={library.view.kind === "public" ? library.view.search : undefined} filters={filters} bare onTotal={onTotal} />
+            <SetupsGrid
+              scope="network"
+              presetQuery={library.view.kind === "public" ? library.view.search : undefined}
+              filters={filters}
+              bare
+              onTotal={onTotal}
+            />
           </div>
         )}
       </div>
@@ -180,7 +203,7 @@ export function ModLibrary() {
         <ChromeMenu
           anchor={menu.anchor}
           entries={menuEntries(menu.kind)}
-          label={menu.kind === "sort" ? "Sort" : "Tier"}
+          label={menu.kind === "sort" ? t("Sort") : t("Tier")}
           minWidth={130}
           onClose={closeMenu}
         />
@@ -195,17 +218,45 @@ function compact(value: number): string {
   return String(value);
 }
 
-function ShelfTab({ label, count, on, onClick }: { label: string; count: string; on: boolean; onClick: () => void }) {
+function ShelfTab({
+  label,
+  count,
+  on,
+  onClick,
+}: {
+  label: string;
+  count: string;
+  on: boolean;
+  onClick: () => void;
+}) {
+  const t = useT();
   return (
-    <div className="ml-tab" role="tab" aria-selected={on} data-on={on ? "" : undefined} onClick={onClick}>
-      <span>{label}</span>
+    <div
+      className="ml-tab"
+      role="tab"
+      aria-selected={on}
+      data-on={on ? "" : undefined}
+      onClick={onClick}
+    >
+      <span>{t(label)}</span>
       <i>{count}</i>
     </div>
   );
 }
 
 /** A key with a chevron: the public list's sort and tier. */
-function DropKey({ label, open, tip, onOpen }: { label: string; open: boolean; tip: string; onOpen: (anchor: ChromeAnchor) => void }) {
+function DropKey({
+  label,
+  open,
+  tip,
+  onOpen,
+}: {
+  label: string;
+  open: boolean;
+  tip: string;
+  onOpen: (anchor: ChromeAnchor) => void;
+}) {
+  const t = useT();
   return (
     <div
       className="mb-key ml-drop"
@@ -218,8 +269,15 @@ function DropKey({ label, open, tip, onOpen }: { label: string; open: boolean; t
       }}
       {...tipAttrs({ id: `lib|${label}`, title: tip })}
     >
-      {label}
-      <svg width="5" height="3" viewBox="0 0 5 3" shapeRendering="crispEdges" aria-hidden fill="currentColor">
+      {t(label)}
+      <svg
+        width="5"
+        height="3"
+        viewBox="0 0 5 3"
+        shapeRendering="crispEdges"
+        aria-hidden
+        fill="currentColor"
+      >
         <path d="M0 0h5v1h-5zM1 1h3v1h-3zM2 2h1v1h-1z" />
       </svg>
     </div>
@@ -229,6 +287,7 @@ function DropKey({ label, open, tip, onOpen }: { label: string; open: boolean; t
 // ---- My plans --------------------------------------------------------------
 
 function MyPlans({ query }: { query: string }) {
+  const t = useT();
   const everyDesign = useDesignStore((state) => state.designs);
   const allDesigns = useMemo(() => everyDesign.filter((design) => !design.cloud), [everyDesign]);
   const activeDesignId = useDesignStore((state) => state.activeDesignId);
@@ -237,7 +296,12 @@ function MyPlans({ query }: { query: string }) {
   const renameDesign = useDesignStore((state) => state.renameDesign);
   const removeDesign = useDesignStore((state) => state.removeDesign);
   const linkedPostId = useFactoryStore((state) => state.project.metadata?.communityPlanId);
-  const [menu, setMenu] = useState<{ kind: "tile" | "delete"; id: string; name: string; anchor: ChromeAnchor }>();
+  const [menu, setMenu] = useState<{
+    kind: "tile" | "delete";
+    id: string;
+    name: string;
+    anchor: ChromeAnchor;
+  }>();
   const [renaming, setRenaming] = useState<string>();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -250,7 +314,11 @@ function MyPlans({ query }: { query: string }) {
     const open = new Set(openDesigns(allDesigns).map((design) => design.id));
     return allDesigns
       .filter((design) => !needle || design.name.toLowerCase().includes(needle))
-      .map((design) => ({ design, open: open.has(design.id), at: lastOpenOf(design.id, design.updatedAt) }))
+      .map((design) => ({
+        design,
+        open: open.has(design.id),
+        at: lastOpenOf(design.id, design.updatedAt),
+      }))
       .sort((a, b) => b.at - a.at);
   }, [allDesigns, needle]);
 
@@ -261,7 +329,10 @@ function MyPlans({ query }: { query: string }) {
 
   const copyCode = async (id: string) => {
     try {
-      const project = id === activeDesignId ? useFactoryStore.getState().project : (await readDesign(id))?.project;
+      const project =
+        id === activeDesignId
+          ? useFactoryStore.getState().project
+          : (await readDesign(id))?.project;
       if (!project) return;
       await copyPlanCode(project);
     } catch (error) {
@@ -281,7 +352,11 @@ function MyPlans({ query }: { query: string }) {
       { label: "Rename", onSelect: () => setRenaming(m.id) },
       { label: "Copy plan code", detail: "to paste or share", onSelect: () => void copyCode(m.id) },
       ...libraryRows(
-        Boolean(m.id === activeDesignId ? linkedPostId : allDesigns.find((design) => design.id === m.id)?.communityPlanId),
+        Boolean(
+          m.id === activeDesignId
+            ? linkedPostId
+            : allDesigns.find((design) => design.id === m.id)?.communityPlanId,
+        ),
         (mode) => {
           void (async () => {
             await open(m.id);
@@ -309,7 +384,7 @@ function MyPlans({ query }: { query: string }) {
           void addDesign();
         }}
       >
-        + New plan
+        {t("+ New plan")}
       </div>
       {shown.map(({ design, open: isOpen, at }) => (
         <PlanTile
@@ -360,7 +435,10 @@ function PlanTile({
   onMenu: (anchor: ChromeAnchor) => void;
   onRename: (name: string) => void;
 }) {
-  const cards = design.stats ? Math.max(0, design.stats.cards - (design.stats.drawers ?? 0)) : undefined;
+  const t = useT();
+  const cards = design.stats
+    ? Math.max(0, design.stats.cards - (design.stats.drawers ?? 0))
+    : undefined;
   const drawers = design.stats?.drawers;
   const tasks = design.stats?.tasks ?? 0;
   const size = design.taskBoard
@@ -368,7 +446,9 @@ function PlanTile({
     : cards === undefined
       ? undefined
       : `${cards} ${cards === 1 ? "card" : "cards"}${drawers === undefined ? "" : ` · ${drawers} ${drawers === 1 ? "drawer" : "drawers"}`}`;
-  const drawable = Boolean(design.icon && (design.icon.iconPath || design.icon.iconAtlas || design.icon.kind === "fluid"));
+  const drawable = Boolean(
+    design.icon && (design.icon.iconPath || design.icon.iconAtlas || design.icon.kind === "fluid"),
+  );
   return (
     <div
       className="ml-tile"
@@ -394,7 +474,11 @@ function PlanTile({
       <span className="ml-face">
         {drawable ? <Face icon={design.icon} size={24} /> : <span className="ml-noface" />}
       </span>
-      {open ? <span className="ml-chip" data-showing={showing ? "" : undefined}>{showing ? "SHOWING" : "OPEN"}</span> : null}
+      {open ? (
+        <span className="ml-chip" data-showing={showing ? "" : undefined}>
+          {showing ? t("SHOWING") : t("OPEN")}
+        </span>
+      ) : null}
       {renaming ? (
         <TileRename initial={design.name} onDone={onRename} />
       ) : (
@@ -404,13 +488,16 @@ function PlanTile({
         </span>
       )}
       {size ? <span className="ml-size">{size}</span> : null}
-      <span className="ml-when">last open {when}</span>
-      {design.communityPlanId ? <span className="ml-posted">posted</span> : null}
+      <span className="ml-when">
+        {t("last open")} {when}
+      </span>
+      {design.communityPlanId ? <span className="ml-posted">{t("posted")}</span> : null}
     </div>
   );
 }
 
 function TileRename({ initial, onDone }: { initial: string; onDone: (name: string) => void }) {
+  const t = useT();
   const [value, setValue] = useState(initial);
   const doneRef = useRef(false);
   const finish = (commit: boolean) => {
@@ -422,7 +509,7 @@ function TileRename({ initial, onDone }: { initial: string; onDone: (name: strin
     <input
       autoFocus
       className="ml-rename"
-      aria-label="Plan name"
+      aria-label={t("Plan name")}
       value={value}
       onFocus={(event) => event.currentTarget.select()}
       onChange={(event) => setValue(event.target.value)}

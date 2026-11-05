@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { wheelChangesValues } from "@/lib/device-settings";
@@ -42,6 +43,7 @@ export const StorageRatioEditor = memo(function StorageRatioEditor() {
 });
 
 function RatioPanel({ request, onClose }: { request: RatioEditorRequest; onClose: () => void }) {
+  const t = useT();
   const project = useFactoryStore((s) => s.project);
   const readOnly = useFactoryStore((s) => s.isReadOnly || s.checklistMode);
   const equalize = useFactoryStore((s) => s.equalizeRatioBranches);
@@ -200,7 +202,7 @@ function RatioPanel({ request, onClose }: { request: RatioEditorRequest; onClose
         <button
           ref={doneRef}
           type="button"
-          aria-label="Close"
+          aria-label={t("Close")}
           onClick={close}
           className="flex h-7 w-7 shrink-0 items-center justify-center border-2 border-[var(--mc-15)] bg-[var(--mc-49)] shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25)] hover:bg-[var(--mc-61)]"
         >
@@ -227,7 +229,7 @@ function RatioPanel({ request, onClose }: { request: RatioEditorRequest; onClose
                 style={{ fontSize: 10, lineHeight: "14px" }}
                 className="ml-auto h-5 border border-[var(--mc-15)] bg-[var(--mc-49)] px-1.5 text-[9px] font-normal text-[var(--mc-ink)] shadow-[inset_1px_1px_0_var(--mc-85),inset_-1px_-1px_0_var(--mc-25)] hover:bg-[var(--mc-61)] disabled:opacity-40"
               >
-                Equal split
+                {t("Equal split")}
               </button>
             </div>
             {entries.map((branch, index) => (

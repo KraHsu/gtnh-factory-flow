@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "../clean.css";
 import { useDeviceSettings } from "@/lib/device-settings";
@@ -368,6 +369,7 @@ export interface SpecialCardProps {
  * plain card, in the same classes.
  */
 export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
+  const t = useT();
   const { view, actions, context } = model;
   const { wasClick, onPointerDownCapture } = useClickSlop();
   const { zoomedOutNames: glanceNames, problemOutlines } = useDeviceSettings();
@@ -507,7 +509,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
           className="cc-key"
           data-glyph="menu"
           data-hatch-menu-anchor=""
-          aria-label="Card actions"
+          aria-label={t("Card actions")}
           aria-haspopup="menu"
           aria-expanded={menu?.kind === "actions"}
           {...tipAttrs(menuTip(view.nodeId))}
@@ -519,7 +521,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
           className="cc-key"
           data-glyph="gear"
           data-hatch-menu-anchor=""
-          aria-label="Machine settings"
+          aria-label={t("Machine settings")}
           aria-haspopup="menu"
           data-menu-anchor=""
           aria-expanded={sheetAnchor !== undefined}
@@ -538,7 +540,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
             className="cc-key"
             data-glyph="sprout"
             data-crop-picker-toggle=""
-            aria-label="Pick a crop"
+            aria-label={t("Pick a crop")}
             aria-haspopup="dialog"
             aria-expanded={cropOpen}
             {...tipAttrs({
@@ -794,6 +796,7 @@ function SectionBlock({
   pick: boolean;
   onPick: () => void;
 }) {
+  const t = useT();
   void index;
   return (
     <>
@@ -824,7 +827,7 @@ function SectionBlock({
           }}
         >
           <span className="sp-pick-icon" />
-          Pick a crop
+          {t("Pick a crop")}
         </div>
       ) : null}
       {empty || pick ? null : (

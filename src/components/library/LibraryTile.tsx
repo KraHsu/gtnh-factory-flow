@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import {
   ArrowBigUp,
@@ -129,6 +130,7 @@ export function LibraryTile({
   onSelect,
   renaming,
 }: LibraryTileProps) {
+  const t = useT();
   // A finger on a tile is a scroll, a tap, or a HELD press for the menu
   // (iPhones send no contextmenu event). It is never a drag: the drag would
   // swallow the swipe. Filing into collections is in the menu on a phone.
@@ -167,7 +169,10 @@ export function LibraryTile({
       onPointerCancel={cancelPress}
       onPointerMove={(event) => {
         // A finger drifts; a scroll travels. Only travel cancels the press.
-        if (press.current && Math.hypot(event.clientX - press.current.x, event.clientY - press.current.y) > 8) {
+        if (
+          press.current &&
+          Math.hypot(event.clientX - press.current.x, event.clientY - press.current.y) > 8
+        ) {
           cancelPress();
         }
       }}
@@ -212,7 +217,11 @@ export function LibraryTile({
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-center gap-2">
             {renaming ? (
-              <InlineName initialName={name} onCommit={renaming.onCommit} onCancel={renaming.onCancel} />
+              <InlineName
+                initialName={name}
+                onCommit={renaming.onCommit}
+                onCancel={renaming.onCancel}
+              />
             ) : (
               <span className="min-w-0 flex-1 truncate text-[13px] font-bold leading-tight text-white">
                 {name}
@@ -271,11 +280,13 @@ export function LibraryTile({
             <button
               type="button"
               onClick={onFavorite}
-              aria-label={favorite ? "Remove from Favorites" : "Add to Favorites"}
-              title={favorite ? "Remove from Favorites" : "Add to Favorites"}
+              aria-label={favorite ? "Remove from Favorites" : t("Add to Favorites")}
+              title={favorite ? "Remove from Favorites" : t("Add to Favorites")}
               className={[
                 "flex h-4 w-4 items-center justify-center",
-                favorite ? "text-amber-300" : "text-[var(--mc-ink-muted)] opacity-50 hover:opacity-100 hover:text-amber-200",
+                favorite
+                  ? "text-amber-300"
+                  : "text-[var(--mc-ink-muted)] opacity-50 hover:opacity-100 hover:text-amber-200",
               ].join(" ")}
             >
               <Star className="h-3.5 w-3.5" fill={favorite ? "currentColor" : "none"} aria-hidden />
@@ -285,14 +296,20 @@ export function LibraryTile({
             <button
               type="button"
               onClick={onSave}
-              aria-label={saved ? "Remove from Saved" : "Add to Saved"}
-              title={saved ? "Remove from Saved" : "Add to Saved"}
+              aria-label={saved ? "Remove from Saved" : t("Add to Saved")}
+              title={saved ? "Remove from Saved" : t("Add to Saved")}
               className={[
                 "flex h-4 w-4 items-center justify-center",
-                saved ? "text-cyan-300" : "text-[var(--mc-ink-muted)] opacity-50 hover:opacity-100 hover:text-cyan-200",
+                saved
+                  ? "text-cyan-300"
+                  : "text-[var(--mc-ink-muted)] opacity-50 hover:opacity-100 hover:text-cyan-200",
               ].join(" ")}
             >
-              <Bookmark className="h-3.5 w-3.5" fill={saved ? "currentColor" : "none"} aria-hidden />
+              <Bookmark
+                className="h-3.5 w-3.5"
+                fill={saved ? "currentColor" : "none"}
+                aria-hidden
+              />
             </button>
           ) : null}
           {marks.open ? (
@@ -300,7 +317,7 @@ export function LibraryTile({
               title="Open as a tab"
               className="bg-[var(--mc-61)] px-1 text-[9px] font-black uppercase tracking-wide text-neutral-300"
             >
-              open
+              {t("open")}
             </span>
           ) : null}
           {marks.privatePost ? (
@@ -332,7 +349,11 @@ export function LibraryTile({
                 {social.score}
               </button>
               {social.comments !== undefined ? (
-                <span className="flex items-center gap-0.5" aria-label="Comments" title="Comments">
+                <span
+                  className="flex items-center gap-0.5"
+                  aria-label={t("Comments")}
+                  title={t("Comments")}
+                >
                   <MessageSquare className="h-3 w-3" aria-hidden />
                   {social.comments}
                 </span>
@@ -374,6 +395,7 @@ function PostGlyph({
   onPost?: () => void;
   onCopyLink?: () => void;
 }) {
+  const t = useT();
   if (marks.fromNetwork) {
     return (
       <span
@@ -399,8 +421,8 @@ function PostGlyph({
           <button
             type="button"
             onClick={onCopyLink}
-            aria-label="Copy link"
-            title="Copy link"
+            aria-label={t("Copy link")}
+            title={t("Copy link")}
             className="p-0.5 text-[var(--mc-ink-muted)] hover:bg-[var(--mc-61)] hover:text-cyan-200"
           >
             <Link2 className="h-3 w-3" aria-hidden />
@@ -411,7 +433,11 @@ function PostGlyph({
   }
   if (marks.linked) {
     return (
-      <span aria-label="Linked to a post" title="Linked to a post" className="text-[var(--mc-ink-muted)]">
+      <span
+        aria-label="Linked to a post"
+        title="Linked to a post"
+        className="text-[var(--mc-ink-muted)]"
+      >
         <Link2 className="h-3 w-3" aria-hidden />
       </span>
     );
@@ -487,6 +513,7 @@ export function InlineName({
   onCommit: (name: string) => void;
   onCancel: () => void;
 }) {
+  const t = useT();
   const [value, setValue] = useState(initialName);
   // Committing on blur keeps a click elsewhere from silently discarding the
   // edit. Escape is the one way out without saving, and it must not also
@@ -513,7 +540,7 @@ export function InlineName({
         }
       }}
       onClick={(event) => event.stopPropagation()}
-      aria-label="Name"
+      aria-label={t("Name")}
       className="min-w-0 w-full border-2 border-cyan-500 bg-[#17191d] px-1 text-xs text-neutral-100 outline-none"
     />
   );
@@ -535,6 +562,7 @@ export function TagEditor({
   initialTags: string[];
   onClose: (tags: string[]) => void;
 }) {
+  const t = useT();
   const [draft, setDraft] = useState<string[]>(initialTags);
   const [input, setInput] = useState("");
   const boxRef = useRef<HTMLDivElement>(null);
@@ -609,7 +637,7 @@ export function TagEditor({
             onClose(initialTags);
           }
         }}
-        aria-label="Add a tag"
+        aria-label={t("Add a tag")}
         className="min-w-[80px] flex-1 bg-transparent text-xs text-[var(--mc-ink)] outline-none placeholder:text-[var(--mc-ink-muted)]"
       />
     </div>,

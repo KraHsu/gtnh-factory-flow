@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "../chrome/mod-panel.css";
 import { Check, Link2, LoaderCircle } from "lucide-react";
@@ -50,6 +51,7 @@ export function SharePlanDialog({
   onClose: () => void;
   mode?: ShareMode;
 }) {
+  const t = useT();
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialogA11y(dialogRef, { onClose });
   const project = useFactoryStore((state) => state.project);
@@ -244,248 +246,256 @@ export function SharePlanDialog({
 
   return (
     <div className="pn-backdrop">
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={dialogTitle} className="pn pn-skin" data-wide="">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={dialogTitle}
+        className="pn pn-skin"
+        data-wide=""
+      >
         <div className="pn-title">
           <span>{dialogTitle}</span>
-          <button type="button" onClick={onClose} aria-label="Close" className="pn-x" />
+          <button type="button" onClick={onClose} aria-label={t("Close")} className="pn-x" />
         </div>
         <div className="pn-body">
-
-        {shared ? (
-          <div className="space-y-3">
-            <p className="text-sm">
-              {shared.updated
-                ? "Your post is up to date."
-                : "Your setup is in Community. When the plan changes, Update in Community brings the post up to date."}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void copyShareLink()}
-                title="Share link"
-                className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
-              >
-                {isLinkCopied ? (
-                  <Check className="h-4 w-4 text-emerald-500" />
-                ) : (
-                  <Link2 className="h-4 w-4" />
-                )}
-                Copy link
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                openLibrary({ kind: "all" });
-              }}
-              className="inline-flex rounded border border-cyan-700 bg-cyan-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-cyan-500"
-            >
-              See it in Community
-            </button>
-          </div>
-        ) : isUserLoading ? (
-          <div className="grid place-items-center py-8 text-fg-muted">
-            <LoaderCircle className="h-5 w-5 animate-spin" />
-          </div>
-        ) : !user ? (
-          <div className="space-y-3">
-            <p className="text-sm text-fg-subtle">
-              Sharing needs an account so your posts stay yours: just a username and password.
-            </p>
-            <AuthForm onSignedIn={setUser} />
-          </div>
-        ) : linkedPost ? (
-          <div className="space-y-3">
-            <p className="text-sm">
-              Update <span className="font-semibold text-fg">{linkedPost.name}</span> with the
-              plan as it is now. Its votes and comments stay.
-            </p>
-            <p className="text-xs text-fg-subtle">
-              {isPublic
-                ? "Public: it shows in Community. Anyone who opens it gets their own copy."
-                : "Private: only you can see it. The link opens nothing for anyone else."}
-            </p>
-            {error ? <p className="text-sm text-red-500">{error}</p> : null}
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void update()}
-                disabled={isUploading || project.nodes.length === 0}
-                className="inline-flex items-center gap-2 rounded border border-cyan-700 bg-cyan-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                Update post
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("new")}
-                className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
-              >
-                Post a new copy to Community
-              </button>
-              <button
-                type="button"
-                onClick={() => void copyShareLink()}
-                className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
-              >
-                {isLinkCopied ? (
-                  <Check className="h-4 w-4 text-emerald-500" />
-                ) : (
-                  <Link2 className="h-4 w-4" />
-                )}
-                Copy link
-              </button>
-              <button
-                type="button"
-                onClick={() => void setLinkedVisibility(!isPublic)}
-                className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
-              >
-                {isPublic ? "Make it private" : "Make it public"}
-              </button>
+          {shared ? (
+            <div className="space-y-3">
+              <p className="text-sm">
+                {shared.updated
+                  ? "Your post is up to date."
+                  : "Your setup is in Community. When the plan changes, Update in Community brings the post up to date."}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void copyShareLink()}
+                  title="Share link"
+                  className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                >
+                  {isLinkCopied ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Link2 className="h-4 w-4" />
+                  )}{" "}
+                  {t("Copy link")}
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={() => {
                   onClose();
                   openLibrary({ kind: "all" });
                 }}
-                className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                className="inline-flex rounded border border-cyan-700 bg-cyan-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-cyan-500"
               >
-                See it in Community
+                {t("See it in Community")}
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {/* A board that never met the auto-arrange goes out exactly as
+          ) : isUserLoading ? (
+            <div className="grid place-items-center py-8 text-fg-muted">
+              <LoaderCircle className="h-5 w-5 animate-spin" />
+            </div>
+          ) : !user ? (
+            <div className="space-y-3">
+              <p className="text-sm text-fg-subtle">
+                {t(
+                  "Sharing needs an account so your posts stay yours: just a username and password.",
+                )}
+              </p>
+              <AuthForm onSignedIn={setUser} />
+            </div>
+          ) : linkedPost ? (
+            <div className="space-y-3">
+              <p className="text-sm">
+                {t("Update")} <span className="font-semibold text-fg">{linkedPost.name}</span> with
+                the plan as it is now. Its votes and comments stay.
+              </p>
+              <p className="text-xs text-fg-subtle">
+                {isPublic
+                  ? "Public: it shows in Community. Anyone who opens it gets their own copy."
+                  : "Private: only you can see it. The link opens nothing for anyone else."}
+              </p>
+              {error ? <p className="text-sm text-red-500">{error}</p> : null}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void update()}
+                  disabled={isUploading || project.nodes.length === 0}
+                  className="inline-flex items-center gap-2 rounded border border-cyan-700 bg-cyan-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}{" "}
+                  {t("Update post")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("new")}
+                  className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                >
+                  {t("Post a new copy to Community")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void copyShareLink()}
+                  className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                >
+                  {isLinkCopied ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Link2 className="h-4 w-4" />
+                  )}{" "}
+                  {t("Copy link")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void setLinkedVisibility(!isPublic)}
+                  className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                >
+                  {isPublic ? t("Make it private") : t("Make it public")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    openLibrary({ kind: "all" });
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                >
+                  {t("See it in Community")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* A board that never met the auto-arrange goes out exactly as
                 messy as it looks right now, and the post wears it forever.
                 One quiet nudge, only while the board looks untouched. */}
-            {!(project.annotations ?? []).some((annotation) =>
-              annotation.id.startsWith("auto-island-box"),
-            ) && project.nodes.length >= 6 ? (
-              <div className="rounded border border-cyan-700/60 bg-cyan-950/30 p-2 text-xs text-fg-subtle">
-                Tip: the post shows your board exactly as it is. The auto-arrange
-                button on the board lays it out cleanly in one press, and an icon
-                gives the post a face.
-              </div>
-            ) : null}
-            {/* What the board carries: the headline numbers with the tier
+              {!(project.annotations ?? []).some((annotation) =>
+                annotation.id.startsWith("auto-island-box"),
+              ) && project.nodes.length >= 6 ? (
+                <div className="rounded border border-cyan-700/60 bg-cyan-950/30 p-2 text-xs text-fg-subtle">
+                  Tip: the post shows your board exactly as it is. The auto-arrange button on the
+                  board lays it out cleanly in one press, and an icon gives the post a face.
+                </div>
+              ) : null}
+              {/* What the board carries: the headline numbers with the tier
                 in its GT colour, then the real resource lists side by
                 side. No sentence needed — the dialog IS the open tab. */}
-            <div className="rounded border border-line bg-surface-raised p-3">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs tabular-nums text-fg-subtle">
-                <span>
-                  <span className="font-semibold text-fg">{stats.nodeCount}</span> cards
-                </span>
-                <span>
-                  <span className="font-semibold text-fg">{stats.machineCount}</span> machines
-                </span>
-                {stats.highestTier ? (
-                  <span className="flex items-center gap-1.5">
-                    up to <TierBadge tier={stats.highestTier} />
+              <div className="rounded border border-line bg-surface-raised p-3">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs tabular-nums text-fg-subtle">
+                  <span>
+                    <span className="font-semibold text-fg">{stats.nodeCount}</span> {t("cards")}
                   </span>
-                ) : null}
-                <span className="ml-auto text-fg-muted">
-                  Game version:{" "}
-                  <span className="text-fg-subtle">
-                    {datasetVersion?.gtnhVersion
-                      ? `GTNH ${datasetVersion.gtnhVersion}`
-                      : "unknown"}
+                  <span>
+                    <span className="font-semibold text-fg">{stats.machineCount}</span>{" "}
+                    {t("machines")}
                   </span>
-                </span>
+                  {stats.highestTier ? (
+                    <span className="flex items-center gap-1.5">
+                      {t("up to")} <TierBadge tier={stats.highestTier} />
+                    </span>
+                  ) : null}
+                  <span className="ml-auto text-fg-muted">
+                    {t("Game version:")}{" "}
+                    <span className="text-fg-subtle">
+                      {datasetVersion?.gtnhVersion
+                        ? `GTNH ${datasetVersion.gtnhVersion}`
+                        : "unknown"}
+                    </span>
+                  </span>
+                </div>
+                <div className="mt-2 max-h-56 overflow-y-auto">
+                  {renderIoStats(stats.needs, stats.outputs, { layout: "side-by-side" }) ?? (
+                    <p className="text-[11px] text-fg-muted">
+                      {t("Nothing comes in or leaves: this plan feeds itself.")}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="mt-2 max-h-56 overflow-y-auto">
-                {renderIoStats(stats.needs, stats.outputs, { layout: "side-by-side" }) ?? (
-                  <p className="text-[11px] text-fg-muted">
-                    Nothing comes in or leaves: this plan feeds itself.
-                  </p>
-                )}
+
+              <p className="text-xs text-fg-muted">
+                {t("Posting as")} <span className="font-semibold text-fg">{user.username}</span>
+              </p>
+
+              <div className="block text-sm">
+                <span className="mb-1 block font-medium">{t("Icon and name")}</span>
+                <div className="flex items-center gap-2">
+                  <EntryIconSlot
+                    icon={icon}
+                    editable
+                    onEdit={() => setPickingIcon(true)}
+                    className="!h-9 !w-9 shrink-0 border border-line-strong bg-surface-sunken"
+                  />
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    maxLength={80}
+                    className="w-full min-w-0 rounded border border-line-strong bg-surface-sunken px-2 py-1.5"
+                  />
+                </div>
               </div>
-            </div>
-
-            <p className="text-xs text-fg-muted">
-              Posting as <span className="font-semibold text-fg">{user.username}</span>
-            </p>
-
-            <div className="block text-sm">
-              <span className="mb-1 block font-medium">Icon and name</span>
-              <div className="flex items-center gap-2">
-                <EntryIconSlot
-                  icon={icon}
-                  editable
-                  onEdit={() => setPickingIcon(true)}
-                  className="!h-9 !w-9 shrink-0 border border-line-strong bg-surface-sunken"
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">{t("Description (optional)")}</span>
+                <textarea
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  maxLength={2000}
+                  rows={3}
+                  placeholder="What does it make? Any setup notes?"
+                  className="w-full resize-y rounded border border-line-strong bg-surface-sunken px-2 py-1.5"
                 />
-                <input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  maxLength={80}
-                  className="w-full min-w-0 rounded border border-line-strong bg-surface-sunken px-2 py-1.5"
-                />
+              </label>
+              <div className="block text-sm">
+                <span className="mb-1 block font-medium">{t("Tags (optional)")}</span>
+                <div className="flex flex-wrap items-center gap-1 rounded border border-line-strong bg-surface-sunken px-2 py-1.5">
+                  {tags.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setTags(tags.filter((entry) => entry !== tag))}
+                      title={`Remove #${tag}`}
+                      className="rounded border border-line px-1.5 py-0.5 text-xs text-fg-subtle hover:border-red-500 hover:text-red-500"
+                    >
+                      #{tag} ×
+                    </button>
+                  ))}
+                  <input
+                    value={tagInput}
+                    onChange={(event) => setTagInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === ",") {
+                        event.preventDefault();
+                        addTagFromInput();
+                      }
+                    }}
+                    placeholder={tags.length === 0 ? "platline, oil, early game..." : ""}
+                    className="min-w-24 flex-1 bg-transparent text-sm outline-none"
+                  />
+                </div>
+              </div>
+
+              {error ? <p className="text-sm text-red-500">{error}</p> : null}
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
+                >
+                  {t("Cancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void share()}
+                  disabled={isUploading || !name.trim() || project.nodes.length === 0}
+                  className="inline-flex items-center gap-2 rounded border border-cyan-700 bg-cyan-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}{" "}
+                  {t("Post a copy to Community")}
+                </button>
               </div>
             </div>
-            <label className="block text-sm">
-              <span className="mb-1 block font-medium">Description (optional)</span>
-              <textarea
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                maxLength={2000}
-                rows={3}
-                placeholder="What does it make? Any setup notes?"
-                className="w-full resize-y rounded border border-line-strong bg-surface-sunken px-2 py-1.5"
-              />
-            </label>
-            <div className="block text-sm">
-              <span className="mb-1 block font-medium">Tags (optional)</span>
-              <div className="flex flex-wrap items-center gap-1 rounded border border-line-strong bg-surface-sunken px-2 py-1.5">
-                {tags.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => setTags(tags.filter((entry) => entry !== tag))}
-                    title={`Remove #${tag}`}
-                    className="rounded border border-line px-1.5 py-0.5 text-xs text-fg-subtle hover:border-red-500 hover:text-red-500"
-                  >
-                    #{tag} ×
-                  </button>
-                ))}
-                <input
-                  value={tagInput}
-                  onChange={(event) => setTagInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === ",") {
-                      event.preventDefault();
-                      addTagFromInput();
-                    }
-                  }}
-                  placeholder={tags.length === 0 ? "platline, oil, early game..." : ""}
-                  className="min-w-24 flex-1 bg-transparent text-sm outline-none"
-                />
-              </div>
-            </div>
-
-            {error ? <p className="text-sm text-red-500">{error}</p> : null}
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded border border-line-strong px-3 py-1.5 text-sm hover:bg-surface-raised"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void share()}
-                disabled={isUploading || !name.trim() || project.nodes.length === 0}
-                className="inline-flex items-center gap-2 rounded border border-cyan-700 bg-cyan-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                Post a copy to Community
-              </button>
-            </div>
-          </div>
-        )}
+          )}
         </div>
       </div>
       {isPickingIcon ? (

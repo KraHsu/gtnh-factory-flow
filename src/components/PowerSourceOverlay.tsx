@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
@@ -36,6 +37,7 @@ const TIER_FILTER_OPTIONS = GT_VOLTAGE_TIERS.map((entry) => entry.tier).filter((
 );
 
 export function PowerSourceOverlay() {
+  const t = useT();
   const open = useFactoryStore((state) => state.powerMenuOpen);
   const closePowerMenu = useFactoryStore((state) => state.closePowerMenu);
   const addPowerSourceNode = useFactoryStore((state) => state.addPowerSourceNode);
@@ -117,11 +119,14 @@ export function PowerSourceOverlay() {
       onPointerDown={closePowerMenu}
       // Like the recipe search: the dim starts where the item browser ends,
       // so the left column stays bright beside it.
-      style={{ left: layout.sheet ? 0 : layout.leftInset, right: layout.sheet ? 0 : layout.rightInset }}
+      style={{
+        left: layout.sheet ? 0 : layout.leftInset,
+        right: layout.sheet ? 0 : layout.rightInset,
+      }}
     >
       <section
         className="pointer-events-auto relative flex flex-col font-mono"
-        aria-label="Power sources"
+        aria-label={t("Power sources")}
         style={{
           // Browsing is five columns at most, so past their reach the panel
           // stops and centers instead of trailing a bare right half; a
@@ -147,17 +152,20 @@ export function PowerSourceOverlay() {
           >
             <div className={compact ? "flex items-center gap-2" : "contents"}>
               <Zap className="h-4 w-4 shrink-0 text-amber-300" aria-hidden />
-              <span className="shrink-0 text-sm uppercase tracking-wide">Power sources</span>
+              <span className="shrink-0 text-sm uppercase tracking-wide">{t("Power sources")}</span>
               {compact ? closeButton : null}
             </div>
             <div className={compact ? "flex items-center gap-2" : "contents"}>
               <label className="relative ml-auto flex min-w-0 flex-1 items-center sm:max-w-[340px]">
-                <Search className="pointer-events-none absolute left-2 h-3.5 w-3.5 opacity-60" aria-hidden />
+                <Search
+                  className="pointer-events-none absolute left-2 h-3.5 w-3.5 opacity-60"
+                  aria-hidden
+                />
                 <input
                   autoFocus={!compact}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Machine, fuel, or product..."
+                  placeholder={t("Machine, fuel, or product...")}
                   className="h-9 w-full border-2 border-[var(--mc-33)] bg-[var(--mc-61)] pl-7 pr-2 text-sm text-[var(--mc-ink)] placeholder:text-[var(--mc-ink)]/50 focus:outline-none"
                 />
               </label>
@@ -171,7 +179,7 @@ export function PowerSourceOverlay() {
                   compact ? "w-28" : "w-36",
                 ].join(" ")}
               >
-                <option value="all">All types</option>
+                <option value="all">{t("All types")}</option>
                 {POWER_GROUPS.map((group) => (
                   <option key={group.id} value={group.id}>
                     {group.name}
@@ -188,7 +196,7 @@ export function PowerSourceOverlay() {
                   compact ? "w-20" : "w-24",
                 ].join(" ")}
               >
-                <option value="all">All tiers</option>
+                <option value="all">{t("All tiers")}</option>
                 {TIER_FILTER_OPTIONS.map((tier) => (
                   <option key={tier} value={tier}>
                     {tier}
@@ -203,8 +211,9 @@ export function PowerSourceOverlay() {
             {searching ? (
               hits.length === 0 ? (
                 <p className="p-2 text-sm text-[var(--mc-ink)]/60">
-                  No power source matches. Machines are searched by name and by every fuel and
-                  product they can run on.
+                  {t(
+                    "No power source matches. Machines are searched by name and by every fuel and product they can run on.",
+                  )}
                 </p>
               ) : (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] items-start gap-3">
@@ -246,7 +255,9 @@ export function PowerSourceOverlay() {
                             // bronze: a dim brass, warm enough to stand
                             // apart from the card strips, dark enough to
                             // carry light amber ink.
-                            style={{ backgroundColor: "color-mix(in srgb, #d99a2b 35%, var(--mc-49) 65%)" }}
+                            style={{
+                              backgroundColor: "color-mix(in srgb, #d99a2b 35%, var(--mc-49) 65%)",
+                            }}
                           >
                             {/* The pixel face has one weight, so the half
                                 pixel of shadow is what bold means here. */}
@@ -411,7 +422,13 @@ function readPickerViewport(): PickerViewport {
   const viewportWidth = window.innerWidth / scale;
   const viewportHeight = window.innerHeight / scale;
   if (viewportWidth < PICKER_SHEET_BELOW) {
-    return { sheet: true, leftInset: 0, rightInset: 0, width: viewportWidth, height: viewportHeight };
+    return {
+      sheet: true,
+      leftInset: 0,
+      rightInset: 0,
+      width: viewportWidth,
+      height: viewportHeight,
+    };
   }
   // A closed item panel UNMOUNTS the aside and leaves the rail, so absence
   // means the rail's width, not the panel's.

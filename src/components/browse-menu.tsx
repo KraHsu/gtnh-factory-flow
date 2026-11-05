@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -64,9 +65,13 @@ export function useBrowseMenu({
   // Lit from the moment a finger lands, so the press is visibly registering rather
   // than the row sitting there while you wonder whether it heard you.
   const [isPressing, setPressing] = useState(false);
-  const pressRef = useRef<{ x: number; y: number; touch: boolean; timer?: number; dragged: boolean }>(
-    { x: 0, y: 0, touch: false, dragged: false },
-  );
+  const pressRef = useRef<{
+    x: number;
+    y: number;
+    touch: boolean;
+    timer?: number;
+    dragged: boolean;
+  }>({ x: 0, y: 0, touch: false, dragged: false });
   const closedAtRef = useRef(0);
 
   const cancelPress = () => {
@@ -167,9 +172,7 @@ export function useBrowseMenu({
 
 /** Whether an event came out of a browse menu rather than the row under it. */
 export function isFromBrowseMenu(event: { target: EventTarget | null }): boolean {
-  return Boolean(
-    (event.target as HTMLElement | null)?.closest?.(`[${BROWSE_MENU_ATTRIBUTE}]`),
-  );
+  return Boolean((event.target as HTMLElement | null)?.closest?.(`[${BROWSE_MENU_ATTRIBUTE}]`));
 }
 
 function BrowseMenu({
@@ -183,6 +186,7 @@ function BrowseMenu({
   onPick: (mode: BrowseMode) => void;
   onDismiss: () => void;
 }) {
+  const t = useT();
   // Wide enough for "What makes it" on one line in this font: wrapped over two, a
   // button stops looking like a button.
   const width = 208;
@@ -190,7 +194,10 @@ function BrowseMenu({
   // and width are shell pixels, and the pointer and window (real pixels) come
   // across by the interface scale (ui-scale.ts).
   const scale = getUiScale();
-  const left = Math.min(Math.max(8, at.x / scale - width / 2), window.innerWidth / scale - width - 8);
+  const left = Math.min(
+    Math.max(8, at.x / scale - width / 2),
+    window.innerWidth / scale - width - 8,
+  );
   const top = Math.min(at.y / scale + 12, window.innerHeight / scale - 148);
   // The finger that opened this menu is still on the screen, and its release fires
   // the compatibility mouse events every tap fires. The gesture that opened the
@@ -301,22 +308,22 @@ function BrowseMenu({
           {name}
         </p>
         <div className="flex flex-col gap-1">
-        <button
-          type="button"
-          data-browse-mode="recipes"
-          onClick={() => pick("recipes")}
-          className={itemClass("recipes")}
-        >
-          What makes it
-        </button>
-        <button
-          type="button"
-          data-browse-mode="uses"
-          onClick={() => pick("uses")}
-          className={itemClass("uses")}
-        >
-          What uses it
-        </button>
+          <button
+            type="button"
+            data-browse-mode="recipes"
+            onClick={() => pick("recipes")}
+            className={itemClass("recipes")}
+          >
+            {t("What makes it")}
+          </button>
+          <button
+            type="button"
+            data-browse-mode="uses"
+            onClick={() => pick("uses")}
+            className={itemClass("uses")}
+          >
+            {t("What uses it")}
+          </button>
         </div>
       </div>
     </>

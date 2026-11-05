@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { CopyCheck, X } from "lucide-react";
 import { useDesignStore } from "@/store/design-store";
@@ -9,6 +10,7 @@ import { useDesignStore } from "@/store/design-store";
  * tab's edits became a copy, so the notice says where each went.
  */
 export function TabConflictNotice() {
+  const t = useT();
   const conflict = useDesignStore((state) => state.tabConflict);
   const dismiss = useDesignStore((state) => state.dismissTabConflict);
   if (!conflict) {
@@ -27,7 +29,7 @@ export function TabConflictNotice() {
       <button
         type="button"
         onClick={dismiss}
-        aria-label="Dismiss"
+        aria-label={t("Dismiss")}
         className="shrink-0 rounded p-0.5 text-amber-200 hover:bg-amber-900/60"
       >
         <X aria-hidden className="h-3.5 w-3.5" />

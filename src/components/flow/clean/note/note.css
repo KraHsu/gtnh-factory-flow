@@ -55,7 +55,7 @@
     var(--sn-fold-color);
 }
 .sn[data-multi] {
-  outline: max(2px, calc(1.5px / var(--board-zoom, 1))) solid var(--cc-select, #22d3ee);
+  outline: max(2px, calc(1.5px / var(--board-zoom, 1))) solid var(--cc-select, var(--ks-green));
 }
 
 .sn-text {
@@ -98,7 +98,7 @@
   width: calc(var(--u) * 11px);
   height: calc(var(--u) * 11px);
   background: rgba(48, 50, 56, 0.69);
-  color: #f2f3f7;
+  color: var(--ks-text);
   opacity: 0;
   pointer-events: none;
   z-index: 2;

@@ -1,0 +1,33 @@
+[Unit]
+Description=KraHsu GTNH Factory Flow public planner
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/storage/gtnh-flow /mnt/storage/iam/runtime
+
+[Service]
+Type=simple
+User=charles
+Group=charles
+WorkingDirectory=/mnt/storage/gtnh-flow/current
+ExecStart=/mnt/storage/iam/runtime/node server.js
+Environment=NODE_ENV=production
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=8792
+Environment=NODE_OPTIONS=--max-old-space-size=512
+Environment=NEXT_TELEMETRY_DISABLED=1
+EnvironmentFile=/etc/gtnh-flow.env
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/mnt/storage/gtnh-flow
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+MemoryMax=700M
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

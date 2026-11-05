@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 
@@ -21,7 +22,10 @@ export const CONTROLS: ReadonlyArray<readonly [string, string]> = [
   ["Right-click a wire", "Add a drawer on it, or delete it"],
   ["Middle-click a rate", "Clear the rate"],
   ["Right-click empty board", "Add a sticky note"],
-  ["Click a sticky note", "Write on it (Esc or a click elsewhere when done); drag it anywhere to move it"],
+  [
+    "Click a sticky note",
+    "Write on it (Esc or a click elsewhere when done); drag it anywhere to move it",
+  ],
   ["Click a card or drawer", "Select it (Shift-click adds to the selection)"],
   ["Drag the board", "Pan (Shift-drag selects a box)"],
   ["Drag a selected card", "Move the selection"],
@@ -36,6 +40,7 @@ export const CONTROLS: ReadonlyArray<readonly [string, string]> = [
 
 /** The controls list: a menu-skinned panel under the bar, closed like any dropdown. */
 export function ControlsList({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollChangesValues } = useDeviceSettings();
   useDropdownDismiss(true, { refs: [ref], onClose, insideSelector: "[data-menu-anchor]" });
@@ -43,25 +48,28 @@ export function ControlsList({ onClose }: { onClose: () => void }) {
   // Hung from the Help key's right edge, as its menu is: the items column sits at the window's right edge now, and a
   // panel pinned to the window would slide under it.
   const scale = getUiScale();
-  const helpKey = typeof document === "undefined" ? null : document.querySelector(".mb-key[data-mb='help']");
-  const right = helpKey ? Math.max(2, (window.innerWidth - helpKey.getBoundingClientRect().right) / scale) : 8;
+  const helpKey =
+    typeof document === "undefined" ? null : document.querySelector(".mb-key[data-mb='help']");
+  const right = helpKey
+    ? Math.max(2, (window.innerWidth - helpKey.getBoundingClientRect().right) / scale)
+    : 8;
   return createPortal(
     <div
       ref={ref}
       role="dialog"
-      aria-label="How the board works"
+      aria-label={t("How the board works")}
       tabIndex={-1}
       className="mm mc-controls ui-zoom nodrag nowheel"
       style={{ top: 24, right }}
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <div className="mm-title">HOW THE BOARD WORKS</div>
+      <div className="mm-title">{t("HOW THE BOARD WORKS")}</div>
       <div className="mc-controls-grid">
         {CONTROLS.map(([gesture, effect]) => (
           <div key={gesture} className="mc-controls-row">
             <span className="mc-controls-key">{gesture}</span>
             <span className="mc-controls-effect">
-              {effect === WHEEL_ROW && !scrollChangesValues ? "Zoom" : effect}
+              {effect === WHEEL_ROW && !scrollChangesValues ? t("Zoom") : effect}
             </span>
           </div>
         ))}

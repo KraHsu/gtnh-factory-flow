@@ -124,7 +124,16 @@
 /* A buffer is a barrel: its four corners cut straight (the mod's DrawerPaint.CUT), open to both sides. */
 .cd[data-kind="buffer"] .cd-edge,
 .cd[data-kind="buffer"] .cd-fill {
-  clip-path: polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px);
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 4px
+  );
   box-shadow: none;
 }
 .cd[data-kind="trash"] .cd-wrap-shadow,
@@ -172,13 +181,17 @@
   width: 15px;
   height: 4px;
   background:
-    repeating-linear-gradient(90deg, var(--cd-grip) 0 1px, transparent 1px 2px) 0 0 / 15px 1px no-repeat,
-    repeating-linear-gradient(90deg, var(--cd-grip) 0 1px, transparent 1px 2px) 0 2px / 15px 1px no-repeat;
+    repeating-linear-gradient(90deg, var(--cd-grip) 0 1px, transparent 1px 2px) 0 0 / 15px 1px
+      no-repeat,
+    repeating-linear-gradient(90deg, var(--cd-grip) 0 1px, transparent 1px 2px) 0 2px / 15px 1px
+      no-repeat;
 }
 .cd:hover .cd-bar::before {
   background:
-    repeating-linear-gradient(90deg, var(--cd-grip-hot) 0 1px, transparent 1px 2px) 0 0 / 15px 1px no-repeat,
-    repeating-linear-gradient(90deg, var(--cd-grip-hot) 0 1px, transparent 1px 2px) 0 2px / 15px 1px no-repeat;
+    repeating-linear-gradient(90deg, var(--cd-grip-hot) 0 1px, transparent 1px 2px) 0 0 / 15px 1px
+      no-repeat,
+    repeating-linear-gradient(90deg, var(--cd-grip-hot) 0 1px, transparent 1px 2px) 0 2px / 15px 1px
+      no-repeat;
 }
 
 /* The delete key: 10 x 10 at (3, 3), hanging over the bar's lower edge, only while the pointer is on the drawer or it
@@ -245,15 +258,17 @@
   position: absolute;
   inset: 2px;
   background: var(--cc-ink);
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 6 6%27><path d=%27M0 1h4V0l2 1.5L4 3V2H0zM6 4H2V3L0 4.5 2 6V5h4z%27/></svg>") center / 6px 6px no-repeat;
-  mask: url("data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 6 6%27><path d=%27M0 1h4V0l2 1.5L4 3V2H0zM6 4H2V3L0 4.5 2 6V5h4z%27/></svg>") center / 6px 6px no-repeat;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 6 6%27><path d=%27M0 1h4V0l2 1.5L4 3V2H0zM6 4H2V3L0 4.5 2 6V5h4z%27/></svg>")
+    center / 6px 6px no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 6 6%27><path d=%27M0 1h4V0l2 1.5L4 3V2H0zM6 4H2V3L0 4.5 2 6V5h4z%27/></svg>")
+    center / 6px 6px no-repeat;
 }
 .cd:hover .cd-flip,
 .cd[data-selected] .cd-flip {
   visibility: visible;
 }
 .cd-flip:hover {
-  background: var(--cc-key-hot, #4a4e57);
+  background: var(--cc-key-hot, var(--ks-line));
 }
 .cd-flip::before {
   content: "";
@@ -354,8 +369,8 @@
   letter-spacing: -0.45px;
 }
 .cd-name[data-clip] {
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 10px), transparent);
-  mask-image: linear-gradient(90deg, #000 calc(100% - 10px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, var(--ks-well) calc(100% - 10px), transparent);
+  mask-image: linear-gradient(90deg, var(--ks-well) calc(100% - 10px), transparent);
 }
 /* Centred in their column beside the icon, so a short figure leaves no empty side. A word too long for the column starts
    at its left edge and is cut and faded at its right (the browser start-aligns an overflowing centred line). */
@@ -386,9 +401,9 @@
 }
 .cd-key {
   width: 10px;
-  background: #34373e;
+  background: var(--ks-paper);
   box-shadow:
-    inset 0 0 0 1px #111317,
+    inset 0 0 0 1px var(--ks-well),
     inset 0 2px 0 -1px rgba(255, 255, 255, 0.12);
   color: var(--cc-gold);
   font-size: 8px;
@@ -398,7 +413,7 @@
 }
 .cd-key:hover,
 .cd-key[data-open] {
-  background: #454952;
+  background: var(--ks-line);
 }
 .cd-key[data-any] {
   color: var(--cc-muted);
@@ -408,7 +423,7 @@
 }
 .cd-box {
   width: 59px;
-  background: #0f1114;
+  background: var(--ks-well);
   color: var(--cc-gold);
   font-size: 8px;
   font-weight: 400;
@@ -417,11 +432,11 @@
   white-space: nowrap;
   overflow: hidden;
   box-shadow:
-    inset 0 0 0 1px #5a5e68,
+    inset 0 0 0 1px var(--ks-line),
     inset 0 1px 0 1px rgba(0, 0, 0, 0.7);
 }
 .cd-box:hover {
-  background: #15171c;
+  background: var(--ks-well);
   box-shadow:
     inset 0 0 0 1px var(--cc-gold),
     inset 0 1px 0 1px rgba(0, 0, 0, 0.7);
@@ -432,10 +447,10 @@
 .cd-box::after {
   content: attr(data-unit);
   margin-left: 1px;
-  color: #8a8e97;
+  color: var(--ks-muted);
 }
 .cd-box[data-empty]::before {
-  color: #6f737c;
+  color: var(--ks-muted);
 }
 .cd-box[data-empty]::after,
 .cd-box[data-fixed]::after {
@@ -445,12 +460,12 @@
   cursor: default;
 }
 .cd-box[data-fixed]::before {
-  color: #6f737c;
+  color: var(--ks-muted);
 }
 .cd-box[data-fixed]:hover {
-  background: #0f1114;
+  background: var(--ks-well);
   box-shadow:
-    inset 0 0 0 1px #5a5e68,
+    inset 0 0 0 1px var(--ks-line),
     inset 0 1px 0 1px rgba(0, 0, 0, 0.7);
 }
 .cd-box[data-prompt]::before {
@@ -472,7 +487,7 @@
   box-shadow:
     inset 0 0 0 1px var(--cc-gold),
     inset 0 1px 0 1px rgba(0, 0, 0, 0.7);
-  background: #15171c;
+  background: var(--ks-well);
 }
 .cd-box[data-editing]::before,
 .cd-box[data-editing]::after {
@@ -550,11 +565,11 @@
   justify-content: center;
   gap: 3px;
   border-radius: 3px;
-  background: #322d2e;
+  background: var(--ks-paper);
   box-shadow:
     inset 0 0 0 1px #815e49,
-    inset 1px 1px 0 1px #4b3f39,
-    inset -1px -1px 0 1px #2a2425;
+    inset 1px 1px 0 1px var(--ks-line),
+    inset -1px -1px 0 1px var(--ks-paper);
 }
 .cd-forced[data-lit] {
   box-shadow:
@@ -648,7 +663,11 @@
   bottom: 4px;
   padding: calc(1px / var(--board-zoom, 1));
   background: rgba(16, 17, 20, 0.75);
-  font-size: min(calc(20px / var(--board-zoom, 1)), 40px, calc(100px / (var(--cd-chars, 4) * 0.62)));
+  font-size: min(
+    calc(20px / var(--board-zoom, 1)),
+    40px,
+    calc(100px / (var(--cd-chars, 4) * 0.62))
+  );
   font-weight: 600;
   line-height: 1;
   color: var(--cd-number);
@@ -702,9 +721,9 @@
   box-sizing: border-box;
   width: 182px;
   padding: 2px 0;
-  background: #2b2d33;
+  background: var(--ks-paper);
   box-shadow:
-    inset 0 0 0 1px #111317,
+    inset 0 0 0 1px var(--ks-well),
     4px 4px 0 rgba(0, 0, 0, 0.35);
   color: var(--cc-ink);
   font-family: var(--cc-font);
@@ -743,17 +762,23 @@
 }
 
 /* One thing selected: no ring (the mod's showsSelected); the lit and accepting rings stay. */
-.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected)) .cd[data-selected]:not([data-lit]):not([data-accepts]) .cd-edge {
+.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected))
+  .cd[data-selected]:not([data-lit]):not([data-accepts])
+  .cd-edge {
   box-shadow: 6px 8px 7px rgba(0, 0, 0, 0.36);
 }
-.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected)) .cd[data-selected][data-lit] .cd-edge {
+.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected))
+  .cd[data-selected][data-lit]
+  .cd-edge {
   box-shadow:
     0 0 0 1px rgba(255, 210, 87, 0.086),
     0 0 0 2px rgba(255, 210, 87, 0.086),
     0 0 0 3px rgba(255, 210, 87, 0.086),
     6px 8px 7px rgba(0, 0, 0, 0.36);
 }
-.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected)) .cd[data-kind="trash"][data-selected]:not([data-lit]),
-.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected)) .cd[data-kind="buffer"][data-selected]:not([data-lit]) {
+.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected))
+  .cd[data-kind="trash"][data-selected]:not([data-lit]),
+.react-flow__nodes:not(:has(> .react-flow__node.selected ~ .react-flow__node.selected))
+  .cd[data-kind="buffer"][data-selected]:not([data-lit]) {
   filter: drop-shadow(6px 8px 7px rgba(0, 0, 0, 0.36));
 }

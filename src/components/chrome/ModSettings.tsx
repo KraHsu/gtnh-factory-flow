@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 import "./settings.css";
@@ -62,6 +63,7 @@ interface Section {
  * changes beside them, and the section left open remembered. A change saves at once.
  */
 export function ModSettings({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const settings = useDeviceSettings();
   const uiPercent = useUiScalePercent();
   const [font, setFont] = useState<AppFontId>(() => getStoredAppFont());
@@ -236,7 +238,7 @@ export function ModSettings({ onClose }: { onClose: () => void }) {
         className="ms mx"
         role="dialog"
         aria-modal="true"
-        aria-label="Settings"
+        aria-label={t("Settings")}
         data-mod-settings=""
         data-section={section.name}
         onWheel={(event) => {
@@ -251,8 +253,8 @@ export function ModSettings({ onClose }: { onClose: () => void }) {
         }}
       >
         <div className="ms-title">
-          <span>Settings</span>
-          <div className="ms-close" role="button" aria-label="Close" onClick={close}>
+          <span>{t("Settings")}</span>
+          <div className="ms-close" role="button" aria-label={t("Close")} onClick={close}>
             <svg
               width="14"
               height="14"
@@ -266,25 +268,25 @@ export function ModSettings({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="ms-body">
-          <nav className="ms-side" aria-label="Settings sections" data-sfx-own="">
+          <nav className="ms-side" aria-label={t("Settings sections")} data-sfx-own="">
             {sections.map((entry, index) => (
               <div
-                key={entry.name}
+                key={t(entry.name)}
                 role="tab"
                 aria-selected={index === sectionIndex}
                 className="ms-section"
                 data-picked={index === sectionIndex ? "" : undefined}
                 onClick={() => pick(index)}
               >
-                {entry.name}
+                {t(entry.name)}
               </div>
             ))}
           </nav>
           <div className="ms-rows" data-sfx-own="">
-            {section.intro ? <div className="ms-intro">{section.intro}</div> : null}
+            {section.intro ? <div className="ms-intro">{t(section.intro)}</div> : null}
             {section.body ??
               section.rows.map((row) => (
-                <SettingRow key={row.label} row={row} onSet={set} dragRef={dragRef} />
+                <SettingRow key={t(row.label)} row={row} onSet={set} dragRef={dragRef} />
               ))}
           </div>
           <div className="ms-preview" aria-hidden>
@@ -300,7 +302,7 @@ export function ModSettings({ onClose }: { onClose: () => void }) {
       {menu ? (
         <ChromeMenu
           anchor={menu.anchor}
-          label="Font"
+          label={t("Font")}
           align="right"
           minWidth={150}
           entries={APP_FONTS.map((option) => ({
@@ -339,6 +341,7 @@ function SettingRow({
   onSet: (row: Row, index: number, anchor?: HTMLElement) => void;
   dragRef: React.MutableRefObject<string | undefined>;
 }) {
+  const t = useT();
   const last = row.names.length - 1;
   let control: ReactNode;
   if (row.kind === "switch") {
@@ -347,7 +350,7 @@ function SettingRow({
         className="ms-switch"
         role="switch"
         aria-checked={row.at === 1}
-        aria-label={row.label}
+        aria-label={t(row.label)}
         data-on={row.at === 1 ? "" : undefined}
       >
         <span className="ms-knob" />
@@ -363,7 +366,7 @@ function SettingRow({
           max={last}
           step={1}
           value={Math.max(0, row.at)}
-          aria-label={row.label}
+          aria-label={t(row.label)}
           onPointerDown={() => (dragRef.current = row.label)}
           onPointerUp={() => (dragRef.current = undefined)}
           onChange={(event) => {
@@ -371,7 +374,7 @@ function SettingRow({
             onSet(row, value);
           }}
         />
-        <span className="ms-value">{row.names[Math.max(0, row.at)]}</span>
+        <span className="ms-value">{t(row.names[Math.max(0, row.at)])}</span>
       </span>
     );
   } else {
@@ -379,11 +382,11 @@ function SettingRow({
       <span
         className="ms-choices"
         role={row.kind === "choice" ? "radiogroup" : "group"}
-        aria-label={row.label}
+        aria-label={t(row.label)}
       >
         {row.names.map((name, index) => (
           <span
-            key={name}
+            key={t(name)}
             role={row.kind === "choice" ? "radio" : "button"}
             aria-checked={row.kind === "choice" ? row.at === index : undefined}
             className="ms-choice"
@@ -394,7 +397,7 @@ function SettingRow({
               onSet(row, index, event.currentTarget);
             }}
           >
-            {name}
+            {t(name)}
           </span>
         ))}
       </span>
@@ -421,10 +424,10 @@ function SettingRow({
     >
       <span className="ms-text">
         <span className="ms-name">
-          <span className="ms-label">{row.label}</span>
-          {row.hint ? <span className="ms-hint">{row.hint}</span> : null}
+          <span className="ms-label">{t(row.label)}</span>
+          {row.hint ? <span className="ms-hint">{t(row.hint)}</span> : null}
         </span>
-        {row.about ? <span className="ms-about">{row.about}</span> : null}
+        {row.about ? <span className="ms-about">{t(row.about)}</span> : null}
       </span>
       <span className="ms-spacer" />
       {control}

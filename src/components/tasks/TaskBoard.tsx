@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./tasks.css";
 
@@ -101,6 +102,7 @@ interface Carry {
 }
 
 function Columns({ onMake }: { onMake: (status: PlanTaskStatus) => void }) {
+  const t = useT();
   const tasks = useFactoryStore((state) => state.project.tasks);
   const items = useFactoryStore((state) => state.project.taskItems);
   const comments = useFactoryStore((state) => state.project.taskComments);
@@ -304,9 +306,9 @@ function Columns({ onMake }: { onMake: (status: PlanTaskStatus) => void }) {
               ) : null}
               {empty && status === TASK_STATUSES[0] ? (
                 <div className="tb-empty" data-task-empty="">
-                  <p>No tasks yet.</p>
-                  <p>Press + to add one.</p>
-                  <p>Or add a card from its menu.</p>
+                  <p>{t("No tasks yet.")}</p>
+                  <p>{t("Press + to add one.")}</p>
+                  <p>{t("Or add a card from its menu.")}</p>
                 </div>
               ) : null}
             </div>

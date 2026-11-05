@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import type { MachineListEntry } from "@/lib/model/machine-list";
 import { formatPoolPowerValue as formatPowerValue } from "./worksheet-format";
 import { powerDisplayFromEuT, powerDisplaySuffix, rateSuffixForKind } from "@/lib/model/rate-unit";
@@ -16,6 +17,7 @@ export function WorksheetPower({
   compact?: boolean;
   title?: string;
 }) {
+  const t = useT();
   const sum = (key: "euT" | "avgEuT" | "madeEuT" | "avgMadeEuT" | "steamLs" | "avgSteamLs") =>
     entries.reduce((total, entry) => total + (entry[key] ?? 0), 0);
   const rows = [
@@ -32,8 +34,8 @@ export function WorksheetPower({
       <thead>
         <tr>
           <th>{!compact ? <h3 className="pool-overview-title">{title}</h3> : null}</th>
-          <th>Average</th>
-          <th>Peak</th>
+          <th>{t("Average")}</th>
+          <th>{t("Peak")}</th>
         </tr>
       </thead>
       <tbody>
@@ -92,7 +94,9 @@ export function WorksheetPower({
             {rows[3] ? (
               <span>
                 {formatSlotRateBare(rows[3].average, "fluid")}
-                <small>{rateSuffixForKind("fluid").trim()} steam</small>
+                <small>
+                  {rateSuffixForKind("fluid").trim()} {t("steam")}
+                </small>
               </span>
             ) : null}
           </summary>

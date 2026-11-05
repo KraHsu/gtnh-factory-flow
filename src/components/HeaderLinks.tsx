@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useRef, useState } from "react";
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
@@ -17,7 +18,8 @@ export const GITHUB_URL = "https://github.com/jackwrichards/gtnh-factory-flow";
  * The planner's thread in the GTNH Discord. A thread, not a server invite,
  * so it only opens for people already in the server.
  */
-export const DISCORD_THREAD_URL = "https://discord.com/channels/181078474394566657/1531402304530682036";
+export const DISCORD_THREAD_URL =
+  "https://discord.com/channels/181078474394566657/1531402304530682036";
 
 /**
  * The tip jar. Clicks are counted through Umami's `data-umami-event`
@@ -36,38 +38,46 @@ export const BUG_REPORT_URL = `${GITHUB_URL}/issues/new?template=bug_report.yml&
 
 /** The header's "Help" dropdown: the auxiliary set of MenuLinks. */
 export function HeaderLinks() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useDropdownDismiss(open, { refs: [root], onClose: () => setOpen(false) });
   return (
     <div ref={root} className="relative shrink-0">
-      <button type="button" aria-expanded={open} aria-label="Help and links"
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label="Help and links"
         onClick={() => setOpen(!open)}
-        className="inline-flex h-6 items-center gap-1 rounded px-1.5 text-fg-muted hover:bg-surface-raised hover:text-fg">
-        Help <ChevronDown className="h-3 w-3" />
+        className="inline-flex h-6 items-center gap-1 rounded px-1.5 text-fg-muted hover:bg-surface-raised hover:text-fg"
+      >
+        {t("Help")} <ChevronDown className="h-3 w-3" />
       </button>
-      {open ? <div className="absolute right-0 top-full z-[100] mt-1 w-52 rounded border border-line-strong bg-surface p-1 text-sm shadow-xl">
-        <MenuLinks auxiliary onAction={() => setOpen(false)} />
-      </div> : null}
+      {open ? (
+        <div className="absolute right-0 top-full z-[100] mt-1 w-52 rounded border border-line-strong bg-surface p-1 text-sm shadow-xl">
+          <MenuLinks auxiliary onAction={() => setOpen(false)} />
+        </div>
+      ) : null}
     </div>
   );
 }
 
 /** The donation link: a heart in its own colour, labelled for screen readers. */
 export function SupportButton() {
+  const t = useT();
   return (
     <a
       href={KOFI_URL}
       target="_blank"
       rel="noreferrer noopener"
-      title="Support on Ko-fi"
+      title={t("Support on Ko-fi")}
       aria-label="Support GTNH Planner on Ko-fi"
       data-umami-event="support-kofi"
       data-umami-event-source="header"
       className="inline-flex h-5 shrink-0 items-center gap-1.5 rounded border border-pink-800 bg-pink-950 px-2 text-xs font-semibold text-pink-300 hover:border-pink-600 hover:bg-pink-900 hover:text-pink-200 snug:w-5 snug:justify-center snug:px-0"
     >
       <Heart className="h-3.5 w-3.5 fill-current" aria-hidden />
-      <span className="sr-only">Support</span>
+      <span className="sr-only">{t("Support")}</span>
     </a>
   );
 }
@@ -77,7 +87,14 @@ export function SupportButton() {
  * compact menu. `auxiliary` (the header's Help dropdown) leaves out Library
  * and Support.
  */
-export function MenuLinks({ onAction, auxiliary = false }: { onAction?: () => void; auxiliary?: boolean }) {
+export function MenuLinks({
+  onAction,
+  auxiliary = false,
+}: {
+  onAction?: () => void;
+  auxiliary?: boolean;
+}) {
+  const t = useT();
   // The tour needs the full layout: on a compact one it is not offered rather than doing nothing.
   const compact = useIsCompactViewport();
   return (
@@ -94,48 +111,54 @@ export function MenuLinks({ onAction, auxiliary = false }: { onAction?: () => vo
         <span className="flex h-4 w-4 shrink-0 items-center justify-center">
           <Compass className="h-3.5 w-3.5" aria-hidden />
         </span>
-        <span className="truncate">Welcome</span>
+        <span className="truncate">{t("Welcome")}</span>
       </button>
-      {!auxiliary ? <button
-        type="button"
-        onClick={() => {
-          openLibrary();
-          onAction?.();
-        }}
-        className="flex h-10 items-center gap-2.5 rounded px-2 text-left text-sm text-fg-subtle hover:bg-surface-sunken"
-      >
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-          <Library className="h-3.5 w-3.5" aria-hidden />
-        </span>
-        <span className="truncate">Community</span>
-      </button> : null}
-      {compact ? null : <button
-        type="button"
-        onClick={() => {
-          onAction?.();
-          void startTour();
-        }}
-        className="flex h-10 items-center gap-2.5 rounded px-2 text-left text-sm text-fg-subtle hover:bg-surface-sunken"
-      >
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-          <Route className="h-3.5 w-3.5" aria-hidden />
-        </span>
-        <span className="truncate">Take the tour</span>
-      </button>}
-      <MenuLink href={GITHUB_URL} label="Source on GitHub">
+      {!auxiliary ? (
+        <button
+          type="button"
+          onClick={() => {
+            openLibrary();
+            onAction?.();
+          }}
+          className="flex h-10 items-center gap-2.5 rounded px-2 text-left text-sm text-fg-subtle hover:bg-surface-sunken"
+        >
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+            <Library className="h-3.5 w-3.5" aria-hidden />
+          </span>
+          <span className="truncate">{t("Community")}</span>
+        </button>
+      ) : null}
+      {compact ? null : (
+        <button
+          type="button"
+          onClick={() => {
+            onAction?.();
+            void startTour();
+          }}
+          className="flex h-10 items-center gap-2.5 rounded px-2 text-left text-sm text-fg-subtle hover:bg-surface-sunken"
+        >
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+            <Route className="h-3.5 w-3.5" aria-hidden />
+          </span>
+          <span className="truncate">{t("Take the tour")}</span>
+        </button>
+      )}
+      <MenuLink href={GITHUB_URL} label={t("Source on GitHub")}>
         <GithubMark />
       </MenuLink>
-      <MenuLink href={DISCORD_THREAD_URL} label="Discord thread">
+      <MenuLink href={DISCORD_THREAD_URL} label={t("Discord thread")}>
         <DiscordMark />
       </MenuLink>
-      {!auxiliary ? <MenuLink
-        href={KOFI_URL}
-        label="Support GTNH Planner"
-        tone="support"
-        umamiEvent="support-kofi"
-      >
-        <Heart className="h-3.5 w-3.5 fill-current" aria-hidden />
-      </MenuLink> : null}
+      {!auxiliary ? (
+        <MenuLink
+          href={KOFI_URL}
+          label="Support GTNH Planner"
+          tone="support"
+          umamiEvent="support-kofi"
+        >
+          <Heart className="h-3.5 w-3.5 fill-current" aria-hidden />
+        </MenuLink>
+      ) : null}
       <button
         type="button"
         onClick={() => {
@@ -147,9 +170,9 @@ export function MenuLinks({ onAction, auxiliary = false }: { onAction?: () => vo
         <span className="flex h-4 w-4 shrink-0 items-center justify-center">
           <Bug className="h-3.5 w-3.5" aria-hidden />
         </span>
-        <span className="truncate">Send feedback</span>
+        <span className="truncate">{t("Send feedback")}</span>
       </button>
-      <MenuLink href={BUG_REPORT_URL} label="Report a bug">
+      <MenuLink href={BUG_REPORT_URL} label={t("Report a bug")}>
         <Bug className="h-3.5 w-3.5" aria-hidden />
       </MenuLink>
     </div>
@@ -179,7 +202,11 @@ function MenuLink({
       data-umami-event-source={umamiEvent ? "menu" : undefined}
       className={[
         "flex h-10 items-center gap-2.5 rounded px-2 text-sm hover:bg-surface-sunken",
-        tone === "danger" ? "text-red-300" : tone === "support" ? "text-pink-300" : "text-fg-subtle",
+        tone === "danger"
+          ? "text-red-300"
+          : tone === "support"
+            ? "text-pink-300"
+            : "text-fg-subtle",
       ].join(" ")}
     >
       <span className="flex h-4 w-4 shrink-0 items-center justify-center">{children}</span>

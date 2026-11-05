@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { LoaderCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ import { openLibrary } from "@/lib/library/library-tab";
  * comment on your own post, can be deleted. Signed out you can read.
  */
 export function PlanComments({ planId }: { planId: string }) {
+  const t = useT();
   const { user } = useCommunityUser();
   const [loaded, setLoaded] = useState<{ planId: string; comments: CommunityComment[] }>();
   const [error, setError] = useState<string>();
@@ -91,7 +93,7 @@ export function PlanComments({ planId }: { planId: string }) {
     // and the box to write in as a strip along the bottom.
     <section className="flex min-w-0 flex-col border border-[var(--mc-33)] bg-[var(--mc-25)] p-2">
       <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--mc-ink)]">
-        Comments
+        {t("Comments")}
         {comments ? (
           <span className="ml-1.5 font-medium text-[var(--mc-ink-muted)]">{comments.length}</span>
         ) : null}
@@ -101,10 +103,13 @@ export function PlanComments({ planId }: { planId: string }) {
 
       {!comments ? (
         <div className="flex h-8 items-center">
-          <LoaderCircle className="h-4 w-4 animate-spin text-neutral-400" aria-label="Loading" />
+          <LoaderCircle
+            className="h-4 w-4 animate-spin text-neutral-400"
+            aria-label={t("Loading")}
+          />
         </div>
       ) : comments.length === 0 ? (
-        <div className="py-1 text-[11px] text-[var(--mc-ink-muted)]">Nothing yet</div>
+        <div className="py-1 text-[11px] text-[var(--mc-ink-muted)]">{t("Nothing yet")}</div>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {comments.map((comment) => (
@@ -129,7 +134,7 @@ export function PlanComments({ planId }: { planId: string }) {
                     disabled={deletingId === comment.id}
                     onClick={() => void remove(comment)}
                     aria-label="Delete this comment"
-                    title="Delete"
+                    title={t("Delete")}
                     className="ml-auto text-[var(--mc-ink-muted)] opacity-0 hover:text-red-300 focus:opacity-100 group-hover:opacity-100 disabled:opacity-50"
                   >
                     {deletingId === comment.id ? (
@@ -155,16 +160,14 @@ export function PlanComments({ planId }: { planId: string }) {
         <input
           value={draft}
           disabled={!user}
-          onChange={(event) =>
-            setDraft(event.target.value.slice(0, COMMUNITY_COMMENT_MAX_LENGTH))
-          }
+          onChange={(event) => setDraft(event.target.value.slice(0, COMMUNITY_COMMENT_MAX_LENGTH))}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               event.preventDefault();
               void post();
             }
           }}
-          placeholder={user ? "Add a comment" : "Sign in to comment"}
+          placeholder={user ? t("Add a comment") : "Sign in to comment"}
           aria-label="Your comment"
           className="h-9 min-w-0 flex-1 bg-transparent px-2.5 text-[12px] text-neutral-100 outline-none placeholder:text-[var(--mc-ink-muted)] disabled:cursor-default"
         />
@@ -174,8 +177,8 @@ export function PlanComments({ planId }: { planId: string }) {
           onClick={() => void post()}
           className="flex shrink-0 items-center gap-1.5 border-l border-[var(--mc-33)] bg-[var(--mc-61)] px-3 text-[12px] font-bold text-[var(--mc-ink)] hover:bg-[var(--mc-85)] disabled:opacity-40 disabled:hover:bg-[var(--mc-61)]"
         >
-          {posting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
-          Post
+          {posting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}{" "}
+          {t("Post")}
         </button>
       </div>
     </section>

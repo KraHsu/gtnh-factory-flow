@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -65,12 +66,11 @@ export function IconPicker({
   onClear?: () => void;
   onClose: () => void;
 }) {
+  const t = useT();
   const datasetManifest = useFactoryStore((state) => state.datasetManifest);
   const datasetManifestUrl = useFactoryStore((state) => state.datasetManifestUrl);
   const selectedDatasetVersionId = useFactoryStore((state) => state.selectedDatasetVersionId);
-  const version = datasetManifest?.versions.find(
-    (entry) => entry.id === selectedDatasetVersionId,
-  );
+  const version = datasetManifest?.versions.find((entry) => entry.id === selectedDatasetVersionId);
 
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 200);
@@ -178,10 +178,12 @@ export function IconPicker({
         ) : null}
         <div className="mt-2 min-h-0 flex-1 overflow-y-auto">
           {!version ? (
-            <p className="pt-1 text-[11px] text-neutral-500">The dataset is still loading…</p>
+            <p className="pt-1 text-[11px] text-neutral-500">
+              {t("The dataset is still loading…")}
+            </p>
           ) : resources.length === 0 ? (
             <p className="pt-1 text-[11px] text-neutral-500">
-              {result ? "Nothing matches." : "Searching…"}
+              {result ? t("Nothing matches.") : "Searching…"}
             </p>
           ) : (
             <div className="grid grid-cols-8 gap-1">
@@ -228,7 +230,7 @@ export function IconPicker({
             onClick={onClear}
             className="mt-2 h-7 shrink-0 rounded-[4px] border border-neutral-700 bg-[#17191d] text-[11px] text-neutral-400 hover:border-red-500 hover:text-red-400"
           >
-            Remove the current icon
+            {t("Remove the current icon")}
           </button>
         ) : null}
       </div>
@@ -251,6 +253,7 @@ export function EntryIconSlot({
   onEdit?: () => void;
   className?: string;
 }) {
+  const t = useT();
   // Fills the slot: the padded source art is drawn at 200% and cropped by
   // the wrapper, so the sprite lands at roughly the slot's own size.
   const face = icon ? (
@@ -292,7 +295,7 @@ export function EntryIconSlot({
     <button
       type="button"
       onClick={onEdit}
-      aria-label={icon ? "Change the icon" : "Pick an icon"}
+      aria-label={icon ? "Change the icon" : t("Pick an icon")}
       className={[
         "flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[4px] border",
         icon

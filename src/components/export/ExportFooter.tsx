@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import type { CommunityPlanStats, EntryIcon, PlanResourceStat } from "@/lib/community/types";
 import { formatSlotRate } from "@/components/flow/flow-explainers";
@@ -119,6 +120,7 @@ export function ExportFooter({
   needs,
   outputs,
 }: ExportFooterProps) {
+  const t = useT();
   const palette = PALETTES[tone];
 
   return (
@@ -136,12 +138,7 @@ export function ExportFooter({
         // like "Platline v4 (LV glass, no cleanroom)" and a side column
         // truncated them. It wraps rather than clips; the numbers keep to
         // the right.
-        <div
-          className={[
-            "flex items-start justify-between gap-4",
-            showIo ? "mb-2" : "",
-          ].join(" ")}
-        >
+        <div className={["flex items-start justify-between gap-4", showIo ? "mb-2" : ""].join(" ")}>
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {icon ? (
               <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden">
@@ -169,9 +166,13 @@ export function ExportFooter({
               style={{ color: palette.subtle }}
               className="flex items-center justify-end gap-2 text-[13px] tabular-nums"
             >
-              <span>{stats.machineCount} machines</span>
+              <span>
+                {stats.machineCount} {t("machines")}
+              </span>
               <span aria-hidden>·</span>
-              <span>{stats.nodeCount} cards</span>
+              <span>
+                {stats.nodeCount} {t("cards")}
+              </span>
               {stats.highestTier ? <TierBadge tier={stats.highestTier} /> : null}
             </div>
             <div className="mt-0.5 text-[12px]">
@@ -186,22 +187,22 @@ export function ExportFooter({
           the app uses for the same numbers. */}
       {showIo ? (
         <div className="flex items-start gap-3">
-        <IoColumn
-          label="Inputs"
-          accent={palette.needs}
-          panel={palette.needsPanel}
-          panelEdge={palette.needsEdge}
-          palette={palette}
-          stats={needs}
-        />
-        <IoColumn
-          label="Outputs"
-          accent={palette.makes}
-          panel={palette.makesPanel}
-          panelEdge={palette.makesEdge}
-          palette={palette}
-          stats={outputs}
-        />
+          <IoColumn
+            label={t("Inputs")}
+            accent={palette.needs}
+            panel={palette.needsPanel}
+            panelEdge={palette.needsEdge}
+            palette={palette}
+            stats={needs}
+          />
+          <IoColumn
+            label={t("Outputs")}
+            accent={palette.makes}
+            panel={palette.makesPanel}
+            panelEdge={palette.makesEdge}
+            palette={palette}
+            stats={outputs}
+          />
         </div>
       ) : null}
     </div>
@@ -227,6 +228,7 @@ function IoColumn({
   palette: FooterPalette;
   stats: PlanResourceStat[];
 }) {
+  const t = useT();
   return (
     <div
       className="min-w-0 flex-1 rounded px-2.5 py-2"
@@ -237,7 +239,7 @@ function IoColumn({
       </div>
       {stats.length === 0 ? (
         <div style={{ color: palette.muted }} className="mt-1.5 text-[13px]">
-          Nothing
+          {t("Nothing")}
         </div>
       ) : (
         <div
@@ -254,7 +256,6 @@ function IoColumn({
             >
               <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden">
                 <ResourceIcon
-
                   itemZoom={1.5}
                   resource={{ ...stat, id: stat.resourceId, amount: 1 }}
                   bare
@@ -273,10 +274,7 @@ function IoColumn({
               <span className="min-w-0 flex-1 truncate text-[14px]">
                 {stat.displayName ?? stat.resourceId}
               </span>
-              <span
-                style={{ color: palette.subtle }}
-                className="shrink-0 tabular-nums text-[14px]"
-              >
+              <span style={{ color: palette.subtle }} className="shrink-0 tabular-nums text-[14px]">
                 {formatSlotRate(stat.ratePerSecond, stat.kind)}
               </span>
             </div>

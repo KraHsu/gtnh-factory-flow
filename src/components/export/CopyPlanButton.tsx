@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Check, ClipboardCopy, LoaderCircle } from "lucide-react";
 import { useState } from "react";
@@ -15,6 +16,7 @@ type CopyState = "idle" | "working" | "copied" | "failed";
  * copy; players read that as programming.
  */
 export function CopyPlanButton() {
+  const t = useT();
   const isEmpty = useFactoryStore((state) => state.project.nodes.length === 0);
   const [state, setState] = useState<CopyState>("idle");
 
@@ -53,7 +55,7 @@ export function CopyPlanButton() {
       ) : (
         <ClipboardCopy aria-hidden className="h-3 w-3" />
       )}
-      <span>{state === "copied" ? "Copied" : state === "failed" ? "Failed" : "Copy plan"}</span>
+      <span>{state === "copied" ? t("Copied") : state === "failed" ? "Failed" : "Copy plan"}</span>
     </button>
   );
 }

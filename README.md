@@ -50,3 +50,10 @@ This project started as a fork of
 [Samiracle64/gtnh-factory-flow](https://github.com/Samiracle64/gtnh-factory-flow) and has
 since diverged into an independent codebase. The original work is MIT licensed and its
 copyright is retained in `LICENSE`.
+
+## KraHsu edition
+
+Public instance: [gtnh.krahsu.top](https://gtnh.krahsu.top). Includes an English / 简体中文
+interface, KraHsu light and dark themes, and a public entry in the IAM portal.
+Plans save locally without an account. See [the project map and deployment guide](docs/krahsu.md)
+for the data flow, translation boundaries, recipe-source dependency and rain operations.

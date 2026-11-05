@@ -1,10 +1,12 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Info, X } from "lucide-react";
 import { dismissLiveNotice, useLiveSession } from "@/store/live-session";
 
 /** What the live plan needs you to know: an edit refused, a plan taken away. */
 export function LiveNotice() {
+  const t = useT();
   const notice = useLiveSession((state) => state.notice);
   if (!notice) {
     return null;
@@ -30,7 +32,7 @@ export function LiveNotice() {
       <button
         type="button"
         onClick={dismissLiveNotice}
-        aria-label="Dismiss"
+        aria-label={t("Dismiss")}
         className="shrink-0 rounded p-0.5 text-sky-200 hover:bg-sky-900/60"
       >
         <X aria-hidden className="h-3.5 w-3.5" />

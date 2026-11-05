@@ -7,26 +7,26 @@
 .mb,
 .mm,
 .mx {
-  --mc-ink: #e8e9ee;
-  --mc-muted: #9a9ca4;
-  --mc-frame: #3c3e45;
-  --mc-ring: #52545c;
-  --mc-highlight: #5a5c65;
-  --mc-shadow: #1d1f23;
-  --mc-tile: #36383f;
-  --mc-key: #26282d;
-  --mc-key-hover: #2d2f35;
-  --mc-key-edge: #111317;
-  --mc-key-hi: #4a4c54;
-  --mc-key-lo: #17191d;
-  --mc-menu: #3c3e45;
-  --mc-menu-hover: #4e5058;
-  --mc-bar: #0e0f12;
-  --mc-bar-line: #2a2c31;
+  --mc-ink: var(--ks-text);
+  --mc-muted: var(--ks-muted);
+  --mc-frame: var(--ks-line);
+  --mc-ring: var(--ks-line);
+  --mc-highlight: var(--ks-line);
+  --mc-shadow: var(--ks-paper);
+  --mc-tile: var(--ks-paper);
+  --mc-key: var(--ks-paper);
+  --mc-key-hover: var(--ks-paper);
+  --mc-key-edge: var(--ks-well);
+  --mc-key-hi: var(--ks-line);
+  --mc-key-lo: var(--ks-paper);
+  --mc-menu: var(--ks-line);
+  --mc-menu-hover: var(--ks-line);
+  --mc-bar: var(--ks-well);
+  --mc-bar-line: var(--ks-paper);
   --mc-red: #e05252;
-  --mc-gold: #ffd257;
-  --mc-cyan: #22d3ee;
-  --mc-off: #5a5c65;
+  --mc-gold: var(--ks-amber);
+  --mc-cyan: var(--ks-green);
+  --mc-off: var(--ks-line);
   font-family: var(--app-font);
   font-size: 8px;
   line-height: 10px;
@@ -208,7 +208,7 @@
   padding: 0 14px 0 5px;
   min-width: 48px;
   max-width: 120px;
-  background: #1c1e22;
+  background: var(--ks-paper);
   color: var(--mc-muted);
   white-space: nowrap;
   cursor: pointer;
@@ -218,18 +218,18 @@
 }
 .mt-tab[data-dragging] {
   cursor: grabbing;
-  background: #3a3c44;
+  background: var(--ks-line);
   box-shadow: 0 0 0 1px var(--mc-ring);
 }
 .mt-tab:hover {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 .mt-tab[data-active] {
   height: 16px;
   margin-top: 0;
   padding-top: 1px;
-  background: linear-gradient(#52545c 0 1px, #5a5c65 1px 2px, var(--mc-frame) 2px);
-  color: #fff;
+  background: linear-gradient(var(--ks-line) 0 1px, var(--ks-line) 1px 2px, var(--mc-frame) 2px);
+  color: var(--ks-text);
   box-shadow:
     inset 1px 0 0 var(--mc-ring),
     inset -1px 0 0 var(--mc-ring);
@@ -274,8 +274,8 @@
   display: flex;
 }
 .mt-close:hover {
-  background: #4a4c54;
-  color: #fff;
+  background: var(--ks-line);
+  color: var(--ks-text);
 }
 .mt-plus {
   position: relative;
@@ -287,14 +287,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1c1e22;
+  background: var(--ks-paper);
   color: var(--mc-muted);
   cursor: pointer;
   padding-top: 1px;
 }
 .mt-plus:hover {
-  background: #2d2f35;
-  color: #fff;
+  background: var(--ks-paper);
+  color: var(--ks-text);
 }
 .mt-fade {
   position: absolute;
@@ -309,11 +309,21 @@
 }
 .mt-fade[data-edge="l"] {
   left: 0;
-  background: linear-gradient(to right, var(--mc-bar) 0%, rgba(14, 15, 18, 0.5) 40%, rgba(14, 15, 18, 0) 100%);
+  background: linear-gradient(
+    to right,
+    var(--mc-bar) 0%,
+    rgba(14, 15, 18, 0.5) 40%,
+    rgba(14, 15, 18, 0) 100%
+  );
 }
 .mt-fade[data-edge="r"] {
   right: 0;
-  background: linear-gradient(to left, var(--mc-bar) 0%, rgba(14, 15, 18, 0.5) 40%, rgba(14, 15, 18, 0) 100%);
+  background: linear-gradient(
+    to left,
+    var(--mc-bar) 0%,
+    rgba(14, 15, 18, 0.5) 40%,
+    rgba(14, 15, 18, 0) 100%
+  );
 }
 .mt-solving {
   position: absolute;
@@ -348,8 +358,8 @@
   padding: 0 2px;
   border: 0;
   outline: 1px solid var(--mc-cyan);
-  background: #000;
-  color: #fff;
+  background: var(--ks-well);
+  color: var(--ks-text);
   font: inherit;
 }
 
@@ -392,7 +402,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: #9a9ca4 transparent;
+  scrollbar-color: var(--ks-muted) transparent;
   margin: 0 -4px;
   padding: 0 4px;
 }
@@ -455,7 +465,7 @@
 .mm-rule {
   height: 1px;
   margin: 2px -4px;
-  background: #2f3138;
+  background: var(--ks-paper);
 }
 
 /* ---- The controls list ---------------------------------------------------- */
@@ -490,14 +500,14 @@
 .mt-close:focus-visible,
 .mm:focus-visible,
 .mm-row:focus-visible {
-  outline: 2px solid var(--mc-gold, #ffd257);
+  outline: 2px solid var(--mc-gold, var(--ks-amber));
   outline-offset: -2px;
 }
 .mm:focus {
   outline: none;
 }
 .mm-row:focus-visible {
-  background: var(--mc-menu-hover, #4e5058);
+  background: var(--mc-menu-hover, var(--ks-line));
 }
 
 /* The board and its panels: every control that plays a button shows the same gold ring when the keyboard is on it.
@@ -506,16 +516,17 @@
 [role="menuitem"]:focus-visible,
 [role="radio"]:focus-visible,
 [role="tab"]:focus-visible {
-  outline: 2px solid var(--mc-gold, #ffd257);
+  outline: 2px solid var(--mc-gold, var(--ks-amber));
   outline-offset: -2px;
 }
 .react-flow__node.react-flow__node:focus-visible {
-  outline: 2px solid var(--mc-gold, #ffd257);
+  outline: 2px solid var(--mc-gold, var(--ks-amber));
   outline-offset: 3px;
 }
 .react-flow__edge.react-flow__edge:focus-visible {
   outline: none;
-  filter: drop-shadow(0 0 2px var(--mc-gold, #ffd257)) drop-shadow(0 0 1px var(--mc-gold, #ffd257));
+  filter: drop-shadow(0 0 2px var(--mc-gold, var(--ks-amber)))
+    drop-shadow(0 0 1px var(--mc-gold, var(--ks-amber)));
 }
 
 /* ---- A phone (html[data-compact]) ---------------------------------------- */
@@ -569,7 +580,7 @@
 :root:not([data-compact]) .mb[data-mod-bar] > .mb-key {
   height: 15px;
   margin-top: 1px;
-  background: #1c1e22;
+  background: var(--ks-paper);
   color: var(--mc-muted);
   box-shadow: none;
 }
@@ -577,15 +588,15 @@
   background: none;
 }
 :root:not([data-compact]) .mb[data-mod-bar] > .mb-key:hover {
-  background: #2d2f35;
-  color: #fff;
+  background: var(--ks-paper);
+  color: var(--ks-text);
 }
 :root:not([data-compact]) .mb[data-mod-bar] > .mb-key[data-open] {
   height: 16px;
   margin-top: 0;
   padding-top: 1px;
-  background: linear-gradient(#52545c 0 1px, #5a5c65 1px 2px, var(--mc-frame) 2px);
-  color: #fff;
+  background: linear-gradient(var(--ks-line) 0 1px, var(--ks-line) 1px 2px, var(--mc-frame) 2px);
+  color: var(--ks-text);
   box-shadow:
     inset 1px 0 0 var(--mc-ring),
     inset -1px 0 0 var(--mc-ring);
@@ -594,7 +605,7 @@
   color: var(--mc-off);
 }
 :root:not([data-compact]) .mb[data-mod-bar] > .mb-key[data-off]:hover {
-  background: #1c1e22;
+  background: var(--ks-paper);
 }
 :root:not([data-compact]) .mb[data-mod-bar] > .mb-key.mb-gap {
   margin-left: 8px;

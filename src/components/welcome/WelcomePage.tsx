@@ -1,15 +1,10 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
-import {
-  Download,
-  Factory,
-  Library,
-  Plus,
-  Search,
-  ThumbsUp,
-} from "lucide-react";
+import { Download, Factory, Library, Plus, Search, ThumbsUp } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { FLUID_ICON_SCALE, ResourceIcon } from "@/components/nei/ResourceIcon";
+import { PUBLIC_TOOL } from "@/lib/krahsu";
 import { DEFAULT_DATASET_MANIFEST_URL } from "@/lib/datasets";
 import { queryRecipeDatasetResources } from "@/lib/datasets/browser-loader";
 import { listCommunityPlans } from "@/lib/community/client";
@@ -79,6 +74,7 @@ function useBackdropIcons(): string[] {
 }
 
 export function WelcomePage() {
+  const t = useT();
   const welcome = useWelcomeTab();
   const addDesign = useDesignStore((state) => state.addDesign);
   const backdropIcons = useBackdropIcons();
@@ -93,8 +89,7 @@ export function WelcomePage() {
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          background:
-            "radial-gradient(ellipse 60% 70% at 50% 40%, rgba(16,20,25,0.92) 0%, rgba(16,20,25,0.7) 55%, rgba(16,20,25,0.05) 100%)",
+          background: "radial-gradient(ellipse at center, var(--ks-bg) 15%, transparent 100%)",
         }}
       />
       <div className="relative min-h-0 flex-1 overflow-y-auto">
@@ -102,16 +97,16 @@ export function WelcomePage() {
           <header className="flex flex-col items-start gap-3">
             <div className="flex items-baseline gap-3">
               <h1 className="text-[22px] leading-none text-white compact:text-[18px]">
-                <span className="text-cyan-300">GTNH</span> Planner
+                <span className="text-cyan-300">GTNH</span> {t("Planner")}
               </h1>
               <span className="border border-line-strong px-1.5 py-0.5 text-[11px] text-fg-muted">
                 v{APP_VERSION}
               </span>
             </div>
             <p className="max-w-[600px] text-[13px] leading-relaxed text-fg-subtle">
-              Draw a GregTech: New Horizons factory as a flowchart. Every card is a
-              real recipe, every wire carries a real rate, and
-              the board counts the machines you need.
+              {t(
+                "Draw a GregTech: New Horizons factory as a flowchart. Every card is a real recipe, every wire carries a real rate, and the board counts the machines you need.",
+              )}
             </p>
             <div className="mt-1 flex flex-wrap gap-2">
               <PrimaryButton
@@ -123,21 +118,22 @@ export function WelcomePage() {
                   // An empty untitled plan already open is the new design: a second one would only sit beside it.
                   const { project } = useFactoryStore.getState();
                   const blank =
-                    project.nodes.length === 0 && (project.storages ?? []).length === 0 && (project.annotations ?? []).length === 0;
+                    project.nodes.length === 0 &&
+                    (project.storages ?? []).length === 0 &&
+                    (project.annotations ?? []).length === 0;
                   const open = useDesignStore.getState();
                   const current = open.designs.find((design) => design.id === open.activeDesignId);
                   if (blank && current?.name === UNTITLED_DESIGN_NAME && !current.closed) return;
                   void addDesign();
                 }}
               >
-                New design
+                {t("New design")}
               </PrimaryButton>
-              <SecondaryButton
-                icon={Factory}
-                onClick={() => openLibrary({ kind: "public" })}
-              >
-                Browse shared setups
-              </SecondaryButton>
+              {!PUBLIC_TOOL && (
+                <SecondaryButton icon={Factory} onClick={() => openLibrary({ kind: "public" })}>
+                  {t("Browse shared setups")}
+                </SecondaryButton>
+              )}
               <SecondaryButton
                 icon={Search}
                 onClick={() => {
@@ -145,16 +141,20 @@ export function WelcomePage() {
                   openSidebarTab("items", { focusSearch: true });
                 }}
               >
-                Find a recipe
+                {t("Find a recipe")}
               </SecondaryButton>
               {/* Your own designs live in the library, not on this page. */}
               <SecondaryButton icon={Library} onClick={() => openLibrary()}>
-                Your plans
+                {t("Your plans")}
               </SecondaryButton>
             </div>
           </header>
 
-          <CommunityShelf />
+          {PUBLIC_TOOL ? (
+            <p className="ks-local-note">{t("Public tool · plans are saved in this browser.")}</p>
+          ) : (
+            <CommunityShelf />
+          )}
 
           <footer className="border-t border-line pt-3">
             <label className="flex w-fit cursor-pointer items-center gap-2 text-[12px] text-fg-muted hover:text-fg">
@@ -164,7 +164,7 @@ export function WelcomePage() {
                 onChange={(event) => setWelcomeOnStartup(event.target.checked)}
                 className="h-3.5 w-3.5 accent-cyan-400"
               />
-              Open on this tab when I arrive
+              {t("Open on this tab when I arrive")}
             </label>
           </footer>
         </div>
@@ -177,9 +177,7 @@ export function WelcomePage() {
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="flex items-center gap-2 text-[11px] uppercase text-[#aebccd]">
-      {children}
-    </h2>
+    <h2 className="flex items-center gap-2 text-[11px] uppercase text-[#aebccd]">{children}</h2>
   );
 }
 
@@ -262,6 +260,7 @@ function Face({ icon, size }: { icon: EntryIcon | undefined; size: number }) {
 
 /** The community's newest setups, opening in a tab of their own. */
 function CommunityShelf() {
+  const t = useT();
   const [plans, setPlans] = useState<CommunityPlanSummary[] | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [busyId, setBusyId] = useState<string | undefined>(undefined);
@@ -287,7 +286,12 @@ function CommunityShelf() {
   const open = async (plan: CommunityPlanSummary) => {
     setBusyId(plan.id);
     try {
-      await openCommunityPost({ id: plan.id, name: plan.name, isMine: plan.isMine === true, authorName: plan.authorName });
+      await openCommunityPost({
+        id: plan.id,
+        name: plan.name,
+        isMine: plan.isMine === true,
+        authorName: plan.authorName,
+      });
     } catch (openError) {
       setError(openError instanceof Error ? openError.message : "Opening the setup failed.");
     } finally {
@@ -299,7 +303,7 @@ function CommunityShelf() {
     <section className="flex flex-col gap-2">
       <SectionTitle>
         <Factory className="h-3.5 w-3.5 text-cyan-300" aria-hidden />
-        New from the community
+        {t("New from the community")}
       </SectionTitle>
       {error ? <p className="text-[12px] text-amber-300">{error}</p> : null}
       <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">

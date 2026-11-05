@@ -22,10 +22,7 @@ describe("app fonts", () => {
   // once in globals.css as the rules the <html> attribute switches between.
   // This is the tripwire for editing one and not the other.
   it("matches the globals.css rules stack for stack", () => {
-    const css = readFileSync(
-      path.resolve(__dirname, "../app/globals.css"),
-      "utf8",
-    );
+    const css = readFileSync(path.resolve(__dirname, "../app/globals.css"), "utf8");
 
     for (const option of APP_FONTS) {
       if (option.id === DEFAULT_APP_FONT) {
@@ -41,8 +38,8 @@ describe("app fonts", () => {
     }
   });
 
-  it("defaults to Inter", () => {
-    expect(DEFAULT_APP_FONT).toBe("inter");
+  it("defaults to KraHsu Serif", () => {
+    expect(DEFAULT_APP_FONT).toBe("krahsu-serif");
   });
 
   // The game's hard text shadow and unsmoothed edges suit the pixel font alone: under a vector face the shadow reads
@@ -52,7 +49,9 @@ describe("app fonts", () => {
     const pixelRule = /html\[data-app-font="minecraft"\]\s*\{([^}]*)\}/.exec(globals)?.[1] ?? "";
     expect(pixelRule).toMatch(/--pixel-text-shadow:\s*1px 1px 0 /);
     expect(pixelRule).toMatch(/--pixel-font-smoothing:\s*none;/);
-    expect(globals).toMatch(/:root\s*\{[^}]*--pixel-text-shadow:\s*none;[^}]*--pixel-font-smoothing:\s*auto;/);
+    expect(globals).toMatch(
+      /:root\s*\{[^}]*--pixel-text-shadow:\s*none;[^}]*--pixel-font-smoothing:\s*auto;/,
+    );
 
     // The board's cards, drawers and overview wear them through the variables.
     for (const file of ["clean.css", "drawer/drawer.css", "rail/rail.css"]) {

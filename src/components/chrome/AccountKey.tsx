@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 
@@ -18,6 +19,7 @@ import { SignInPanel } from "./SignInPanel";
  * person picture like the other icon keys (`pictures`).
  */
 export function AccountKey({ pictures = false }: { pictures?: boolean }) {
+  const t = useT();
   const { user, isLoading, signOut } = useCommunityUser();
   const me = useLiveSession((state) => state.me);
   const [open, setOpen] = useState<{ kind: "form" | "menu"; anchor: ChromeAnchor }>();
@@ -33,17 +35,19 @@ export function AccountKey({ pictures = false }: { pictures?: boolean }) {
       <>
         <BarKey
           id="account"
-          label={pictures ? undefined : "Sign in"}
+          label={pictures ? undefined : t("Sign in")}
           icon={pictures}
           ariaLabel="Sign in"
-          tip="Sign in: your plans are kept in your account, and shared from it"
+          tip={t("Sign in: your plans are kept in your account, and shared from it")}
           open={open?.kind === "form"}
           onClick={(event) => toggle("form", event.currentTarget)}
           menuAnchor
         >
           {pictures ? <PixelIcon name="account" /> : undefined}
         </BarKey>
-        {open?.kind === "form" ? <SignInPanel anchor={open.anchor} onClose={() => setOpen(undefined)} /> : null}
+        {open?.kind === "form" ? (
+          <SignInPanel anchor={open.anchor} onClose={() => setOpen(undefined)} />
+        ) : null}
       </>
     );
   }
@@ -56,7 +60,7 @@ export function AccountKey({ pictures = false }: { pictures?: boolean }) {
         icon
         ariaLabel={`Account: ${user.username}`}
         tip={`Signed in as ${user.username}`}
-        tipSub="Sign out"
+        tipSub={t("Sign out")}
         open={open?.kind === "menu"}
         onClick={(event) => toggle("menu", event.currentTarget)}
         menuAnchor
@@ -68,7 +72,7 @@ export function AccountKey({ pictures = false }: { pictures?: boolean }) {
       {open?.kind === "menu" ? (
         <ChromeMenu
           anchor={open.anchor}
-          label="Account"
+          label={t("Account")}
           minWidth={110}
           align="right"
           entries={[

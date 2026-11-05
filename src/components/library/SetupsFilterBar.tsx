@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -101,6 +102,7 @@ export function SetupsFilterBar({
   myPosts?: { checked: boolean; onChange: (checked: boolean) => void };
   itemFilter?: boolean;
 }) {
+  const t = useT();
   const {
     query,
     setQuery,
@@ -241,7 +243,7 @@ export function SetupsFilterBar({
             ].join(" ")}
           >
             <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
-            Filters
+            {t("Filters")}
             {inForce > 0 ? <span className="tabular-nums">{inForce}</span> : null}
           </button>
         ) : null}
@@ -261,7 +263,7 @@ export function SetupsFilterBar({
               }}
               className="h-3 w-3 accent-cyan-400"
             />
-            My posts
+            {t("My posts")}
           </label>
         ) : null}
         {showFilters ? (
@@ -294,10 +296,10 @@ export function SetupsFilterBar({
               aria-label="Highest power tier"
               className={`h-7 shrink-0 px-1 text-xs outline-none compact:min-w-0 compact:flex-1 ${INSET}`}
             >
-              <option value="">Any tier</option>
+              <option value="">{t("Any tier")}</option>
               {GT_VOLTAGE_TIERS.map((entry, index) => (
                 <option key={entry.tier} value={String(index)}>
-                  Up to {entry.tier}
+                  {t("Up to")} {entry.tier}
                 </option>
               ))}
             </select>
@@ -307,7 +309,7 @@ export function SetupsFilterBar({
                 playBoardSound("shelfTick");
                 setSort(event.target.value);
               }}
-              aria-label="Sort"
+              aria-label={t("Sort")}
               className={`h-7 shrink-0 px-1 text-xs outline-none compact:min-w-0 compact:flex-1 ${INSET}`}
             >
               {sortOptions.map((option) => (
@@ -322,7 +324,7 @@ export function SetupsFilterBar({
       {itemFilter && showFilters ? (
         <div className="flex min-h-9 flex-wrap items-center gap-2 border-t border-[var(--mc-33)]/60 bg-[#0c0e11] px-4 py-1 compact:gap-1.5 compact:px-2">
           <span className="mr-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--mc-ink-muted)]">
-            Item filter
+            {t("Item filter")}
           </span>
           {(["makes", "takes"] as const).map((side) => (
             <div key={side} className="relative flex shrink-0 items-center gap-1">
@@ -333,7 +335,7 @@ export function SetupsFilterBar({
                 className="flex h-7 items-center gap-1 border-2 border-[var(--mc-33)] bg-[var(--mc-61)] px-2 text-xs font-bold text-[var(--mc-ink)] shadow-[inset_1px_1px_0_var(--mc-85)] hover:bg-[var(--mc-85)]"
               >
                 <Plus className="h-3 w-3" aria-hidden />
-                {side === "makes" ? "Makes" : "Takes"}
+                {side === "makes" ? t("Makes") : t("Takes")}
               </button>
               {picking === side ? (
                 // The recipe search's own picker, opened downward from the key.
@@ -379,7 +381,7 @@ export function SetupsFilterBar({
                       );
                     }}
                     aria-label={`Stop filtering by ${resource.displayName ?? resource.resourceId}`}
-                    title="Remove"
+                    title={t("Remove")}
                     className="text-[var(--mc-ink-muted)] hover:text-[var(--mc-ink)]"
                   >
                     <X className="h-3 w-3" aria-hidden />

@@ -18,8 +18,8 @@
 
 /* Minecraft's text: white with its shadow a quarter as bright, one GUI pixel down and right. */
 .nei-text {
-  color: #ffffff;
-  text-shadow: 2px 2px 0 #3f3f3f;
+  color: var(--ks-text);
+  text-shadow: 2px 2px 0 var(--ks-line);
   font-size: 14px;
   line-height: 16px;
 }
@@ -55,13 +55,13 @@
   width: 20px;
   height: 20px;
   padding: 0;
-  background: #26282d;
-  border: 1px solid #111317;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-well);
   border-radius: 0;
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d;
-  color: #e8e9ee;
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper);
+  color: var(--ks-text);
   font-family: var(--app-font);
   font-size: 10px;
   line-height: 14px;
@@ -69,14 +69,14 @@
   user-select: none;
 }
 .nei-btn:hover:not(:disabled) {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 .nei-btn:disabled {
-  color: #8a8d96;
+  color: var(--ks-muted);
   cursor: default;
 }
 .nei-btn[data-on] {
-  color: #ffd257;
+  color: var(--ks-amber);
 }
 .nei-btn svg {
   display: block;
@@ -115,7 +115,7 @@
   background: rgba(85, 85, 85, 0.5);
 }
 .nei-slot:focus-visible {
-  outline: 2px solid #ffd257;
+  outline: 2px solid var(--ks-amber);
   outline-offset: -2px;
 }
 .nei-art {
@@ -134,8 +134,8 @@
 }
 .nei-empty {
   padding: 8px 10px;
-  color: #aaaaaa;
-  text-shadow: 2px 2px 0 #2a2a2a;
+  color: var(--ks-muted);
+  text-shadow: 2px 2px 0 var(--ks-paper);
   font-size: 12px;
   line-height: 15px;
 }
@@ -146,7 +146,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   color: #ffff55;
-  text-shadow: 2px 2px 0 #3f3f15;
+  text-shadow: 2px 2px 0 var(--ks-paper);
   font-size: 11px;
   line-height: 14px;
 }
@@ -160,7 +160,7 @@
   height: var(--nei-slot);
   margin: 2px 0 4px;
   padding-top: 2px;
-  border-top: 1px solid #34363c;
+  border-top: 1px solid var(--ks-paper);
 }
 
 /* The search field: Minecraft's text field (a #A0A0A0 frame on black), NEI's size. */
@@ -173,12 +173,12 @@
   max-width: 100%;
   height: 32px;
   padding: 0 7px;
-  background: #000000;
-  border: 2px solid #a0a0a0;
+  background: var(--ks-well);
+  border: 2px solid var(--ks-muted);
   border-radius: 0;
 }
 .nei-search[data-focused] {
-  border-color: #ffffff;
+  border-color: var(--ks-text);
 }
 .nei-search input {
   flex: 1;
@@ -189,22 +189,22 @@
   background: transparent;
   border: 0;
   outline: none;
-  color: #e0e0e0;
-  caret-color: #d0d0d0;
-  text-shadow: 2px 2px 0 #383838;
+  color: var(--ks-text);
+  caret-color: var(--ks-text);
+  text-shadow: 2px 2px 0 var(--ks-paper);
   font-family: var(--app-font);
   font-size: 14px;
   line-height: 16px;
 }
 .nei-search input::placeholder {
-  color: #404040;
+  color: var(--ks-line);
   text-shadow: none;
   opacity: 1;
 }
 .nei-search[data-none] input {
   /* NEI's field reads red when nothing matches. */
   color: #ff5555;
-  text-shadow: 2px 2px 0 #3f1515;
+  text-shadow: 2px 2px 0 var(--ks-paper);
 }
 
 /* The field sits at the bottom middle of the screen, over the board's bottom edge, as NEI's does. */
@@ -248,7 +248,7 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  color: #ffffff;
+  color: var(--ks-text);
   font-family: var(--app-font);
   font-size: 14px;
   line-height: 17px;
@@ -278,20 +278,20 @@
 }
 /* A rich panel's own inks, brought to Minecraft's: white, grey and the muted grey. */
 .mc-tip .text-fg {
-  color: #ffffff;
+  color: var(--ks-text);
 }
 .mc-tip .text-fg-subtle,
 .mc-tip .text-fg-muted {
-  color: #aaaaaa;
+  color: var(--ks-muted);
 }
 .mc-tip-line {
   white-space: pre-wrap;
-  color: #aaaaaa;
-  text-shadow: 2px 2px 0 #2a2a2a;
+  color: var(--ks-muted);
+  text-shadow: 2px 2px 0 var(--ks-paper);
 }
 .mc-tip-line[data-tone="name"] {
-  color: #ffffff;
-  text-shadow: 2px 2px 0 #3f3f3f;
+  color: var(--ks-text);
+  text-shadow: 2px 2px 0 var(--ks-line);
   margin-bottom: 4px;
 }
 .mc-tip-line[data-tone="name"]:last-child {
@@ -303,6 +303,6 @@
   text-shadow: 2px 2px 0 #151540;
 }
 .mc-tip-line[data-tone="hint"] {
-  color: #555555;
-  text-shadow: 2px 2px 0 #151515;
+  color: var(--ks-line);
+  text-shadow: 2px 2px 0 var(--ks-well);
 }

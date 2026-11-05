@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 
@@ -46,6 +47,7 @@ interface OpenMenu {
 }
 
 export function DesignTabs() {
+  const t = useT();
   const publicView = useDesignStore((state) => state.publicView);
   const publicViews = useDesignStore((state) => state.publicViews);
   // Plan boards word their tabs' tips as the mod does and close a tab on a middle click.
@@ -88,8 +90,14 @@ export function DesignTabs() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const stopScrollMotion = useRef(() => {});
-  const openTabKey = [...publicViews.map((view) => "public:" + view.id), ...designs.map((design) => design.id)].join(",");
-  const [closingLayout, setClosingLayout] = useState<{ widths: Record<string, number>; trackWidth: number }>();
+  const openTabKey = [
+    ...publicViews.map((view) => "public:" + view.id),
+    ...designs.map((design) => design.id),
+  ].join(",");
+  const [closingLayout, setClosingLayout] = useState<{
+    widths: Record<string, number>;
+    trackWidth: number;
+  }>();
   const closingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(closingTimer.current), []);
 
@@ -114,7 +122,6 @@ export function DesignTabs() {
       closingTimer.current = setTimeout(() => setClosingLayout(undefined), 850);
     }
   };
-
 
   const closeMenu = () => {
     setOpenMenu(undefined);
@@ -166,7 +173,11 @@ export function DesignTabs() {
     if ((!activeDesignId && !publicView) || closingLayout) return;
     const frame = requestAnimationFrame(() => {
       const scroller = scrollerRef.current;
-      const active = scroller?.querySelector<HTMLElement>(publicView ? `[data-public-tab="${CSS.escape(publicView.id)}"]` : `[data-design-id="${CSS.escape(activeDesignId!)}"]`);
+      const active = scroller?.querySelector<HTMLElement>(
+        publicView
+          ? `[data-public-tab="${CSS.escape(publicView.id)}"]`
+          : `[data-design-id="${CSS.escape(activeDesignId!)}"]`,
+      );
       if (!scroller || !active) return;
       stopScrollMotion.current();
       const tabs = scroller.querySelectorAll("[data-design-id], [data-public-tab]");
@@ -252,8 +263,7 @@ export function DesignTabs() {
       if (scroller.scrollWidth <= scroller.clientWidth) {
         return;
       }
-      const delta =
-        Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       if (delta === 0) {
         return;
       }
@@ -523,10 +533,9 @@ export function DesignTabs() {
           ].join(" ")}
         >
           <Library className="h-3 w-3" aria-hidden />
-          Plans
+          {t("Plans")}
         </button>
         <span aria-hidden className="h-3.5 w-px shrink-0 bg-line" />
-
 
         {welcome.open ? (
           <div
@@ -546,7 +555,7 @@ export function DesignTabs() {
               className="flex items-center gap-1 text-xs font-medium"
             >
               <Compass className="h-3 w-3" aria-hidden />
-              Welcome
+              {t("Welcome")}
             </button>
             <button
               type="button"
@@ -571,117 +580,160 @@ export function DesignTabs() {
             onScroll={syncOverflow}
             className="no-scrollbar min-w-0 overflow-x-auto"
           >
-          <nav
-            ref={trackRef}
-            style={closingLayout ? { width: closingLayout.trackWidth, maxWidth: "none" } : undefined}
-            aria-label="Designs"
-            className="design-tabs-track flex w-max max-w-full select-none items-center gap-1"
-          >
-            {publicViews.map((view) => {
-              const selected = publicView?.id === view.id && !coveringPage;
-              return <div key={view.id} data-public-tab={view.id}
-                className={`design-tab group flex h-5 items-center rounded-t border-b-2 pl-2 pr-1 ${selected ? "border-amber-500 text-amber-300 bg-surface-raised" : "border-transparent text-fg-muted hover:bg-surface-sunken hover:text-fg"}`}>
-                <button type="button" aria-label={`View only: ${view.name}`} aria-pressed={selected}
-                  onClick={() => void useDesignStore.getState().switchToPublicView(view.id)}
-                  className="design-tab-label flex h-full min-w-0 flex-1 items-center text-xs font-medium">
-                  <FadingTabName name={view.name} />
-                </button>
-                {selected ? <button type="button" aria-label="Close public setup view" onClick={() => void useDesignStore.getState().closePublicView(view.id)}
-                  className="ml-1 shrink-0 rounded px-1 text-xs text-fg-muted hover:bg-surface hover:text-fg">×</button> : null}
-              </div>;
-            })}
-            {designs.map((design, index) => {
-              const isActive = design.id === activeDesignId && !coveringPage;
+            <nav
+              ref={trackRef}
+              style={
+                closingLayout ? { width: closingLayout.trackWidth, maxWidth: "none" } : undefined
+              }
+              aria-label="Designs"
+              className="design-tabs-track flex w-max max-w-full select-none items-center gap-1"
+            >
+              {publicViews.map((view) => {
+                const selected = publicView?.id === view.id && !coveringPage;
+                return (
+                  <div
+                    key={view.id}
+                    data-public-tab={view.id}
+                    className={`design-tab group flex h-5 items-center rounded-t border-b-2 pl-2 pr-1 ${selected ? "border-amber-500 text-amber-300 bg-surface-raised" : "border-transparent text-fg-muted hover:bg-surface-sunken hover:text-fg"}`}
+                  >
+                    <button
+                      type="button"
+                      aria-label={`View only: ${view.name}`}
+                      aria-pressed={selected}
+                      onClick={() => void useDesignStore.getState().switchToPublicView(view.id)}
+                      className="design-tab-label flex h-full min-w-0 flex-1 items-center text-xs font-medium"
+                    >
+                      <FadingTabName name={view.name} />
+                    </button>
+                    {selected ? (
+                      <button
+                        type="button"
+                        aria-label={t("Close public setup view")}
+                        onClick={() => void useDesignStore.getState().closePublicView(view.id)}
+                        className="ml-1 shrink-0 rounded px-1 text-xs text-fg-muted hover:bg-surface hover:text-fg"
+                      >
+                        ×
+                      </button>
+                    ) : null}
+                  </div>
+                );
+              })}
+              {designs.map((design, index) => {
+                const isActive = design.id === activeDesignId && !coveringPage;
 
-              return (
-                <Fragment key={design.id}>
-                  {/* A faint seam between neighbours: names alone run together
+                return (
+                  <Fragment key={design.id}>
+                    {/* A faint seam between neighbours: names alone run together
                       once a few tabs sit side by side. Hidden while a drag is
                       on: the pills slide with transforms and the seams do not,
                       so mid-drag they would sit in the wrong gaps. */}
-                  {index > 0 ? (
-                    <span
-                      aria-hidden
+                    {index > 0 ? (
+                      <span
+                        aria-hidden
+                        className={[
+                          "h-3.5 w-px shrink-0 bg-line transition-opacity",
+                          draggingId ? "opacity-0" : "",
+                        ].join(" ")}
+                      />
+                    ) : null}
+                    <div
+                      data-design-id={design.id}
+                      onAuxClick={
+                        planBoard
+                          ? (event) => {
+                              if (event.button !== 1) return;
+                              event.preventDefault();
+                              void closeFromTab(design.id);
+                            }
+                          : undefined
+                      }
+                      onMouseDown={
+                        planBoard
+                          ? (event) => {
+                              if (event.button === 1) event.preventDefault();
+                            }
+                          : undefined
+                      }
+                      style={
+                        closingLayout?.widths[design.id]
+                          ? { width: closingLayout.widths[design.id], flexShrink: 0 }
+                          : undefined
+                      }
+                      onPointerDown={(event) => beginTabDrag(event, design.id)}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        setArmed(undefined);
+                        setOpenMenu({
+                          id: design.id,
+                          name: design.name,
+                          left: Math.max(
+                            8,
+                            Math.min(
+                              event.clientX || rect.left,
+                              window.innerWidth - MENU_WIDTH * getUiScale() - 8,
+                            ),
+                          ),
+                          top: rect.bottom + 4,
+                        });
+                      }}
                       className={[
-                        "h-3.5 w-px shrink-0 bg-line transition-opacity",
-                        draggingId ? "opacity-0" : "",
+                        "design-tab group flex h-5 items-center rounded-t border-b-2 pl-2 pr-1",
+                        isActive
+                          ? "border-cyan-500 bg-surface-raised text-fg"
+                          : "border-transparent text-fg-muted hover:bg-surface-sunken hover:text-fg",
+                        draggingId === design.id ? "opacity-75" : "",
                       ].join(" ")}
-                    />
-                  ) : null}
-                <div
-                  data-design-id={design.id}
-                  onAuxClick={planBoard ? (event) => {
-                    if (event.button !== 1) return;
-                    event.preventDefault();
-                    void closeFromTab(design.id);
-                  } : undefined}
-                  onMouseDown={planBoard ? (event) => { if (event.button === 1) event.preventDefault(); } : undefined}
-                  style={closingLayout?.widths[design.id] ? { width: closingLayout.widths[design.id], flexShrink: 0 } : undefined}
-                  onPointerDown={(event) => beginTabDrag(event, design.id)}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    const rect = event.currentTarget.getBoundingClientRect();
-                    setArmed(undefined);
-                    setOpenMenu({
-                      id: design.id,
-                      name: design.name,
-                      left: Math.max(8, Math.min(event.clientX || rect.left, window.innerWidth - MENU_WIDTH * getUiScale() - 8)),
-                      top: rect.bottom + 4,
-                    });
-                  }}
-                  className={[
-                    "design-tab group flex h-5 items-center rounded-t border-b-2 pl-2 pr-1",
-                    isActive
-                      ? "border-cyan-500 bg-surface-raised text-fg"
-                      : "border-transparent text-fg-muted hover:bg-surface-sunken hover:text-fg",
-                    draggingId === design.id ? "opacity-75" : "",
-                  ].join(" ")}
-                >
-                  {renamingId === design.id ? (
-                    <RenameInput
-                      initialName={design.name}
-                      onCommit={(name) => {
-                        void renameDesign(design.id, name);
-                        setRenamingId(undefined);
-                      }}
-                      onCancel={() => setRenamingId(undefined)}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      {...(planBoard ? tipAttrs(planTabTip(`tab|${design.id}`, design.name)) : {})}
-                      onClick={() => {
-                        if (suppressClickRef.current) {
-                          return;
-                        }
-                        // Clicking a design is also how you step off Welcome,
-                        // including when it is the design already loaded.
-                        leaveWelcomeTab();
-                        void switchToDesign(design.id);
-                      }}
-                      className="design-tab-label flex h-full min-w-0 flex-1 items-center gap-1.5 text-xs font-medium"
                     >
-                      {hasDrawableFace(design.icon) ? <TabFace icon={design.icon} /> : null}
-                      {isActive ? <TabSolvingSpinner /> : null}
-                      <FadingTabName name={design.name} />
-                    </button>
-                  )}
+                      {renamingId === design.id ? (
+                        <RenameInput
+                          initialName={design.name}
+                          onCommit={(name) => {
+                            void renameDesign(design.id, name);
+                            setRenamingId(undefined);
+                          }}
+                          onCancel={() => setRenamingId(undefined)}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          {...(planBoard
+                            ? tipAttrs(planTabTip(`tab|${design.id}`, design.name))
+                            : {})}
+                          onClick={() => {
+                            if (suppressClickRef.current) {
+                              return;
+                            }
+                            // Clicking a design is also how you step off Welcome,
+                            // including when it is the design already loaded.
+                            leaveWelcomeTab();
+                            void switchToDesign(design.id);
+                          }}
+                          className="design-tab-label flex h-full min-w-0 flex-1 items-center gap-1.5 text-xs font-medium"
+                        >
+                          {hasDrawableFace(design.icon) ? <TabFace icon={design.icon} /> : null}
+                          {isActive ? <TabSolvingSpinner /> : null}
+                          <FadingTabName name={design.name} />
+                        </button>
+                      )}
 
-                  {isActive ? <button
-                    type="button"
-                    aria-label={`Close ${design.name}`}
-                    {...(planBoard ? tipAttrs(closeTabTip(`tabx|${design.id}`)) : {})}
-                    onPointerDown={(event) => event.stopPropagation()}
-                    onClick={() => void closeFromTab(design.id)}
-                    className="ml-1 shrink-0 rounded px-1 text-xs text-fg-muted hover:bg-surface hover:text-fg"
-                  >
-                    ×
-                  </button> : null}
-                </div>
-                </Fragment>
-              );
-            })}
-          </nav>
+                      {isActive ? (
+                        <button
+                          type="button"
+                          aria-label={`Close ${design.name}`}
+                          {...(planBoard ? tipAttrs(closeTabTip(`tabx|${design.id}`)) : {})}
+                          onPointerDown={(event) => event.stopPropagation()}
+                          onClick={() => void closeFromTab(design.id)}
+                          className="ml-1 shrink-0 rounded px-1 text-xs text-fg-muted hover:bg-surface hover:text-fg"
+                        >
+                          ×
+                        </button>
+                      ) : null}
+                    </div>
+                  </Fragment>
+                );
+              })}
+            </nav>
           </div>
 
           <span
@@ -708,7 +760,7 @@ export function DesignTabs() {
             leaveWelcomeTab();
             void addDesign();
           }}
-          aria-label="New design"
+          aria-label={t("New design")}
           {...(planBoard ? tipAttrs(newTabTip("tab|new")) : {})}
           className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded text-fg-muted hover:bg-surface-sunken hover:text-fg"
         >
@@ -721,8 +773,8 @@ export function DesignTabs() {
               leaveWelcomeTab();
               void addTaskBoard();
             }}
-            aria-label="New task board"
-            title="New task board"
+            aria-label={t("New task board")}
+            title={t("New task board")}
             className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded text-fg-muted hover:bg-surface-sunken hover:text-fg"
           >
             <SquareKanban className="h-3.5 w-3.5" aria-hidden />
@@ -739,13 +791,15 @@ export function DesignTabs() {
           ].join(" ")}
           title={libraryError ?? sync.message ?? accountSave.text}
         >
-          {publicView && !coveringPage ? "View only" : libraryError
-            ? libraryError
-            : saveState === "saving"
-              ? "Saving…"
-              : saveState === "error"
-                ? "Save failed"
-                : accountSave.text}
+          {publicView && !coveringPage
+            ? t("View only")
+            : libraryError
+              ? libraryError
+              : saveState === "saving"
+                ? "Saving…"
+                : saveState === "error"
+                  ? "Save failed"
+                  : accountSave.text}
         </span>
       </div>
 
@@ -820,6 +874,7 @@ function DesignMenu({
   onCloseTab: () => void;
   onCloseMany: (ids: string[]) => void;
 }) {
+  const t = useT();
   const menuRef = useRef<HTMLDivElement>(null);
 
   // The one dropdown rule (use-dropdown-dismiss.ts): press outside, Escape,
@@ -842,12 +897,12 @@ function DesignMenu({
       style={{ left: menu.left / getUiScale(), top: menu.top / getUiScale(), width: MENU_WIDTH }}
       className="ui-zoom fixed z-[100] overflow-hidden rounded border border-line bg-surface-raised shadow-lg"
     >
-      <MenuItem label="Rename" onClick={onRename} />
-      <MenuItem label="Duplicate" onClick={onDuplicate} />
+      <MenuItem label={t("Rename")} onClick={onRename} />
+      <MenuItem label={t("Duplicate")} onClick={onDuplicate} />
       {folders.length > 0 ? (
         <>
           <div className="mt-1 border-t border-line px-2 pb-0.5 pt-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-fg-muted">
-            Add to collection
+            {t("Add to collection")}
           </div>
           {folders.map((folder) => (
             <MenuItem
@@ -859,7 +914,7 @@ function DesignMenu({
             />
           ))}
           <MenuItem
-            label="No collection"
+            label={t("No collection")}
             indent
             checked={!folderId}
             onClick={() => onMoveToFolder(undefined)}
@@ -869,21 +924,36 @@ function DesignMenu({
       ) : null}
 
       <div className="border-t border-line p-2">
-        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-fg-muted">Close</div>
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-fg-muted">
+          {t("Close")}
+        </div>
         <div className="grid grid-cols-5 gap-1 text-xs">
-          <button type="button" role="menuitem" aria-label="Close this tab"
-            onClick={onCloseTab} className="rounded border border-line px-1 py-1 hover:bg-surface-sunken">This</button>
-          {([
-            ["left", "Left", neighbours.left],
-            ["right", "Right", neighbours.right],
-            ["others", "Others", neighbours.others],
-            ["all", "All", [...neighbours.others, menu.id]],
-          ] as const).map(([action, label, ids]) => (
-            <button key={action} type="button" role="menuitem"
+          <button
+            type="button"
+            role="menuitem"
+            aria-label="Close this tab"
+            onClick={onCloseTab}
+            className="rounded border border-line px-1 py-1 hover:bg-surface-sunken"
+          >
+            {t("This")}
+          </button>
+          {(
+            [
+              ["left", "Left", neighbours.left],
+              ["right", "Right", neighbours.right],
+              ["others", "Others", neighbours.others],
+              ["all", "All", [...neighbours.others, menu.id]],
+            ] as const
+          ).map(([action, label, ids]) => (
+            <button
+              key={action}
+              type="button"
+              role="menuitem"
               aria-label={`${armed === action ? "Confirm close" : "Close"} ${action === "left" || action === "right" ? "tabs to the " + action : action + " tabs"}`}
               disabled={ids.length === 0}
-              onClick={() => armed === action ? onCloseMany([...ids]) : onArm(action)}
-              className={`rounded border px-1 py-1 hover:bg-surface-sunken disabled:opacity-30 disabled:hover:bg-transparent ${armed === action ? "border-red-400/50 text-red-300" : "border-line"}`}>
+              onClick={() => (armed === action ? onCloseMany([...ids]) : onArm(action))}
+              className={`rounded border px-1 py-1 hover:bg-surface-sunken disabled:opacity-30 disabled:hover:bg-transparent ${armed === action ? "border-red-400/50 text-red-300" : "border-line"}`}
+            >
               {armed === action ? "Sure?" : label}
             </button>
           ))}
@@ -1017,9 +1087,7 @@ function TabFace({ icon }: { icon: EntryIcon }) {
         // puts the art at box size. A fluid swatch is normally inset to
         // FLUID_ICON_SCALE; here that inset is inverted so the swatch fills it.
         iconPixelSize={
-          icon.kind === "fluid"
-            ? Math.round(TAB_FACE_PX / FLUID_ICON_SCALE)
-            : TAB_FACE_PX * 2
+          icon.kind === "fluid" ? Math.round(TAB_FACE_PX / FLUID_ICON_SCALE) : TAB_FACE_PX * 2
         }
         className="!h-full !w-full"
       />
@@ -1033,13 +1101,14 @@ function TabFace({ icon }: { icon: EntryIcon }) {
  * subscribe to the solve flag.
  */
 function TabSolvingSpinner() {
+  const t = useT();
   const solving = useSolvingBooks();
   if (!solving) {
     return null;
   }
   return (
     <span
-      aria-label="Still working out this plan's numbers"
+      aria-label={t("Still working out this plan's numbers")}
       className="h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-neutral-600 border-t-cyan-400"
     />
   );
@@ -1058,5 +1127,9 @@ function FadingTabName({ name }: { name: string }) {
     observer.observe(element);
     return () => observer.disconnect();
   }, [name]);
-  return <span ref={ref} className="design-tab-name" data-clipped={clipped}>{name}</span>;
+  return (
+    <span ref={ref} className="design-tab-name" data-clipped={clipped}>
+      {name}
+    </span>
+  );
 }

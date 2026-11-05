@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { ScreenshotButton } from "@/components/export/ScreenshotButton";
 import { Copy, LockKeyhole } from "lucide-react";
@@ -7,6 +8,7 @@ import { copyViewedPost } from "@/lib/community/open-post";
 import { useDesignStore } from "@/store/design-store";
 
 export function PublicViewBar() {
+  const t = useT();
   const view = useDesignStore((state) => state.publicView);
   const [descriptionOpen, setDescriptionOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -18,15 +20,36 @@ export function PublicViewBar() {
       aria-label="Public setup viewer"
     >
       <div className="flex h-[29px] min-w-0 items-center gap-2 text-xs">
-        <span className="plan-summary-lock inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-fg-muted"><LockKeyhole className="h-3 w-3" aria-hidden /><span>View only</span></span>
-        <span className="plan-summary-name min-w-0 max-w-[30%] shrink truncate font-semibold" title={view.name}>
+        <span className="plan-summary-lock inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-fg-muted">
+          <LockKeyhole className="h-3 w-3" aria-hidden />
+          <span>{t("View only")}</span>
+        </span>
+        <span
+          className="plan-summary-name min-w-0 max-w-[30%] shrink truncate font-semibold"
+          title={view.name}
+        >
           {view.name}
         </span>
-        {view.project.description ? <button type="button" aria-label="Show plan description" aria-expanded={descriptionOpen}
-          onClick={() => setDescriptionOpen(!descriptionOpen)}
-          className="plan-summary-description flex h-6 min-w-0 flex-1 items-center rounded px-1 text-left text-fg-muted hover:bg-surface-raised hover:text-fg">
-          <span className="block w-full overflow-hidden whitespace-nowrap text-xs" style={{ maskImage: "linear-gradient(to right, black calc(100% - 12px), transparent)" }}>{view.project.description}</span>
-        </button> : <span className="flex-1" />}
+        {view.project.description ? (
+          <button
+            type="button"
+            aria-label="Show plan description"
+            aria-expanded={descriptionOpen}
+            onClick={() => setDescriptionOpen(!descriptionOpen)}
+            className="plan-summary-description flex h-6 min-w-0 flex-1 items-center rounded px-1 text-left text-fg-muted hover:bg-surface-raised hover:text-fg"
+          >
+            <span
+              className="block w-full overflow-hidden whitespace-nowrap text-xs"
+              style={{
+                maskImage: "linear-gradient(to right, black calc(100% - 12px), transparent)",
+              }}
+            >
+              {view.project.description}
+            </span>
+          </button>
+        ) : (
+          <span className="flex-1" />
+        )}
         {view.authorName ? (
           <span className="truncate text-fg-muted">by {view.authorName}</span>
         ) : null}

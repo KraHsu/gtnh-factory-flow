@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import { memo, useState, type CSSProperties } from "react";
@@ -6,11 +7,7 @@ import { Copy, Maximize2, PackageOpen } from "lucide-react";
 import type { FactoryPocket } from "@/lib/model/types";
 import { CLASSIC_NODE_WIDTH } from "@/lib/board-grid";
 import { fluidArtPixels, isSwatchFluid, ResourceIcon } from "@/components/nei/ResourceIcon";
-import {
-  captureBoardSelection,
-  useFactoryStore,
-  useRateDisplayUnits,
-} from "@/store/factory-store";
+import { captureBoardSelection, useFactoryStore, useRateDisplayUnits } from "@/store/factory-store";
 
 import { formatSlotRateOrNull } from "./flow-explainers";
 import { isWiringConnection, wasRecentWireDrop } from "./connection-drag";
@@ -76,6 +73,7 @@ const INERT_HANDLE =
   "nodrag !pointer-events-none !h-0 !w-0 !min-h-0 !min-w-0 !border-0 !bg-transparent !opacity-0";
 
 function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
+  const t = useT();
   const { pocket, summary } = data;
   // A folded board is the SAME board: it wears the paper the window wore,
   // so you can tell which one it is at a glance instead of meeting an
@@ -196,12 +194,7 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
         {/* Zoomed out, the card is a star on purple — a board, not a machine.
             Hovering opens the same reveal a machine card gives. */}
         <NodeGlanceText text="✦" accent={chrome.inkMuted} />
-        <PocketGlanceReveal
-          name={pocket.name}
-          chrome={chrome}
-          needs={needs}
-          offers={offers}
-        />
+        <PocketGlanceReveal name={pocket.name} chrome={chrome} needs={needs} offers={offers} />
         {/* The title bar, cut from the same paper as the window's: the
             folded board has to read as the same object. Exactly two cells
             tall either way, so everything below keeps its grid lines. */}
@@ -316,7 +309,8 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
                 >
                   <PackageOpen aria-hidden className="h-3.5 w-3.5" />
                 </button>
-                <button data-viewer-inspect
+                <button
+                  data-viewer-inspect
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -346,9 +340,9 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
               className="flex h-[80px] items-center justify-center text-center text-[11px] leading-4"
               style={{ color: chrome.inkMuted }}
             >
-              Nothing goes in or out.
+              {t("Nothing goes in or out.")}
               <br />
-              Open the window to work on it.
+              {t("Open the window to work on it.")}
             </div>
           ) : (
             <>
@@ -492,13 +486,7 @@ function SectionColumn({
         </span>
       </div>
       {lines.map((line) => (
-        <CrossingRow
-          key={line.key}
-          crossing={line}
-          side={side}
-          tone={tone}
-          chrome={chrome}
-        />
+        <CrossingRow key={line.key} crossing={line} side={side} tone={tone} chrome={chrome} />
       ))}
     </div>
   );
@@ -524,7 +512,6 @@ function CrossingRow({
   const icon = (
     <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden">
       <ResourceIcon
-
         itemZoom={1.5}
         resource={{ ...crossing, id: crossing.resourceId, amount: 1 }}
         bare
@@ -543,10 +530,7 @@ function CrossingRow({
   );
   const text = (
     <span className={`flex min-w-0 flex-1 flex-col ${side === "out" ? "text-right" : ""}`}>
-      <span
-        className="truncate text-[11px] font-bold leading-[14px]"
-        style={{ color: chrome.ink }}
-      >
+      <span className="truncate text-[11px] font-bold leading-[14px]" style={{ color: chrome.ink }}>
         {crossing.displayName ?? crossing.resourceId}
       </span>
       <span
@@ -578,7 +562,6 @@ function CrossingRow({
   );
 }
 
-
 // Position props change every drag frame; the component only reads `data` and
 // `selected`, so comparing exactly those keeps the card from re-rendering while
 // its wrapper is translated (see RecipeNode for the long version).
@@ -605,6 +588,7 @@ function PocketGlanceReveal({
   needs: PocketCrossing[];
   offers: PocketCrossing[];
 }) {
+  const t = useT();
   return (
     <div
       data-node-detail="glance"
@@ -630,12 +614,7 @@ function PocketGlanceReveal({
           <span className="grid grid-cols-[minmax(0,1fr)_24px_minmax(0,1fr)] items-start gap-x-1">
             <span className="flex min-w-0 flex-col gap-1">
               {needs.map((line) => (
-                <PocketGlanceIoRow
-                  key={line.key}
-                  crossing={line}
-                  tone={IN_TONE}
-                  chrome={chrome}
-                />
+                <PocketGlanceIoRow key={line.key} crossing={line} tone={IN_TONE} chrome={chrome} />
               ))}
             </span>
             <span
@@ -646,18 +625,13 @@ function PocketGlanceReveal({
             </span>
             <span className="flex min-w-0 flex-col gap-1">
               {offers.map((line) => (
-                <PocketGlanceIoRow
-                  key={line.key}
-                  crossing={line}
-                  tone={OUT_TONE}
-                  chrome={chrome}
-                />
+                <PocketGlanceIoRow key={line.key} crossing={line} tone={OUT_TONE} chrome={chrome} />
               ))}
             </span>
           </span>
         ) : (
           <span className="text-center text-[13px]" style={{ color: chrome.inkMuted }}>
-            Nothing goes in or out.
+            {t("Nothing goes in or out.")}
           </span>
         )}
       </span>
@@ -687,7 +661,6 @@ function PocketGlanceIoRow({
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden">
         <ResourceIcon
-
           itemZoom={1.5}
           resource={{ ...crossing, id: crossing.resourceId, amount: 1 }}
           bare

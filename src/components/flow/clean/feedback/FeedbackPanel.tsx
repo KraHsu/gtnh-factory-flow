@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Bug, Lightbulb, CircleHelp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -33,7 +34,17 @@ import { playSfx, sfxToggle } from "@/lib/sound/sfx";
  * picture of it. No game log (a page has none).
  */
 
-function Face({ mood, picked, hot, size }: { mood: number; picked: boolean; hot: boolean; size: number }) {
+function Face({
+  mood,
+  picked,
+  hot,
+  size,
+}: {
+  mood: number;
+  picked: boolean;
+  hot: boolean;
+  size: number;
+}) {
   return (
     <svg
       width={size}
@@ -55,6 +66,7 @@ const KIND_ICONS = { bug: Bug, idea: Lightbulb, help: CircleHelp } as const;
 type Sent = { number: number; url: string };
 
 export function FeedbackPanel({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const [kind, setKind] = useState<FeedbackKind>("bug");
   const [mood, setMood] = useState<FeedbackMood | undefined>(undefined);
   const [text, setText] = useState("");
@@ -85,14 +97,17 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
       const project = useFactoryStore.getState().project;
       let picture: string | undefined;
       if (hasPlan && scene) {
-        const font = getComputedStyle(document.body).getPropertyValue("--font-minecraft") || "monospace";
+        const font =
+          getComputedStyle(document.body).getPropertyValue("--font-minecraft") || "monospace";
         picture = planPictureBase64(scene, font);
       }
       const report = buildReport({
         kind,
         mood,
         text,
-        plan: hasPlan ? { name: project.name || "Plan", plan: withoutRuntimeTables(project) } : undefined,
+        plan: hasPlan
+          ? { name: project.name || "Plan", plan: withoutRuntimeTables(project) }
+          : undefined,
         picture,
       });
       const response = await fetch("/api/feedback", {
@@ -100,7 +115,11 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(report),
       });
-      const body = (await response.json().catch(() => ({}))) as { number?: number; url?: string; error?: string };
+      const body = (await response.json().catch(() => ({}))) as {
+        number?: number;
+        url?: string;
+        error?: string;
+      };
       if (!response.ok || typeof body.number !== "number" || typeof body.url !== "string") {
         throw new Error(body.error ?? `The site answered ${response.status}`);
       }
@@ -115,22 +134,44 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fb-backdrop" data-feedback-backdrop="">
-      <div ref={dialogRef} className="fb" role="dialog" aria-modal="true" aria-label="Send feedback">
+      <div
+        ref={dialogRef}
+        className="fb"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("Send feedback")}
+      >
         <div className="fb-title">
-          <span>Send feedback</span>
-          <div role="button" tabIndex={0} aria-label="Close" className="fb-x" data-sfx-own="" onClick={() => {
-            playSfx("ui.close");
-            onClose();
-          }} onKeyDown={activateOnKey} />
+          <span>{t("Send feedback")}</span>
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t("Close")}
+            className="fb-x"
+            data-sfx-own=""
+            onClick={() => {
+              playSfx("ui.close");
+              onClose();
+            }}
+            onKeyDown={activateOnKey}
+          />
         </div>
         {sent ? (
           <div className="fb-sent">
             <Face mood={0} picked hot={false} size={50} />
-            <div className="fb-sent-line">Thanks! It&apos;s sent.</div>
-            <div className="fb-sent-sub">Issue #{sent.number} on GitHub</div>
+            <div className="fb-sent-line">{t("Thanks! It's sent.")}</div>
+            <div className="fb-sent-sub">
+              Issue #{sent.number} {t("on GitHub")}
+            </div>
             <div className="fb-keys">
-              <div role="button" tabIndex={0} onKeyDown={activateOnKey} className="fb-key fb-key-primary" onClick={() => window.open(sent.url, "_blank", "noopener")}>
-                Open it
+              <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={activateOnKey}
+                className="fb-key fb-key-primary"
+                onClick={() => window.open(sent.url, "_blank", "noopener")}
+              >
+                {t("Open it")}
               </div>
               <div
                 role="button"
@@ -139,10 +180,16 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
                 className="fb-key"
                 onClick={() => void navigator.clipboard?.writeText(sent.url).catch(() => undefined)}
               >
-                Copy link
+                {t("Copy link")}
               </div>
-              <div role="button" tabIndex={0} onKeyDown={activateOnKey} className="fb-key" onClick={onClose}>
-                Done
+              <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={activateOnKey}
+                className="fb-key"
+                onClick={onClose}
+              >
+                {t("Done")}
               </div>
             </div>
           </div>
@@ -200,8 +247,13 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
             <div className="fb-prompt">
               <span>{promptFor(kind)}</span>
               {kind === "help" ? (
-                <a className="fb-discord" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
-                  Open Discord
+                <a
+                  className="fb-discord"
+                  href={DISCORD_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("Open Discord")}
                 </a>
               ) : null}
             </div>
@@ -214,7 +266,9 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
               onChange={(e) => setText(e.target.value)}
               aria-label="Your feedback"
             />
-            <div className="fb-sends">{sendsLine(hasPlan ? planName || "Plan" : undefined, pictureAvailable)}</div>
+            <div className="fb-sends">
+              {sendsLine(hasPlan ? planName || "Plan" : undefined, pictureAvailable)}
+            </div>
             <div className="fb-foot">
               <span className="fb-where" data-error={error ? "" : undefined}>
                 {error ?? "It becomes a public issue on GitHub."}
@@ -252,7 +306,8 @@ export function FeedbackHost() {
   }, []);
   useEffect(() => {
     // A handle for checking the box by hand in development.
-    if (process.env.NODE_ENV !== "production") (window as unknown as { __openFeedback?: () => void }).__openFeedback = openFeedback;
+    if (process.env.NODE_ENV !== "production")
+      (window as unknown as { __openFeedback?: () => void }).__openFeedback = openFeedback;
   }, []);
   return open ? <FeedbackPanel onClose={closeFeedback} /> : null;
 }

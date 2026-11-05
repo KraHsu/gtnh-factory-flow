@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 import { wheelChangesValues } from "@/lib/device-settings";
@@ -107,7 +108,10 @@ function hasArt(resource: ResourceAmount | undefined): boolean {
 
 /** The face rule: a well only when every rung has an item to show. */
 export function controlHasFaces(control: MachineConfigTierControl): boolean {
-  return control.tiers.length > 0 && control.tiers.every((tier) => hasArt(tier.resource ?? control.resource));
+  return (
+    control.tiers.length > 0 &&
+    control.tiers.every((tier) => hasArt(tier.resource ?? control.resource))
+  );
 }
 
 function Face({ resource }: { resource: ResourceAmount }) {
@@ -116,7 +120,6 @@ function Face({ resource }: { resource: ResourceAmount }) {
     // oredict slot means nothing on a coil.
     <span className="relative flex h-[18px] w-[18px] shrink-0 items-center justify-center overflow-hidden">
       <ResourceIcon
-
         itemZoom={1.5}
         resource={{ ...resource, amount: 1, chance: undefined, alternatives: undefined }}
         bare
@@ -223,13 +226,17 @@ export function SettingTile({
           role={onType ? "button" : undefined}
           tabIndex={onType && !disabled ? 0 : undefined}
           aria-label={onType ? `Edit ${caption}` : undefined}
-          onKeyDown={onType ? (event) => {
-            if (!disabled && (event.key === "Enter" || event.key === " ")) {
-              event.preventDefault();
-              event.stopPropagation();
-              onType();
-            }
-          } : undefined}
+          onKeyDown={
+            onType
+              ? (event) => {
+                  if (!disabled && (event.key === "Enter" || event.key === " ")) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onType();
+                  }
+                }
+              : undefined
+          }
         >
           {face ? <Face resource={face} /> : null}
           <span className="min-w-0 truncate">{value}</span>
@@ -274,12 +281,15 @@ export function SettingListMenu({
   /** A filter box at the top, for lists picked by name. */
   searchable?: boolean;
 }) {
+  const t = useT();
   const rootRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const viewport = useDropdownViewport();
   // Numbered hatch choices should match with or without thousands separators.
   const needle = query.trim().toLowerCase().replaceAll(",", "");
-  const shown = needle ? rows.filter((row) => row.label.toLowerCase().replaceAll(",", "").includes(needle)) : rows;
+  const shown = needle
+    ? rows.filter((row) => row.label.toLowerCase().replaceAll(",", "").includes(needle))
+    : rows;
   useDropdownDismiss(true, { refs: [rootRef], onClose, fade: true });
   if (typeof document === "undefined") return null;
   // The anchor rect and the window are real px; this box is zoomed (ui-zoom),
@@ -287,13 +297,22 @@ export function SettingListMenu({
   const scale = getUiScale();
   const shell = (px: number) => px / scale;
   const width = Math.min(240, Math.max(0, shell(viewport.width) - 16));
-  const left = Math.max(shell(viewport.left) + 8, Math.min(shell(anchor.left + anchor.width / 2) - width / 2, shell(viewport.left + viewport.width) - width - 8));
+  const left = Math.max(
+    shell(viewport.left) + 8,
+    Math.min(
+      shell(anchor.left + anchor.width / 2) - width / 2,
+      shell(viewport.left + viewport.width) - width - 8,
+    ),
+  );
   const maxHeight = Math.min(360, Math.max(0, shell(viewport.height) - 16));
   const height = Math.min(maxHeight, Math.max(1, shown.length) * 28 + 12 + (searchable ? 36 : 0));
   const below = shell(anchor.bottom) + 4;
   const bottom = shell(viewport.top + viewport.height) - 8;
   const fitsBelow = bottom - below >= height;
-  const top = Math.max(shell(viewport.top) + 8, Math.min(fitsBelow ? below : shell(anchor.top) - height - 4, bottom - height));
+  const top = Math.max(
+    shell(viewport.top) + 8,
+    Math.min(fitsBelow ? below : shell(anchor.top) - height - 4, bottom - height),
+  );
   return createPortal(
     <div
       ref={rootRef}
@@ -323,29 +342,33 @@ export function SettingListMenu({
         </label>
       ) : null}
       <div className="min-h-0 overflow-y-auto">
-      {shown.length === 0 ? (
-        <div className="px-2 py-1.5 text-[12px] text-[var(--mc-ink-muted)]">No match.</div>
-      ) : null}
-      {shown.map((row) => (
-        <button
-          key={row.key}
-          type="button"
-          role="option"
-          aria-selected={row.key === currentKey}
-          onClick={(event) => {
-            event.stopPropagation();
-            onPick(row.key);
-          }}
-          className={[
-            "flex h-7 w-full items-center gap-2 px-2 text-left text-[12px] leading-4",
-            row.key === currentKey ? "bg-[var(--mc-71)] text-white" : "text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white",
-          ].join(" ")}
-        >
-          {row.face ? <Face resource={row.face} /> : null}
-          <span className="min-w-0 flex-1 truncate">{row.label}</span>
-          {row.hint ? <span className="shrink-0 text-[10px] text-[var(--mc-ink-muted)]">{row.hint}</span> : null}
-        </button>
-      ))}
+        {shown.length === 0 ? (
+          <div className="px-2 py-1.5 text-[12px] text-[var(--mc-ink-muted)]">{t("No match.")}</div>
+        ) : null}
+        {shown.map((row) => (
+          <button
+            key={row.key}
+            type="button"
+            role="option"
+            aria-selected={row.key === currentKey}
+            onClick={(event) => {
+              event.stopPropagation();
+              onPick(row.key);
+            }}
+            className={[
+              "flex h-7 w-full items-center gap-2 px-2 text-left text-[12px] leading-4",
+              row.key === currentKey
+                ? "bg-[var(--mc-71)] text-white"
+                : "text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white",
+            ].join(" ")}
+          >
+            {row.face ? <Face resource={row.face} /> : null}
+            <span className="min-w-0 flex-1 truncate">{row.label}</span>
+            {row.hint ? (
+              <span className="shrink-0 text-[10px] text-[var(--mc-ink-muted)]">{row.hint}</span>
+            ) : null}
+          </button>
+        ))}
       </div>
     </div>,
     document.body,
@@ -374,7 +397,10 @@ export function SettingSelectTile({
 }) {
   const [listAt, setListAt] = useState<DOMRect | undefined>();
   const wellRef = useRef<HTMLButtonElement>(null);
-  const index = Math.max(0, rows.findIndex((row) => row.key === currentKey));
+  const index = Math.max(
+    0,
+    rows.findIndex((row) => row.key === currentKey),
+  );
   const current = rows[index];
   const tile = (
     <div
@@ -383,7 +409,8 @@ export function SettingSelectTile({
         if (!wheelChangesValues()) return;
         event.stopPropagation();
         if (disabled) return;
-        const next = rows[Math.max(0, Math.min(rows.length - 1, index + (event.deltaY < 0 ? 1 : -1)))];
+        const next =
+          rows[Math.max(0, Math.min(rows.length - 1, index + (event.deltaY < 0 ? 1 : -1)))];
         if (next && next.key !== currentKey) onPick(next.key);
       }}
       onPointerDown={(event) => event.stopPropagation()}
@@ -403,7 +430,10 @@ export function SettingSelectTile({
           const rect = wellRef.current?.getBoundingClientRect();
           if (rect) setListAt(listAt ? undefined : rect);
         }}
-        className={[SETTING_TILE_WELL_CLASS, "w-full flex-none justify-between px-1 enabled:hover:bg-[var(--mc-93)]"].join(" ")}
+        className={[
+          SETTING_TILE_WELL_CLASS,
+          "w-full flex-none justify-between px-1 enabled:hover:bg-[var(--mc-93)]",
+        ].join(" ")}
       >
         <span className="flex min-w-0 items-center gap-1">
           {current?.face ? <Face resource={current.face} /> : null}
@@ -470,7 +500,10 @@ export function LadderTile({
   help?: ReactNode | (() => ReactNode);
 }) {
   const [listAt, setListAt] = useState<DOMRect | undefined>();
-  const index = Math.max(0, control.tiers.findIndex((tier) => tier.key === control.current.key));
+  const index = Math.max(
+    0,
+    control.tiers.findIndex((tier) => tier.key === control.current.key),
+  );
   const faces = controlHasFaces(control);
   if (control.numeric) {
     return <MachineNumberTile control={control} onSelect={onSelect} help={help} />;
@@ -530,7 +563,11 @@ export function LadderTile({
 /** Numeric machine settings keep their value in the existing config map.
  * Drafts stay local: Enter/blur is one undoable edit, Escape cancels it.
  */
-function MachineNumberTile({ control, onSelect, help }: {
+function MachineNumberTile({
+  control,
+  onSelect,
+  help,
+}: {
   control: MachineConfigTierControl;
   onSelect: (key: string) => void;
   help?: ReactNode | (() => ReactNode);
@@ -554,24 +591,49 @@ function MachineNumberTile({ control, onSelect, help }: {
   };
   const caption = settingCaption(control);
   if (draft !== undefined) {
-    return <div className={`${SETTING_TILE_CLASS} nodrag`} onPointerDown={(event) => event.stopPropagation()}>
-      <div className={SETTING_TILE_CAPTION_CLASS}>{caption}</div>
-      <input autoFocus inputMode={step < 1 ? "decimal" : "numeric"} aria-label={control.label} value={draft}
-        onFocus={(event) => event.target.select()}
-        onChange={(event) => setDraft(event.target.value)} onBlur={commit}
-        onKeyDown={(event) => {
-          event.stopPropagation();
-          if (event.key === "Enter") { event.preventDefault(); commit(); }
-          if (event.key === "Escape") {
-            event.preventDefault(); finished.current = true; setDraft(undefined);
-          }
-        }}
-        className="h-5 w-full min-w-0 border border-[var(--mc-47)] bg-[var(--mc-93)] px-1 text-center text-[13px] font-bold leading-[18px] text-[var(--mc-ink)] outline-none"
-      />
-    </div>;
+    return (
+      <div
+        className={`${SETTING_TILE_CLASS} nodrag`}
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <div className={SETTING_TILE_CAPTION_CLASS}>{caption}</div>
+        <input
+          autoFocus
+          inputMode={step < 1 ? "decimal" : "numeric"}
+          aria-label={control.label}
+          value={draft}
+          onFocus={(event) => event.target.select()}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            event.stopPropagation();
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commit();
+            }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              finished.current = true;
+              setDraft(undefined);
+            }
+          }}
+          className="h-5 w-full min-w-0 border border-[var(--mc-47)] bg-[var(--mc-93)] px-1 text-center text-[13px] font-bold leading-[18px] text-[var(--mc-ink)] outline-none"
+        />
+      </div>
+    );
   }
-  return <SettingTile caption={caption} value={shown.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-    canStepDown={shown > min} canStepUp={shown < max}
-    onStep={(direction) => pick(shown + direction * step)}
-    onType={() => { finished.current = false; setDraft(String(shown)); }} help={help} />;
+  return (
+    <SettingTile
+      caption={caption}
+      value={shown.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+      canStepDown={shown > min}
+      canStepUp={shown < max}
+      onStep={(direction) => pick(shown + direction * step)}
+      onType={() => {
+        finished.current = false;
+        setDraft(String(shown));
+      }}
+      help={help}
+    />
+  );
 }

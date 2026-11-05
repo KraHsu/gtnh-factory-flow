@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
@@ -25,6 +26,7 @@ export function RatioSplitPreview({
   side: "input" | "output" | "export";
   locked: boolean;
 }) {
+  const t = useT();
   const project = useFactoryStore((s) => s.project);
   const view = useMemo(() => {
     const edge = project.edges.find((edge) => edge.id === edgeId);
@@ -129,7 +131,7 @@ export function RatioSplitPreview({
               >
                 <span className="flex items-center gap-0.5 text-[9px]">
                   <ArrowUpRight aria-hidden className="h-2.5 w-2.5" />
-                  Setup output
+                  {t("Setup output")}
                 </span>
                 <span className="shrink-0 tabular-nums">
                   {formatRatioShare(ratioExportShare(view.storage))}

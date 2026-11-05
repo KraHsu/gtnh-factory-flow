@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./menus.css";
 
@@ -16,7 +17,11 @@ const seconds = (ticks: number) => `${compact(ticks / 20)} s`;
 function Tag({ tier }: { tier: string }) {
   const colors = tierChipColors(tier);
   const style = colors
-    ? ({ "--tag-bg": colors.background, "--tag-border": colors.border, "--tag-ink": colors.ink } as CSSProperties)
+    ? ({
+        "--tag-bg": colors.background,
+        "--tag-border": colors.border,
+        "--tag-ink": colors.ink,
+      } as CSSProperties)
     : undefined;
   return (
     <span className="pw-tag" style={style}>
@@ -31,7 +36,17 @@ function overclockText(facts: PowerFacts): string {
   return `${facts.perfect} perfect, ${facts.overclocks - facts.perfect}`;
 }
 
-function Box({ label, unit, before, after }: { label: string; unit: string; before: string; after: string }) {
+function Box({
+  label,
+  unit,
+  before,
+  after,
+}: {
+  label: string;
+  unit: string;
+  before: string;
+  after: string;
+}) {
   return (
     <div className="pw-box">
       <span>
@@ -46,12 +61,16 @@ function Box({ label, unit, before, after }: { label: string; unit: string; befo
 
 /** From nothing to the next step: the bar filled to what is supplied, ticks where the draw and the supply are. */
 function Scale({ facts }: { facts: PowerFacts }) {
+  const t = useT();
   const next = facts.nextAmps!;
   const supplied = facts.amps;
   const draw = facts.volt > 0 ? facts.now.eut / facts.volt : 0;
   const ps = Math.min(1, supplied / next);
   const pd = Math.min(1, draw / next);
-  const slide = (p: number): CSSProperties => ({ left: `${p * 100}%`, transform: `translateX(-${p * 100}%)` });
+  const slide = (p: number): CSSProperties => ({
+    left: `${p * 100}%`,
+    transform: `translateX(-${p * 100}%)`,
+  });
   return (
     <div className="pw-scale">
       <span className="pw-mark pw-subtle" style={{ left: 0, top: 0 }}>
@@ -61,12 +80,18 @@ function Scale({ facts }: { facts: PowerFacts }) {
         {amps(next)} next
       </span>
       <span className="pw-mark" style={{ ...slide(ps), top: 15 }}>
-        {amps(supplied)} supplied
+        {amps(supplied)} {t("supplied")}
       </span>
       <div className="pw-bar">
         <div className="pw-fill" style={{ width: `calc((100% - 2px) * ${ps})` }} />
-        <i className="pw-tick" style={{ left: `calc(1px + (100% - 2px) * ${ps})`, top: -4, height: 17 }} />
-        <i className="pw-tick" style={{ left: `calc(1px + (100% - 2px) * ${pd})`, top: 0, height: 9 }} />
+        <i
+          className="pw-tick"
+          style={{ left: `calc(1px + (100% - 2px) * ${ps})`, top: -4, height: 17 }}
+        />
+        <i
+          className="pw-tick"
+          style={{ left: `calc(1px + (100% - 2px) * ${pd})`, top: 0, height: 9 }}
+        />
         <i className="pw-tick" style={{ left: "calc(100% - 2px)", top: -4, height: 17 }} />
       </div>
       <span className="pw-mark" style={{ ...slide(pd), top: 44 }}>
@@ -77,6 +102,7 @@ function Scale({ facts }: { facts: PowerFacts }) {
 }
 
 export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
+  const t = useT();
   const { now, next } = facts;
   const hatchAmps = facts.amps === 1 ? 1 : 2;
   const hatches = facts.amps / hatchAmps;
@@ -90,7 +116,7 @@ export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
   ];
   return (
     <div className="pw" data-power-panel="">
-      <div className="pw-title">Power input</div>
+      <div className="pw-title">{t("Power input")}</div>
       <div className="pw-line">
         <span>
           {compact(facts.amps)}A ×<Tag tier={facts.tier} />= {compact(facts.volt * facts.amps)} EU/t
@@ -98,7 +124,7 @@ export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
         <span>
           {compact(hatches)}
           <Tag tier={facts.tier} />
-          {facts.amps <= hatchAmps ? "hatch" : "hatches"}
+          {facts.amps <= hatchAmps ? "hatch" : t("hatches")}
           <span className="pw-subtle">({hatchAmps}A each)</span>
         </span>
       </div>
@@ -115,31 +141,45 @@ export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
       {next && facts.nextAmps !== undefined ? (
         <>
           <div className="pw-line">
-            <span>Next improvement</span>
+            <span>{t("Next improvement")}</span>
             <span>
               +{amps(facts.nextAmps - facts.amps)}
               <Tag tier={facts.tier} />
             </span>
           </div>
           <div className="pw-boxes">
-            <Box label="Output" unit="recipes/s" before={compact(now.runsPerSecond)} after={compact(next.runsPerSecond)} />
-            <Box label="Time" unit="per recipe" before={seconds(now.duration)} after={seconds(next.duration)} />
+            <Box
+              label={t("Output")}
+              unit="recipes/s"
+              before={compact(now.runsPerSecond)}
+              after={compact(next.runsPerSecond)}
+            />
+            <Box
+              label={t("Time")}
+              unit="per recipe"
+              before={seconds(now.duration)}
+              after={seconds(next.duration)}
+            />
             <Box label="Draw" unit="EU/t" before={compact(now.eut)} after={compact(next.eut)} />
           </div>
           <Scale facts={facts} />
         </>
       ) : (
         <div className="pw-line">
-          <span>Next improvement</span>
+          <span>{t("Next improvement")}</span>
           <span className="pw-subtle">none: more amps buy nothing</span>
         </div>
       )}
       <div className="pw-rule" />
       <div className="pw-line">
-        <span className="pw-subtle">Demand for this card</span>
+        <span className="pw-subtle">{t("Demand for this card")}</span>
         <span>{compact(facts.demand)} EU/t</span>
       </div>
-      <div className="pw-subtle">{facts.shared ? "All recipes, across the required machines." : "Across the required machines."}</div>
+      <div className="pw-subtle">
+        {facts.shared
+          ? "All recipes, across the required machines."
+          : t("Across the required machines.")}
+      </div>
     </div>
   );
 }
@@ -177,24 +217,36 @@ export function PowerGuide({ part }: { part?: "amps" | "tier" | "power" }) {
 }
 
 /** The panel for a card, read from the store: it re-reads on every solve. */
-export const PowerInputPanel = forwardRef<HTMLDivElement, { nodeId: string; part?: "amps" | "tier" | "power"; style?: CSSProperties }>(
-  function PowerInputPanel({ nodeId, part, style }, ref) {
-    const project = useFactoryStore((state) => state.project);
-    const lastResult = useFactoryStore((state) => state.lastResult);
-    const node = project.nodes.find((entry) => entry.id === nodeId);
-    const recipe = project.recipes.find((entry) => entry.id === node?.recipeId);
-    const result = lastResult?.nodes[nodeId];
-    const facts = useMemo(() => {
-      if (!node || !recipe) return undefined;
-      const demand = node.enabled && result?.theoreticalMachinesRequired ? (result.euT ?? 0) : 0;
-      return powerFacts(applyRecipeInputOverrides(recipe, node), node, demand, Boolean(node.extraRecipes?.length));
-    }, [node, recipe, result]);
-    if (!facts) return null;
-    return (
-      <div ref={ref} className="pw-wrap ui-zoom" data-clean-tip="" data-tip-panel="power" style={style}>
-        <PowerFactsPanel facts={facts} />
-        <PowerGuide part={part} />
-      </div>
+export const PowerInputPanel = forwardRef<
+  HTMLDivElement,
+  { nodeId: string; part?: "amps" | "tier" | "power"; style?: CSSProperties }
+>(function PowerInputPanel({ nodeId, part, style }, ref) {
+  const project = useFactoryStore((state) => state.project);
+  const lastResult = useFactoryStore((state) => state.lastResult);
+  const node = project.nodes.find((entry) => entry.id === nodeId);
+  const recipe = project.recipes.find((entry) => entry.id === node?.recipeId);
+  const result = lastResult?.nodes[nodeId];
+  const facts = useMemo(() => {
+    if (!node || !recipe) return undefined;
+    const demand = node.enabled && result?.theoreticalMachinesRequired ? (result.euT ?? 0) : 0;
+    return powerFacts(
+      applyRecipeInputOverrides(recipe, node),
+      node,
+      demand,
+      Boolean(node.extraRecipes?.length),
     );
-  },
-);
+  }, [node, recipe, result]);
+  if (!facts) return null;
+  return (
+    <div
+      ref={ref}
+      className="pw-wrap ui-zoom"
+      data-clean-tip=""
+      data-tip-panel="power"
+      style={style}
+    >
+      <PowerFactsPanel facts={facts} />
+      <PowerGuide part={part} />
+    </div>
+  );
+});

@@ -14,35 +14,35 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #26282d;
-  color: #f5f5f5;
+  background: var(--ks-paper);
+  color: var(--ks-text);
   /* The mod draws every menu and panel in the game font. */
   font-family: var(--cc-font);
   -webkit-font-smoothing: var(--pixel-font-smoothing);
   font-size: 14px;
   line-height: 18px;
   box-shadow:
-    0 0 0 1px #111317,
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d,
+    0 0 0 1px var(--ks-well),
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     2px 4px 8px rgba(0, 0, 0, 0.35);
 }
 .cm-head {
   flex: none;
   padding: 8px 13px 5px;
-  color: #8a8d96;
+  color: var(--ks-muted);
   font-size: 13px;
   line-height: 15px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: #2c2e34;
+  background: var(--ks-paper);
 }
 .cm-scroll {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: #4a4c54 transparent;
+  scrollbar-color: var(--ks-line) transparent;
 }
 .cm-row {
   display: flex;
@@ -57,7 +57,7 @@
 }
 .cm-row:hover,
 .cm-row[data-hot] {
-  background: #33363c;
+  background: var(--ks-paper);
 }
 .cm-icon {
   flex: none;
@@ -72,12 +72,12 @@
 }
 .cm-note {
   flex: none;
-  color: #8a8d96;
+  color: var(--ks-muted);
   font-size: 13px;
 }
 .cm-empty {
   padding: 10px 13px;
-  color: #8a8d96;
+  color: var(--ks-muted);
 }
 .cm-filter {
   flex: none;
@@ -88,14 +88,14 @@
   padding: 0 8px;
   border: 0;
   outline: 0;
-  background: #000;
-  color: #f5f5f5;
+  background: var(--ks-well);
+  color: var(--ks-text);
   font: inherit;
   font-size: 15px;
-  box-shadow: 0 0 0 1px #111317;
+  box-shadow: 0 0 0 1px var(--ks-well);
 }
 .cm-filter::placeholder {
-  color: #6f737c;
+  color: var(--ks-muted);
 }
 
 /* ---- The gear sheet ---------------------------------------------------- */
@@ -109,17 +109,17 @@
   padding: 8px 0 5px;
 }
 .cs-col + .cs-col {
-  border-left: 1px solid #2c2e34;
+  border-left: 1px solid var(--ks-paper);
 }
 .cs-title {
   padding: 2px 13px 5px;
-  color: #8a8d96;
+  color: var(--ks-muted);
   font-size: 15px;
   line-height: 20px;
 }
 .cs-none {
   padding: 5px 13px;
-  color: #8a8d96;
+  color: var(--ks-muted);
   font-size: 15px;
   white-space: nowrap;
 }
@@ -142,7 +142,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #44474f;
+  color: var(--ks-line);
   cursor: pointer;
 }
 .cs-pin svg {
@@ -151,13 +151,13 @@
   fill: currentColor;
 }
 .cs-row:hover .cs-pin {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .cs-pin:hover {
-  color: #f5f5f5 !important;
+  color: var(--ks-text) !important;
 }
 .cs-pin[data-on] {
-  color: #ffd257 !important;
+  color: var(--ks-amber) !important;
 }
 .cs-label {
   flex: 1 1 auto;
@@ -176,13 +176,13 @@
   max-width: 216px;
   height: 28px;
   padding: 0 8px;
-  background: #1b1d21;
-  box-shadow: 0 0 0 1px #34363c;
+  background: var(--ks-paper);
+  box-shadow: 0 0 0 1px var(--ks-paper);
   cursor: pointer;
   white-space: nowrap;
 }
 .cs-well:hover {
-  background: #2e3036;
+  background: var(--ks-paper);
 }
 .cs-value {
   flex: 1 1 auto;
@@ -195,14 +195,14 @@
   width: 0;
   height: 0;
   border: 5px solid transparent;
-  border-top-color: #9a9ca4;
+  border-top-color: var(--ks-muted);
   border-bottom-width: 0;
 }
 .cs-foot {
   margin: 2px 0 0;
   padding: 6px 13px 0;
-  border-top: 1px solid #2c2e34;
-  color: #6e7179;
+  border-top: 1px solid var(--ks-paper);
+  color: var(--ks-muted);
   font-size: 15px;
   line-height: 20px;
 }
@@ -222,20 +222,20 @@
   background: rgba(255, 255, 255, 0.03);
 }
 .cs-f-label {
-  color: #6e7179;
+  color: var(--ks-muted);
 }
 .cs-f-math {
   min-width: 0;
   overflow: hidden;
   text-align: right;
-  color: #8a8d96;
+  color: var(--ks-muted);
 }
 .cs-f-math sup {
   font-size: 11px;
   line-height: 0;
 }
 .cs-f-result {
-  color: #f5f5f5;
+  color: var(--ks-text);
 }
 .cs-f-result[data-tone="good"] {
   color: #7fd94a;
@@ -267,22 +267,22 @@
   box-sizing: border-box;
   width: 406px;
   padding: 10px 13px;
-  background: #26282d;
-  color: #f5f5f5;
+  background: var(--ks-paper);
+  color: var(--ks-text);
   font-size: 14px;
   line-height: 18px;
   font-variant-numeric: tabular-nums;
   box-shadow:
-    0 0 0 1px #111317,
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d,
+    0 0 0 1px var(--ks-well),
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     2px 4px 8px rgba(0, 0, 0, 0.35);
 }
 .pw-guide {
   width: 254px;
 }
 .pw-title {
-  color: #f5f5f5;
+  color: var(--ks-text);
   font-size: 17px;
   line-height: 23px;
 }
@@ -299,12 +299,12 @@
   gap: 5px;
 }
 .pw-subtle {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .pw-rule {
   height: 1px;
   margin: 6px 0;
-  background: #3a3b40;
+  background: var(--ks-line);
 }
 .pw-tag {
   display: inline-block;
@@ -326,7 +326,7 @@
   white-space: nowrap;
 }
 .pw-stat > :first-child {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .pw-boxes {
   display: grid;
@@ -338,16 +338,16 @@
   box-sizing: border-box;
   padding: 4px 2px;
   text-align: center;
-  background: #1b1d21;
-  box-shadow: 0 0 0 1px #3a3b40;
+  background: var(--ks-paper);
+  box-shadow: 0 0 0 1px var(--ks-line);
 }
 .pw-box > span {
   display: block;
-  color: #a3a3a3;
+  color: var(--ks-muted);
   white-space: nowrap;
 }
 .pw-box > span small {
-  color: #6f737c;
+  color: var(--ks-muted);
   font-size: 14px;
 }
 .pw-box > b {
@@ -366,22 +366,22 @@
   right: 0;
   top: 38px;
   height: 9px;
-  background: #1b1d21;
-  box-shadow: 0 0 0 1px #111317;
+  background: var(--ks-paper);
+  box-shadow: 0 0 0 1px var(--ks-well);
 }
 .pw-fill {
   position: absolute;
   left: 1px;
   top: 1px;
   bottom: 1px;
-  background: #9a9ca4;
+  background: var(--ks-muted);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .pw-tick {
   position: absolute;
   width: 5px;
   margin-left: -2px;
-  background: #111317;
+  background: var(--ks-well);
 }
 .pw-tick::after {
   content: "";
@@ -390,12 +390,12 @@
   right: 1px;
   top: 1px;
   bottom: 1px;
-  background: #e8e9ee;
+  background: var(--ks-text);
 }
 .pw-mark {
   position: absolute;
   white-space: nowrap;
-  color: #f5f5f5;
+  color: var(--ks-text);
 }
 .pw-guide-sec {
   position: relative;
@@ -409,7 +409,7 @@
   top: 2px;
   bottom: 2px;
   width: 1px;
-  background: #a3a3a3;
+  background: var(--ks-muted);
 }
 .pw-guide-row {
   display: flex;
@@ -418,7 +418,7 @@
   white-space: nowrap;
 }
 .pw-guide-row > :first-child {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 
 /* ---- The card's actions menu (the mod's PickList: plain rows, Delete in red) ---------------------------------- */
@@ -432,7 +432,7 @@
 
 /* ---- The board's one menu (BoardMenu.tsx): rows, ticks, swatches, rules --------------------------------------- */
 .cm-board .cm-row[data-disabled] {
-  color: #6f737c;
+  color: var(--ks-muted);
   cursor: default;
 }
 .cm-board .cm-row[data-disabled]:hover {
@@ -448,10 +448,10 @@
   flex: none;
   width: 8px;
   height: 8px;
-  background: var(--cc-gold, #ffd257);
+  background: var(--cc-gold, var(--ks-amber));
 }
 .cm-line {
   height: 1px;
   margin: 3px 0;
-  background: #3a3c42;
+  background: var(--ks-line);
 }

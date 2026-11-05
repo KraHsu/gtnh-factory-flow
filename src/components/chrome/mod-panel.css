@@ -20,19 +20,19 @@
 :root,
 .pn,
 .pn-skin {
-  --pn-surface: #23252a;
-  --pn-edge: #34363c;
-  --pn-hair: #2c2e34;
-  --pn-well: #16171a;
-  --pn-ink: #e8e9ee;
-  --pn-muted: #9a9ca4;
-  --pn-dim: #6a6c74;
-  --pn-key: #26282d;
-  --pn-key-hover: #2d2f35;
-  --pn-key-hi: #4a4c54;
-  --pn-key-lo: #17191d;
-  --pn-cyan: #22d3ee;
-  --pn-cyan-hover: #38e1f5;
+  --pn-surface: var(--ks-paper);
+  --pn-edge: var(--ks-paper);
+  --pn-hair: var(--ks-paper);
+  --pn-well: var(--ks-well);
+  --pn-ink: var(--ks-text);
+  --pn-muted: var(--ks-muted);
+  --pn-dim: var(--ks-muted);
+  --pn-key: var(--ks-paper);
+  --pn-key-hover: var(--ks-paper);
+  --pn-key-hi: var(--ks-line);
+  --pn-key-lo: var(--ks-paper);
+  --pn-cyan: var(--ks-green);
+  --pn-cyan-hover: var(--ks-green);
   --pn-red: #e05252;
   --pn-amber: #e0a63a;
 }
@@ -79,13 +79,13 @@
   border: 0;
   cursor: pointer;
   background:
-    linear-gradient(45deg, transparent 44%, #9a9ca4 44% 56%, transparent 56%),
-    linear-gradient(-45deg, transparent 44%, #9a9ca4 44% 56%, transparent 56%);
+    linear-gradient(45deg, transparent 44%, var(--ks-muted) 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--ks-muted) 44% 56%, transparent 56%);
 }
 .pn-x:hover {
   background:
-    linear-gradient(45deg, transparent 44%, #e8e9ee 44% 56%, transparent 56%),
-    linear-gradient(-45deg, transparent 44%, #e8e9ee 44% 56%, transparent 56%);
+    linear-gradient(45deg, transparent 44%, var(--ks-text) 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--ks-text) 44% 56%, transparent 56%);
 }
 .pn-body {
   display: flex;
@@ -173,7 +173,7 @@ textarea.pn-field {
 .pn-key[data-primary],
 .pn-skin button[class*="bg-cyan"] {
   background: var(--pn-cyan);
-  color: #0b1a1e;
+  color: var(--ks-well);
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.4);
 }
 .pn-key[data-primary]:hover,
@@ -183,7 +183,7 @@ textarea.pn-field {
 .pn-key[data-primary]:disabled,
 .pn-skin button[class*="bg-cyan"]:disabled {
   background: #1e6b78;
-  color: #0b1a1e;
+  color: var(--ks-well);
 }
 /* Small round-ish things (icon-only keys, the close cross) keep their own size. */
 .pn-skin button[aria-label="Close"] {

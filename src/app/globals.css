@@ -70,8 +70,6 @@
   zoom: var(--ui-scale-inverse);
 }
 
-
-
 /*
  * Theme tokens. The app renders dark, and only dark.
  *
@@ -90,7 +88,7 @@
    * stacks live in src/lib/app-font.ts; the boot script in layout.tsx
    * restores the attribute before first paint.
    */
-  --app-font: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --app-font: var(--ks-serif), serif;
 
   /*
    * The pixel font's own dress, worn only under it (html[data-app-font="minecraft"]
@@ -632,8 +630,7 @@ textarea {
    the beat it is revealed, so the arrival rides the board class. Same split
    as the arrive pop above: opacity on the wrapper, scale on the card root. */
 .factory-flow-board--timelapse .react-flow__node {
-  animation: board-card-arrive var(--timelapse-pop, 260ms) cubic-bezier(0.25, 1, 0.5, 1)
-    backwards;
+  animation: board-card-arrive var(--timelapse-pop, 260ms) cubic-bezier(0.25, 1, 0.5, 1) backwards;
 }
 
 .factory-flow-board--timelapse .react-flow__node > * {
@@ -674,8 +671,8 @@ textarea {
      renders as one-pixel dots. */
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: timelapse-wire-draw var(--timelapse-wire-draw, 450ms)
-    cubic-bezier(0.3, 0.55, 0.4, 1) forwards;
+  animation: timelapse-wire-draw var(--timelapse-wire-draw, 450ms) cubic-bezier(0.3, 0.55, 0.4, 1)
+    forwards;
 }
 
 @keyframes timelapse-wire-draw {
@@ -703,9 +700,7 @@ textarea {
      onto the board element per frame from the camera's velocity, additive
      over the dev menu's base angles, never touched by React. The
      transition above is what turns per-frame writes into a lean. */
-  transform: rotateX(
-      calc(var(--board-tilt-pitch, 7deg) + var(--board-tilt-breathe-pitch, 0deg))
-    )
+  transform: rotateX(calc(var(--board-tilt-pitch, 7deg) + var(--board-tilt-breathe-pitch, 0deg)))
     rotateY(calc(var(--board-tilt-yaw, -3deg) + var(--board-tilt-breathe-yaw, 0deg)))
     scale(var(--board-tilt-cover, 1.12));
   transform-style: preserve-3d;
@@ -757,7 +752,9 @@ textarea {
   visibility: hidden;
 }
 
-.factory-flow-board[data-detail-level="glance"] [data-node-glance-root] > *:not([data-node-detail="glance"]) {
+.factory-flow-board[data-detail-level="glance"]
+  [data-node-glance-root]
+  > *:not([data-node-detail="glance"]) {
   visibility: hidden;
   opacity: 0;
 }
@@ -787,16 +784,22 @@ textarea {
    Scoped to the value-motion class: the image export turns motion off before
    capturing, so a photograph must not come out half-faded. */
 .factory-flow-board--value-motion [data-node-detail="glance"] {
-  transition: opacity 560ms ease, visibility 0s 560ms;
+  transition:
+    opacity 560ms ease,
+    visibility 0s 560ms;
 }
 
 .factory-flow-board--value-motion [data-node-glance-root] > *:not([data-node-detail="glance"]),
 .factory-flow-board--value-motion [data-node-glance-root] > [data-tooltip-root] > * {
-  transition: opacity 560ms ease, visibility 0s;
+  transition:
+    opacity 560ms ease,
+    visibility 0s;
 }
 
 .factory-flow-board--value-motion[data-detail-level="glance"] [data-node-detail="glance"] {
-  transition: opacity 560ms ease, visibility 0s;
+  transition:
+    opacity 560ms ease,
+    visibility 0s;
   /* Mount fade. A transition only plays on a value CHANGE, and switching
      smart views mounts a NEW layer already at opacity 1; an animation also
      runs on mount. In practice it also draws the fade INTO the glance (the
@@ -819,7 +822,9 @@ textarea {
   [data-node-glance-root]
   > [data-tooltip-root]
   > * {
-  transition: opacity 560ms ease, visibility 0s 560ms;
+  transition:
+    opacity 560ms ease,
+    visibility 0s 560ms;
 }
 
 /* The paper's ruling (dots, lines, ruled/graph) fades out with the rest of
@@ -833,12 +838,16 @@ textarea {
 
 .factory-flow-board--value-motion .react-flow__background,
 .factory-flow-board--value-motion .board-ruling {
-  transition: opacity 560ms ease, visibility 0s;
+  transition:
+    opacity 560ms ease,
+    visibility 0s;
 }
 
 .factory-flow-board--value-motion[data-detail-level="glance"] .react-flow__background,
 .factory-flow-board--value-motion[data-detail-level="glance"] .board-ruling {
-  transition: opacity 560ms ease, visibility 0s 560ms;
+  transition:
+    opacity 560ms ease,
+    visibility 0s 560ms;
 }
 
 /* The smart views' card colour (glanceCardVars in node-colors.ts): the node
@@ -860,7 +869,9 @@ textarea {
    the heat rather than snapping it. Unscoped by detail level so the fade
    plays in both directions. */
 .factory-flow-board--value-motion .recipe-node-window {
-  transition: background-color 560ms ease, box-shadow 560ms ease;
+  transition:
+    background-color 560ms ease,
+    box-shadow 560ms ease;
 }
 
 /* Lines take the speed-view colour with the same fade the cards get. */
@@ -909,7 +920,9 @@ textarea {
    other layers, and the hovered node outranks every inline zIndex a sibling
    can carry (annotations 1000, hovered-usage cards 1500). Identity mode only;
    the status view's hover paints the hop map instead. */
-.factory-flow-board[data-detail-level="glance"][data-glance-mode="identity"]:has(.react-flow__node:hover)
+.factory-flow-board[data-detail-level="glance"][data-glance-mode="identity"]:has(
+    .react-flow__node:hover
+  )
   .react-flow__nodes {
   z-index: 2200 !important;
 }
@@ -1192,16 +1205,28 @@ img {
   scrollbar-width: thin;
 }
 @supports selector(::-webkit-scrollbar) {
-  * { scrollbar-color: auto; scrollbar-width: auto; }
-  *::-webkit-scrollbar { width: 10px; height: 10px; }
-  *::-webkit-scrollbar-track { background: var(--mc-25); }
+  * {
+    scrollbar-color: auto;
+    scrollbar-width: auto;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: var(--mc-25);
+  }
   *::-webkit-scrollbar-thumb {
     background: var(--mc-ink-muted);
     border: 2px solid var(--mc-25);
     border-radius: 4px;
   }
-  *::-webkit-scrollbar-thumb:hover { background: var(--mc-ink); }
-  *::-webkit-scrollbar-corner { background: var(--mc-25); }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--mc-ink);
+  }
+  *::-webkit-scrollbar-corner {
+    background: var(--mc-25);
+  }
 }
 
 /*
@@ -1475,7 +1500,12 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(155deg, rgba(255,255,255,0.06), transparent 48%, rgba(0,0,0,0.12));
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.06),
+    transparent 48%,
+    rgba(0, 0, 0, 0.12)
+  );
 }
 
 /* The body under the title bar wears a darker accent, painted on the
@@ -1484,8 +1514,8 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   content: "";
   position: absolute;
   inset: 18px 0 0;
-  background: rgba(0,0,0,0.24);
-  box-shadow: inset 0 1px 0 rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.24);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
 .factory-flow-board[data-detail-level="glance"] .storage-shape-fill::before {
@@ -1544,7 +1574,7 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   padding: 0 calc(var(--storage-hp) - 2px);
   border-radius: var(--band-radius);
   clip-path: var(--band-clip);
-  border-bottom: 1px solid rgba(0,0,0,0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
   background: color-mix(in srgb, var(--storage-tint) 30%, #0b0d10);
   cursor: grab;
 }
@@ -1579,7 +1609,7 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   line-height: 11px;
   text-align: center;
   white-space: nowrap;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.45);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
   /* Names fade where they run out, never an ellipsis. A centred name that
      fits never reaches the fade. */
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 6px), transparent);
@@ -1599,7 +1629,9 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   padding: 0;
   border: 1.5px solid #111317;
   background: #34373e;
-  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.2), inset -1px -1px 0 rgba(0,0,0,0.45);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.45);
   color: #e8e9ee;
   cursor: pointer;
 }
@@ -1668,9 +1700,9 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
      moves anything; with no bar the rate sits in the middle of it. */
   min-height: 25px;
   padding: 2px 4px 3px;
-  border: 1px solid rgba(0,0,0,0.26);
-  background: rgba(0,0,0,0.12);
-  box-shadow: inset 0 1px 0 rgba(0,0,0,0.16);
+  border: 1px solid rgba(0, 0, 0, 0.26);
+  background: rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.16);
   pointer-events: none;
 }
 
@@ -1777,7 +1809,9 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   padding: 0 2px 0 3px;
   border: 1px solid #111317;
   background: #34373e;
-  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.18), inset -1px -1px 0 rgba(0,0,0,0.45);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.18),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.45);
   color: #ffd257;
   font-size: 10.5px;
   font-weight: 800;
@@ -1802,7 +1836,9 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
 }
 
 .storage-rule-button--open {
-  box-shadow: 0 0 0 1px rgba(255,210,87,0.45), inset 1px 1px 0 rgba(255,255,255,0.18);
+  box-shadow:
+    0 0 0 1px rgba(255, 210, 87, 0.45),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 /* The button and the list it opens: the list hangs from here. */
@@ -1847,7 +1883,7 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   padding: 0 2px 0 3px;
   border: 1px solid #5a5e68;
   background: #0f1114;
-  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.7);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.7);
   color: #ffd257;
   font-size: 10px;
   font-weight: 800;
@@ -1893,7 +1929,7 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
 }
 
 .storage-rate-field--bad {
-  border-color: rgba(248,113,113,0.75);
+  border-color: rgba(248, 113, 113, 0.75);
   color: #f87171;
 }
 
@@ -1901,7 +1937,9 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   border-color: #ffd257;
   outline: none;
   background: #15171c;
-  box-shadow: 0 0 0 1px rgba(255,210,87,0.35), inset 1px 1px 0 rgba(0,0,0,0.7);
+  box-shadow:
+    0 0 0 1px rgba(255, 210, 87, 0.35),
+    inset 1px 1px 0 rgba(0, 0, 0, 0.7);
   cursor: text;
 }
 
@@ -1923,7 +1961,9 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   padding: 2px;
   border: 1.5px solid #111317;
   background: #2b2d33;
-  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.12), 3px 3px 0 rgba(0,0,0,0.5);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.12),
+    3px 3px 0 rgba(0, 0, 0, 0.5);
 }
 
 .storage-rule-option {
@@ -1955,12 +1995,12 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
 }
 
 .storage-rule-option:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .storage-rule-option--on {
-  background: rgba(255,210,87,0.16);
-  box-shadow: inset 0 0 0 1px rgba(255,210,87,0.4);
+  background: rgba(255, 210, 87, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 210, 87, 0.4);
 }
 
 /* Pool's Desired rates borrow the rule button: plain text on a dotted
@@ -2042,7 +2082,7 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   display: block;
   height: 3px;
   background: var(--rail-bar-track);
-  box-shadow: inset 0 1px 0 rgba(0,0,0,0.35);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.35);
   pointer-events: none;
 }
 
@@ -2056,7 +2096,11 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   --fill: var(--rail-bar-ok);
   position: absolute;
   inset: 0 auto 0 0;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--fill) 70%, #fff), var(--fill) 70%);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--fill) 70%, #fff),
+    var(--fill) 70%
+  );
 }
 
 .storage-rate-bar > i[data-tone="bad"] {
@@ -2903,8 +2947,6 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
   display: none;
 }
 
-
-
 /* The connection line's SNAPPED state: white marching dots riding the green
    pipe toward the slot it caught. Class-gated so reduced motion simply
    leaves the dots parked. */
@@ -2961,10 +3003,35 @@ html:not([data-app-font="minecraft"]) [class*="[text-shadow:"] {
 }
 
 /* Loaded category sprites overlap briefly; neither frame fades through empty. */
-@keyframes category-icon-enter { from { opacity: 0; } to { opacity: 1; } }
-@keyframes category-icon-leave { from { opacity: 1; } to { opacity: 0; } }
-.category-icon-enter { animation: category-icon-enter 110ms ease-in-out both; }
-.category-icon-leave { animation: category-icon-leave 110ms ease-in-out both; }
+@keyframes category-icon-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes category-icon-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.category-icon-enter {
+  animation: category-icon-enter 110ms ease-in-out both;
+}
+.category-icon-leave {
+  animation: category-icon-leave 110ms ease-in-out both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .category-icon-enter, .category-icon-leave { animation-duration: 1ms; }
+  .category-icon-enter,
+  .category-icon-leave {
+    animation-duration: 1ms;
+  }
+}
+
+html[data-app-font="inter"] {
+  --app-font: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }

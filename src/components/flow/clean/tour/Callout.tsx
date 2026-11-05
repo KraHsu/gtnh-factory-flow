@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { getUiScale } from "@/lib/ui-scale";
@@ -18,7 +19,12 @@ import { getBoardBridge } from "./TourBridge";
  * A note whose target never shows says its piece in the middle after a moment rather than leave the tour waiting.
  */
 
-const GLYPH: Record<string, "middle" | "wheel" | "left" | "right"> = { M: "middle", W: "wheel", L: "left", R: "right" };
+const GLYPH: Record<string, "middle" | "wheel" | "left" | "right"> = {
+  M: "middle",
+  W: "wheel",
+  L: "left",
+  R: "right",
+};
 
 /** A small key cap, for the lines about keys. */
 const KEY_GLYPH =
@@ -62,6 +68,7 @@ export function Callout({
   onBack: () => void;
   onLeave: () => void;
 }) {
+  const t = useT();
   const boxRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const lines: Line[] = useMemo(() => parseLines(note.text), [note.text]);
@@ -99,7 +106,7 @@ export function Callout({
         avoidAt = now;
         cards = [];
         // Open menus too: a step may leave one open, and the note must not sit under it.
-        for (const el of document.querySelectorAll(".react-flow__node, [role=\"menu\"]")) {
+        for (const el of document.querySelectorAll('.react-flow__node, [role="menu"]')) {
           const r = rectOf(el);
           if (r.w > 0 && r.h > 0) cards.push(r);
         }
@@ -107,11 +114,22 @@ export function Callout({
       const avoid: Rect[] = [...cards];
       if (cursor && cursor.x > 0) avoid.push({ x: cursor.x - 6, y: cursor.y - 6, w: 36, h: 40 });
       // Not over the top bar or the board's own corner keys.
-      let place = placeNote({ target: rect, size, viewport, avoid, inset: { top: 40, bottom: 8, left: 0, right: 0 } });
+      let place = placeNote({
+        target: rect,
+        size,
+        viewport,
+        avoid,
+        inset: { top: 40, bottom: 8, left: 0, right: 0 },
+      });
       // A note about nothing in particular sits at the top of the board, across its middle (the mod's noteAt).
       const pane = note.nothing ? getBoardBridge()?.paneRect() : null;
       if (pane) {
-        place = { x: Math.max(10, pane.left + (pane.width - size.w) / 2), y: pane.top + pane.height * 0.1, side: "centre", tip: 0 };
+        place = {
+          x: Math.max(10, pane.left + (pane.width - size.w) / 2),
+          y: pane.top + pane.height * 0.1,
+          side: "centre",
+          tip: 0,
+        };
       }
       const key = `${Math.round(place.x)},${Math.round(place.y)},${place.side},${Math.round(place.tip)}`;
       if (key !== last) {
@@ -142,7 +160,14 @@ export function Callout({
   return (
     <>
       <div ref={frameRef} className="tour-frame" data-tour="frame" />
-      <div ref={boxRef} className="tour-note ui-zoom" data-tour="note" data-nothing={note.nothing ? "" : undefined} key={note.text} role="note">
+      <div
+        ref={boxRef}
+        className="tour-note ui-zoom"
+        data-tour="note"
+        data-nothing={note.nothing ? "" : undefined}
+        key={note.text}
+        role="note"
+      >
         <div className="tour-note-tip" />
         <div className="tour-note-body" data-glyphs={withGlyphs ? "" : undefined}>
           {lines.map((line, i) => (
@@ -150,7 +175,13 @@ export function Callout({
               {withGlyphs ? (
                 <span
                   className="tour-glyph"
-                  dangerouslySetInnerHTML={{ __html: line.glyph ? (line.glyph === "K" ? KEY_GLYPH : mouseGlyphSvg(GLYPH[line.glyph]!)) : "" }}
+                  dangerouslySetInnerHTML={{
+                    __html: line.glyph
+                      ? line.glyph === "K"
+                        ? KEY_GLYPH
+                        : mouseGlyphSvg(GLYPH[line.glyph]!)
+                      : "",
+                  }}
                 />
               ) : null}
               <span className="tour-words">
@@ -160,11 +191,17 @@ export function Callout({
           ))}
         </div>
         <div className="tour-keys">
-          <div role="button" aria-label="Leave the tour" title="Leave the tour (Esc)" className="tour-key tour-key-x" onClick={onLeave} />
+          <div
+            role="button"
+            aria-label="Leave the tour"
+            title="Leave the tour (Esc)"
+            className="tour-key tour-key-x"
+            onClick={onLeave}
+          />
           <span className="tour-keys-gap" />
           <div
             role="button"
-            aria-label="Back"
+            aria-label={t("Back")}
             title="Back (left arrow)"
             className="tour-key tour-key-back"
             data-off={canBack ? undefined : ""}
@@ -172,7 +209,7 @@ export function Callout({
           />
           <div
             role="button"
-            aria-label={last ? "Finish" : "Next"}
+            aria-label={last ? "Finish" : t("Next")}
             title={last ? "Finish (Enter)" : "Next (right arrow, Space or Enter)"}
             className="tour-key tour-key-next"
             data-done={done ? "" : undefined}

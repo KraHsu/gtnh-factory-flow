@@ -13,10 +13,10 @@
 .fb {
   width: 380px;
   max-width: calc(100vw - 24px);
-  background: #23252a;
-  border: 1px solid #34363c;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-paper);
   box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.45);
-  color: #e8e9ee;
+  color: var(--ks-text);
   font-family: var(--app-font);
   font-size: 12px;
   line-height: 14px;
@@ -28,7 +28,7 @@
   justify-content: space-between;
   height: 26px;
   padding: 0 10px 0 12px;
-  border-bottom: 1px solid #2c2e34;
+  border-bottom: 1px solid var(--ks-paper);
   font-size: 13px;
 }
 .fb-x {
@@ -36,13 +36,13 @@
   height: 16px;
   cursor: pointer;
   background:
-    linear-gradient(45deg, transparent 44%, #9a9ca4 44% 56%, transparent 56%),
-    linear-gradient(-45deg, transparent 44%, #9a9ca4 44% 56%, transparent 56%);
+    linear-gradient(45deg, transparent 44%, var(--ks-muted) 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--ks-muted) 44% 56%, transparent 56%);
 }
 .fb-x:hover {
   background:
-    linear-gradient(45deg, transparent 44%, #e8e9ee 44% 56%, transparent 56%),
-    linear-gradient(-45deg, transparent 44%, #e8e9ee 44% 56%, transparent 56%);
+    linear-gradient(45deg, transparent 44%, var(--ks-text) 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--ks-text) 44% 56%, transparent 56%);
 }
 .fb-body {
   display: flex;
@@ -79,27 +79,27 @@
   gap: 6px;
   height: 22px;
   padding: 0 14px 0 8px;
-  background: #2a2c31;
-  border: 1px solid #3a3c42;
+  background: var(--ks-paper);
+  border: 1px solid var(--ks-line);
   border-radius: 3px;
-  color: #9a9ca4;
+  color: var(--ks-muted);
   cursor: pointer;
 }
 .fb-kind svg {
-  color: color-mix(in srgb, var(--kc) 75%, #2a2c31);
+  color: color-mix(in srgb, var(--kc) 75%, var(--ks-paper));
 }
 .fb-kind:hover {
-  background: #33363c;
-  border-color: #5a5d66;
-  color: #e8e9ee;
+  background: var(--ks-paper);
+  border-color: var(--ks-line);
+  color: var(--ks-text);
 }
 .fb-kind:hover svg {
   color: var(--kc);
 }
 .fb-kind[data-on] {
-  background: color-mix(in srgb, var(--kc) 16%, #23252a);
+  background: color-mix(in srgb, var(--kc) 16%, var(--ks-paper));
   border-color: var(--kc);
-  color: #e8e9ee;
+  color: var(--ks-text);
 }
 .fb-kind[data-on] svg {
   color: var(--kc);
@@ -108,34 +108,34 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
-  color: #9a9ca4;
+  color: var(--ks-muted);
 }
 .fb-discord {
   color: #8ea1ff;
   text-decoration: none;
 }
 .fb-discord:hover {
-  color: #fff;
+  color: var(--ks-text);
 }
 .fb-area {
   height: 80px;
   resize: none;
   padding: 6px 8px;
-  background: #16171a;
-  border: 1px solid #34363c;
-  color: #e8e9ee;
+  background: var(--ks-well);
+  border: 1px solid var(--ks-paper);
+  color: var(--ks-text);
   font: inherit;
   line-height: 15px;
   outline: none;
   user-select: text;
 }
 .fb-area:focus {
-  border-color: #4a4c54;
+  border-color: var(--ks-line);
 }
 .fb-sends {
   margin-top: 9px;
   min-height: 28px;
-  color: #b8bac2;
+  color: var(--ks-text);
 }
 .fb-foot {
   display: flex;
@@ -145,7 +145,7 @@
   margin-top: 6px;
 }
 .fb-where {
-  color: #6a6c74;
+  color: var(--ks-muted);
 }
 .fb-where[data-error] {
   color: #e0a63a;
@@ -155,13 +155,13 @@
   height: 22px;
   line-height: 22px;
   text-align: center;
-  background: #22d3ee;
-  color: #0b1a1e;
+  background: var(--ks-green);
+  color: var(--ks-well);
   cursor: pointer;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.4);
 }
 .fb-send:hover {
-  background: #38e1f5;
+  background: var(--ks-green);
 }
 .fb-send[data-sending] {
   background: #1e6b78;
@@ -179,7 +179,7 @@
   font-size: 13px;
 }
 .fb-sent-sub {
-  color: #9a9ca4;
+  color: var(--ks-muted);
 }
 .fb-keys {
   display: flex;
@@ -191,22 +191,22 @@
   height: 22px;
   line-height: 22px;
   text-align: center;
-  background: #26282d;
+  background: var(--ks-paper);
   box-shadow:
-    inset 1px 1px #4a4c54,
-    inset -1px -1px #17191d;
+    inset 1px 1px var(--ks-line),
+    inset -1px -1px var(--ks-paper);
   cursor: pointer;
 }
 .fb-key:hover {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 .fb-key-primary {
-  background: #22d3ee;
-  color: #0b1a1e;
+  background: var(--ks-green);
+  color: var(--ks-well);
   box-shadow: none;
 }
 .fb-key-primary:hover {
-  background: #38e1f5;
+  background: var(--ks-green);
 }
 
 /* The top bar's red bug key. */
@@ -215,15 +215,15 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  background: #26282d;
+  background: var(--ks-paper);
   color: #e5484d;
   box-shadow:
-    inset 1px 1px #4a4c54,
-    inset -1px -1px #17191d;
+    inset 1px 1px var(--ks-line),
+    inset -1px -1px var(--ks-paper);
   cursor: pointer;
 }
 .fb-topkey:hover {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 
 /* Keyboard focus: the same gold ring as the top bar's keys. */
@@ -232,7 +232,7 @@
 .fb-face:focus-visible,
 .fb-kind:focus-visible,
 .fb-send:focus-visible {
-  outline: 2px solid #ffd257;
+  outline: 2px solid var(--ks-amber);
   outline-offset: 1px;
 }
 .fb:focus {

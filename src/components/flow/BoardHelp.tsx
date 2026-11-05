@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import {
   Box,
   Eye,
@@ -17,7 +18,15 @@ import {
   Undo2,
   Zap,
 } from "lucide-react";
-import { Fragment, memo, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  Fragment,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { createPortal } from "react-dom";
 import { getUiScale } from "@/lib/ui-scale";
 import { BOARD_TOOL_SCALE } from "./toolbar-fold";
@@ -308,7 +317,12 @@ const LINEAR: HelpCard[] = [
  * one conversion is here and in `show` for the window itself.
  */
 function toHelpRect(rect: DOMRect, scale = getUiScale()): HelpRect {
-  return { left: rect.left / scale, top: rect.top / scale, right: rect.right / scale, bottom: rect.bottom / scale };
+  return {
+    left: rect.left / scale,
+    top: rect.top / scale,
+    right: rect.right / scale,
+    bottom: rect.bottom / scale,
+  };
 }
 
 function unionRects(...rects: Array<HelpRect | undefined>): HelpRect | undefined {
@@ -352,8 +366,7 @@ function padRect(rect: HelpRect): HelpRect {
   };
 }
 
-const clamp = (value: number, low: number, high: number) =>
-  Math.max(low, Math.min(high, value));
+const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
 
 /**
  * An axis-aligned arrow: a run of points, a head at the last one pointing
@@ -496,9 +509,19 @@ function layoutGlance({ rects, button, vw, vh }: Measured): GlanceLayout {
       style: { left: build.left, top, width: CARD_W },
       cards,
     });
-    boxes.push({ key: "board-left", left: build.left, top, bottom: top + estimateStackHeight(cards) });
+    boxes.push({
+      key: "board-left",
+      left: build.left,
+      top,
+      bottom: top + estimateStackHeight(cards),
+    });
     const x = clamp((ring.left + ring.right) / 2, build.left + 24, build.left + CARD_W - 24);
-    arrows.push({ points: [{ x, y: top }, { x, y: ring.bottom }] });
+    arrows.push({
+      points: [
+        { x, y: top },
+        { x, y: ring.bottom },
+      ],
+    });
   }
 
   footStacks.forEach((cards, index) => {
@@ -508,7 +531,12 @@ function layoutGlance({ rects, button, vw, vh }: Measured): GlanceLayout {
       style: { left, bottom: vh - footBottom, width: CARD_W },
       cards,
     });
-    boxes.push({ key: `foot-${index}`, left, top: footBottom - estimateStackHeight(cards), bottom: footBottom });
+    boxes.push({
+      key: `foot-${index}`,
+      left,
+      top: footBottom - estimateStackHeight(cards),
+      bottom: footBottom,
+    });
   });
 
   if (toolRow) {
@@ -523,7 +551,12 @@ function layoutGlance({ rects, button, vw, vh }: Measured): GlanceLayout {
     });
     boxes.push({ key: "board-right", left, top, bottom: top + estimateStackHeight([TOOLS]) });
     const x = clamp((ring.left + ring.right) / 2, left + 24, left + CARD_W - 24);
-    arrows.push({ points: [{ x, y: top }, { x, y: ring.bottom }] });
+    arrows.push({
+      points: [
+        { x, y: top },
+        { x, y: ring.bottom },
+      ],
+    });
   }
 
   if (dock) {
@@ -536,9 +569,19 @@ function layoutGlance({ rects, button, vw, vh }: Measured): GlanceLayout {
       style: { left, bottom: vh - bottom, width: CARD_W },
       cards: [FRAMING],
     });
-    boxes.push({ key: "board-right-bottom", left, top: bottom - estimateStackHeight([FRAMING]), bottom });
+    boxes.push({
+      key: "board-right-bottom",
+      left,
+      top: bottom - estimateStackHeight([FRAMING]),
+      bottom,
+    });
     const x = clamp((ring.left + ring.right) / 2, left + 24, left + CARD_W - 24);
-    arrows.push({ points: [{ x, y: bottom }, { x, y: ring.top }] });
+    arrows.push({
+      points: [
+        { x, y: bottom },
+        { x, y: ring.top },
+      ],
+    });
   }
 
   if (button) {
@@ -548,14 +591,24 @@ function layoutGlance({ rects, button, vw, vh }: Measured): GlanceLayout {
       style: { left: button.left, bottom: vh - bottom, width: CARD_W },
       cards: cornerCards,
     });
-    boxes.push({ key: "corner", left: button.left, top: bottom - estimateStackHeight(cornerCards), bottom });
+    boxes.push({
+      key: "corner",
+      left: button.left,
+      top: bottom - estimateStackHeight(cornerCards),
+      bottom,
+    });
     if (planBar && planBar.top > bottom + ARROW_HEAD) {
       // The plan bar runs the whole width of the board's foot, so the arrow
       // drops from the stack's bottom card wherever it clears the button.
       const ring = padRect(planBar);
       rings.push(planBar);
       const x = clamp(button.right + 120, button.left + 24, button.left + CARD_W - 24);
-      arrows.push({ points: [{ x, y: bottom }, { x, y: ring.top }] });
+      arrows.push({
+        points: [
+          { x, y: bottom },
+          { x, y: ring.top },
+        ],
+      });
     }
   }
 
@@ -576,7 +629,12 @@ function layoutGlance({ rects, button, vw, vh }: Measured): GlanceLayout {
       const ring = padRect(pill);
       rings.push(pill);
       const y = clamp((pill.top + pill.bottom) / 2, top + 12, top + 40);
-      arrows.push({ points: [{ x: left + CARD_W, y }, { x: ring.left, y }] });
+      arrows.push({
+        points: [
+          { x: left + CARD_W, y },
+          { x: ring.left, y },
+        ],
+      });
     }
   }
 
@@ -724,6 +782,7 @@ const HELP_BUTTON_CLASS =
  * one way out, and no pointing.
  */
 function HelpSheet({ onClose }: { onClose: () => void }) {
+  const t = useT();
   return (
     <div className="ui-zoom fixed inset-0 z-[120] flex flex-col bg-[#101419] font-mono text-[#dbe3ec]">
       <div
@@ -731,7 +790,7 @@ function HelpSheet({ onClose }: { onClose: () => void }) {
         style={{ borderBottom: `1px solid ${GLANCE_LINE}` }}
       >
         <span className="text-[12px] font-black uppercase tracking-[0.14em] text-[#aebccd]">
-          Board help
+          {t("Board help")}
         </span>
         <button
           type="button"
@@ -866,6 +925,7 @@ function HelpGlanceSheet({
 }
 
 export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean }) {
+  const t = useT();
   const [measured, setMeasured] = useState<Measured | undefined>(undefined);
   const [isSheetOpen, setSheetOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -895,7 +955,13 @@ export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean
   const glance = !compact && measured ? layoutGlance(measured) : undefined;
   useEffect(() => {
     (window as unknown as { __gtnhHelpGlance?: unknown }).__gtnhHelpGlance = glance
-      ? { vw: measured?.vw, vh: measured?.vh, fits: glance.fits, boxes: glance.boxes, collisions: glance.collisions }
+      ? {
+          vw: measured?.vw,
+          vh: measured?.vh,
+          fits: glance.fits,
+          boxes: glance.boxes,
+          collisions: glance.collisions,
+        }
       : undefined;
   }, [glance, measured]);
 
@@ -908,16 +974,13 @@ export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean
           data-help-anchor="help"
           className={HELP_BUTTON_CLASS}
           style={{ zoom: BOARD_TOOL_SCALE }}
-          title="Board help"
+          title={t("Board help")}
           aria-label="Show board help"
         >
           ?
         </button>
         {isSheetOpen && typeof document !== "undefined"
-          ? createPortal(
-              <HelpSheet onClose={() => setSheetOpen(false)} />,
-              document.body,
-            )
+          ? createPortal(<HelpSheet onClose={() => setSheetOpen(false)} />, document.body)
           : null}
       </div>
     );
@@ -936,11 +999,7 @@ export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean
     measured.vh >= GLANCE_MIN_VH;
 
   return (
-    <div
-      className="absolute bottom-3 left-3 z-30"
-      onMouseEnter={show}
-      onMouseLeave={scheduleHide}
-    >
+    <div className="absolute bottom-3 left-3 z-30" onMouseEnter={show} onMouseLeave={scheduleHide}>
       <button
         ref={buttonRef}
         type="button"
@@ -953,7 +1012,7 @@ export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean
         data-help-anchor="help"
         className={HELP_BUTTON_CLASS}
         style={{ zoom: BOARD_TOOL_SCALE }}
-        title="Board help"
+        title={t("Board help")}
         aria-label="Show board help"
       >
         ?

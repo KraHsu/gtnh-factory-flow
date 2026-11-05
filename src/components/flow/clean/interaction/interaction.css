@@ -14,8 +14,8 @@
   width: max-content;
   max-width: 420px;
   padding: 10px 13px;
-  background: #26282d;
-  color: #f5f5f5;
+  background: var(--ks-paper);
+  color: var(--ks-text);
   /* The mod's pixel face, as the card and the drawer. */
   font-family: var(--cc-font);
   font-size: 14px;
@@ -23,17 +23,17 @@
   -webkit-font-smoothing: var(--pixel-font-smoothing);
   pointer-events: none;
   box-shadow:
-    0 0 0 1px #111317,
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d,
+    0 0 0 1px var(--ks-well),
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper),
     2px 4px 8px rgba(0, 0, 0, 0.2);
 }
 .tp-title {
   font-weight: 400;
-  color: #f5f5f5;
+  color: var(--ks-text);
 }
 .tp-sub {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .tp-row {
   display: flex;
@@ -45,10 +45,10 @@
   margin-top: 0;
 }
 .tp-label {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .tp-value {
-  color: #f5f5f5;
+  color: var(--ks-text);
   font-variant-numeric: tabular-nums;
 }
 .tp-value[data-tone="red"],
@@ -61,11 +61,11 @@
 }
 .tp-value[data-tone="muted"],
 .tp-note[data-tone="muted"] {
-  color: #a3a3a3;
+  color: var(--ks-muted);
 }
 .tp-note {
   margin-top: 6px;
-  color: #e5e5e5;
+  color: var(--ks-text);
 }
 .tp-gold {
   color: var(--cc-gold);
@@ -73,7 +73,7 @@
 .tp-rule {
   height: 1px;
   margin: 8px 0 6px;
-  background: #3a3b40;
+  background: var(--ks-line);
 }
 .tp-actions {
   display: flex;
@@ -84,7 +84,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #e5e5e5;
+  color: var(--ks-text);
 }
 .tp-icon {
   flex: none;
@@ -102,7 +102,7 @@
 }
 .tp-power-guide {
   padding-left: 14px;
-  border-left: 1px solid #3a3b40;
+  border-left: 1px solid var(--ks-line);
 }
 
 /* ---- Port rate controls (spec 2.5): the rule key and rate box of an unwired port --------- */
@@ -133,13 +133,13 @@
 }
 .cc-prk {
   width: 10px;
-  background: #34373e;
+  background: var(--ks-paper);
   box-shadow:
-    inset 0 0 0 1px #111317,
+    inset 0 0 0 1px var(--ks-well),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .cc-prk:hover {
-  background: #454952;
+  background: var(--ks-line);
 }
 .cc-prk::before {
   content: "~";
@@ -156,14 +156,14 @@
 }
 .cc-prb {
   width: 59px;
-  border: 1px solid #5a5e68;
-  background: #0f1114;
+  border: 1px solid var(--ks-line);
+  background: var(--ks-well);
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.7);
   font-size: 8px;
   font-weight: 400;
   line-height: 8px;
   text-align: center;
-  color: #6f737c;
+  color: var(--ks-muted);
   cursor: text;
   white-space: nowrap;
   overflow: hidden;
@@ -171,7 +171,7 @@
 .cc-prb:hover,
 .cc-prb[data-editing] {
   border-color: var(--cc-gold);
-  background: #15171c;
+  background: var(--ks-well);
 }
 .cc-prb[data-set] {
   color: var(--cc-gold);
@@ -179,14 +179,14 @@
 .cc-prb[data-set]::after {
   content: attr(data-unit);
   margin-left: 1px;
-  color: #8a8e97;
+  color: var(--ks-muted);
 }
 .cc-prb[data-prompt] {
   color: var(--cc-gold);
 }
 /* Blinks off the root's one clock (virtual/prompt-phase.ts). */
 :root[data-cc-blink] .cc-prb[data-prompt] {
-  color: var(--cc-prompt-off, #6f737c);
+  color: var(--cc-prompt-off, var(--ks-muted));
 }
 .cc-prb input {
   box-sizing: border-box;

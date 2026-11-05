@@ -1,14 +1,12 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useMemo, useState } from "react";
 import { formatRelativeDate } from "@/components/shelf-cards";
 import { LibraryTile } from "@/components/library/LibraryTile";
 import { LibraryMenu, MenuItem } from "@/components/library/library-menu";
 import { openSharedPlan } from "@/lib/library/open-shared";
-import {
-  removePlanMember,
-  useCloudLibraryStore,
-} from "@/lib/library/cloud-library";
+import { removePlanMember, useCloudLibraryStore } from "@/lib/library/cloud-library";
 import { syncLibraryNow } from "@/lib/library/library-sync";
 import type { SharedDesign } from "@/lib/library/sync-types";
 import { colorFor } from "@/lib/live/protocol";
@@ -23,6 +21,7 @@ import { Face } from "./LiveFaces";
  * and the copy goes live at once: the same plan everyone in it is editing.
  */
 export function SharedWithMe() {
+  const t = useT();
   const shared = useCloudLibraryStore((state) => state.shared);
   const designs = useDesignStore((state) => state.designs);
   const removeDesign = useDesignStore((state) => state.removeDesign);
@@ -91,11 +90,11 @@ export function SharedWithMe() {
       {error ? <p className="mb-2 text-[11px] text-red-400">{error}</p> : null}
       {!shared ? (
         <p className="px-0.5 pt-1 text-[12px] text-[var(--mc-ink-muted)]">
-          Loading the plans shared with you.
+          {t("Loading the plans shared with you.")}
         </p>
       ) : shared.length === 0 ? (
         <p className="px-0.5 pt-1 text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
-          Nothing shared with you yet
+          {t("Nothing shared with you yet")}
         </p>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2">
@@ -142,7 +141,7 @@ export function SharedWithMe() {
           onClose={() => setMenu(undefined)}
         >
           <MenuItem
-            label="Open"
+            label={t("Open")}
             onClick={() => {
               setMenu(undefined);
               void open(menuPlan);

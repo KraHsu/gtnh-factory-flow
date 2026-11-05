@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 import { focusDropdownFilter } from "@/lib/dropdown-focus";
@@ -47,6 +48,7 @@ export function MinecraftSelect({
   wideMenu?: boolean;
   tooltipContent?: ReactNode | (() => ReactNode);
 }) {
+  const t = useT();
   const [isOpen, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
@@ -79,31 +81,31 @@ export function MinecraftSelect({
   return (
     <div ref={rootRef} className={["relative min-w-0", className].join(" ")}>
       <MinecraftTooltip content={tooltipContent}>
-      <button
-        type="button"
-        disabled={disabled}
-        onPointerDown={(event) => event.stopPropagation()}
-        onClick={(event) => {
-          event.stopPropagation();
-          setOpen((open) => !open);
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
+        <button
+          type="button"
+          disabled={disabled}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
             event.stopPropagation();
-            setOpen(false);
-          }
-        }}
-        title={tooltipContent ? undefined : title}
-        aria-label={ariaLabel}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        className="flex h-6 w-full min-w-0 items-center gap-1 border border-[var(--mc-33)] bg-[var(--mc-85)] px-1.5 text-[12px] font-bold leading-4 text-[var(--mc-ink)] shadow-[inset_1px_1px_0_var(--mc-100),inset_-1px_-1px_0_var(--mc-54)] outline-none focus:border-cyan-700 disabled:cursor-not-allowed disabled:text-[var(--mc-33)]"
-      >
-        {/* No icon on the closed control: the chip beside it already shows the
+            setOpen((open) => !open);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              setOpen(false);
+            }
+          }}
+          title={tooltipContent ? undefined : title}
+          aria-label={ariaLabel}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          className="flex h-6 w-full min-w-0 items-center gap-1 border border-[var(--mc-33)] bg-[var(--mc-85)] px-1.5 text-[12px] font-bold leading-4 text-[var(--mc-ink)] shadow-[inset_1px_1px_0_var(--mc-100),inset_-1px_-1px_0_var(--mc-54)] outline-none focus:border-cyan-700 disabled:cursor-not-allowed disabled:text-[var(--mc-33)]"
+        >
+          {/* No icon on the closed control: the chip beside it already shows the
             current block, and two copies of it read as two things. */}
-        <span className="min-w-0 flex-1 truncate text-left">{current?.label ?? value}</span>
-        {disabled ? null : <ChevronDown className="h-3 w-3 shrink-0" />}
-      </button>
+          <span className="min-w-0 flex-1 truncate text-left">{current?.label ?? value}</span>
+          {disabled ? null : <ChevronDown className="h-3 w-3 shrink-0" />}
+        </button>
       </MinecraftTooltip>
       {isOpen ? (
         <div
@@ -121,7 +123,10 @@ export function MinecraftSelect({
         >
           {searchable ? (
             <label className="relative mb-0.5 flex shrink-0 items-center">
-              <Search className="pointer-events-none absolute left-1.5 h-3 w-3 opacity-60" aria-hidden />
+              <Search
+                className="pointer-events-none absolute left-1.5 h-3 w-3 opacity-60"
+                aria-hidden
+              />
               <input
                 ref={filterRef}
                 value={filter}
@@ -148,7 +153,7 @@ export function MinecraftSelect({
           ) : null}
           <div className="min-h-0 flex-1 overflow-y-auto">
             {shownOptions.length === 0 ? (
-              <p className="px-1.5 py-1 text-[12px] text-[var(--mc-ink)]/60">No matches.</p>
+              <p className="px-1.5 py-1 text-[12px] text-[var(--mc-ink)]/60">{t("No matches.")}</p>
             ) : (
               shownOptions.map((option) => {
                 const isSelected = option.key === value;

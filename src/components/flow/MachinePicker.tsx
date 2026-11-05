@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -49,7 +50,12 @@ export interface HandlerRecipeStats {
 export function getHandlerRecipeStats(recipe: Recipe, handler: MachineHandler): HandlerRecipeStats {
   const applied = applyMachineHandlerToRecipe(recipe, { machineHandlerId: handler.id });
   const fusion = getFusionStats(applied);
-  const fusionStats = fusion ? getOverclockedRecipeStats(recipe, { machineHandlerId: handler.id, overclockTier: fusion.tier }) : undefined;
+  const fusionStats = fusion
+    ? getOverclockedRecipeStats(recipe, {
+        machineHandlerId: handler.id,
+        overclockTier: fusion.tier,
+      })
+    : undefined;
   const scalingParallels: { label: string; max: number }[] = [];
   let fixedParallels: number | undefined;
   const controlSummaries: { label: string; detail: string }[] = [];
@@ -101,17 +107,20 @@ export function getHandlerRecipeStats(recipe: Recipe, handler: MachineHandler): 
   return {
     seconds: (fusionStats?.durationTicks ?? applied.durationTicks) / 20,
     eut: fusionStats ? fusionStats.eut * fusion!.parallels : applied.eut,
-    totalEu: fusionStats ? fusionStats.eut * fusionStats.durationTicks : applied.eut * applied.durationTicks,
+    totalEu: fusionStats
+      ? fusionStats.eut * fusionStats.durationTicks
+      : applied.eut * applied.durationTicks,
     minimumTier: applied.minimumTier,
     steam: isSteamMachineHandler(handler),
     perfectOverclock: applied.machineProfile?.perfectOverclock === true,
     fixedParallels,
     scalingParallels,
     controlSummaries,
-    exactOverclocks: !!fusion ||
-      handler.id === recipe.machineHandlers?.[0]?.id &&
-      recipe.runtimeCalculation?.status === "computed" &&
-      (recipe.runtimeCalculation?.variants.length ?? 0) > 0,
+    exactOverclocks:
+      !!fusion ||
+      (handler.id === recipe.machineHandlers?.[0]?.id &&
+        recipe.runtimeCalculation?.status === "computed" &&
+        (recipe.runtimeCalculation?.variants.length ?? 0) > 0),
   };
 }
 
@@ -149,7 +158,6 @@ function formatCompact(value: number): string {
   return formatRate(value, 0);
 }
 
-
 /* ------------------------------------------------------------------ */
 /* Machine menu                                                        */
 /* ------------------------------------------------------------------ */
@@ -160,7 +168,24 @@ function formatCompact(value: number): string {
 const MENU_MAX_HEIGHT = 520;
 const MENU_ROW_HEIGHT = 40;
 
-const TIER_ORDER = ["NONE", "ULV", "LV", "MV", "HV", "EV", "IV", "LuV", "ZPM", "UV", "UHV", "UEV", "UIV", "UMV", "UXV", "MAX"];
+const TIER_ORDER = [
+  "NONE",
+  "ULV",
+  "LV",
+  "MV",
+  "HV",
+  "EV",
+  "IV",
+  "LuV",
+  "ZPM",
+  "UV",
+  "UHV",
+  "UEV",
+  "UIV",
+  "UMV",
+  "UXV",
+  "MAX",
+];
 const tierRank = (tier: string | undefined) => {
   const index = TIER_ORDER.indexOf(tier ?? "NONE");
   return index < 0 ? TIER_ORDER.length : index;
@@ -219,6 +244,7 @@ export function MachineMenu({
   /** The heading over the machine rows; a shared card says "every recipe on this card". */
   title?: string;
 }) {
+  const t = useT();
   const rootRef = useRef<HTMLDivElement>(null);
   // The menu PORTALS to the body, like the crop and hatch menus: inside the
   // card it would sit in the node layer, under the marching-dash canvas and
@@ -229,39 +255,63 @@ export function MachineMenu({
   // otherwise. Measured once on open; a board pan closes it through the
   // click-away.
   const anchorRef = useRef<HTMLSpanElement>(null);
-  const [anchorAt, setAnchorAt] = useState<{ left: number; top?: number; bottom?: number; width: number; maxHeight: number }>();
+  const [anchorAt, setAnchorAt] = useState<{
+    left: number;
+    top?: number;
+    bottom?: number;
+    width: number;
+    maxHeight: number;
+  }>();
   useEffect(() => {
     const bar = anchorRef.current?.parentElement;
     // The worksheet reuses this chooser without a canvas card. Its cell is
     // the window to align to; other standalone controls can use their bar.
-    const card = anchorRef.current?.closest("[data-node-glance-root], [data-machine-editor-anchor]") ?? bar;
+    const card =
+      anchorRef.current?.closest("[data-node-glance-root], [data-machine-editor-anchor]") ?? bar;
     if (bar && card) {
       // Real px throughout (rects, innerWidth); the menu box wears ui-zoom,
       // so the numbers are divided by the scale where the style reads them.
       const scale = getUiScale();
       const barRect = bar.getBoundingClientRect();
       const cardRect = card.getBoundingClientRect();
-      const width = Math.min(window.innerWidth - 16, Math.max(480 * scale, Math.round(cardRect.width)));
+      const width = Math.min(
+        window.innerWidth - 16,
+        Math.max(480 * scale, Math.round(cardRect.width)),
+      );
       const left = Math.max(8, Math.min(Math.round(cardRect.left), window.innerWidth - width - 8));
       // The list's height before it exists: one row per machine, capped
       // where the panel starts scrolling.
       // The twins section is counted as a header and a few rows before it
       // has loaded, so a menu that opens below the card has room to grow.
       const twinRows = twins && twins.length > 0 ? 1 + Math.min(3, twins.length) : 0;
-      const estimated = Math.min(MENU_MAX_HEIGHT, (handlers.length + twinRows) * MENU_ROW_HEIGHT + 16) * scale;
+      const estimated =
+        Math.min(MENU_MAX_HEIGHT, (handlers.length + twinRows) * MENU_ROW_HEIGHT + 16) * scale;
       const roomAbove = Math.round(cardRect.top) - 4 - 8;
       const above = roomAbove >= estimated;
       const top = Math.min(Math.round(barRect.bottom) + 4, window.innerHeight - 120);
       // The list may grow after it opens (the twins land later), so its
       // height is capped to the room on the side it chose: it scrolls
       // rather than running off the window.
-      const maxHeight = Math.max(160 * scale, Math.min(MENU_MAX_HEIGHT * scale, above ? roomAbove : window.innerHeight - top - 8));
+      const maxHeight = Math.max(
+        160 * scale,
+        Math.min(MENU_MAX_HEIGHT * scale, above ? roomAbove : window.innerHeight - top - 8),
+      );
       // Real px -> shell px: the box is zoomed, so its fixed offsets are too.
       const shell = (px: number) => px / scale;
       setAnchorAt(
         above
-          ? { left: shell(left), width: shell(width), maxHeight: shell(maxHeight), bottom: shell(window.innerHeight - Math.round(cardRect.top) + 4) }
-          : { left: shell(left), width: shell(width), maxHeight: shell(maxHeight), top: shell(top) },
+          ? {
+              left: shell(left),
+              width: shell(width),
+              maxHeight: shell(maxHeight),
+              bottom: shell(window.innerHeight - Math.round(cardRect.top) + 4),
+            }
+          : {
+              left: shell(left),
+              width: shell(width),
+              maxHeight: shell(maxHeight),
+              top: shell(top),
+            },
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- measured once on open; the twins' arrival must not re-anchor an open menu
@@ -276,7 +326,10 @@ export function MachineMenu({
               ? getNodeSteamReport(twinRecipe, { ...node, machineHandlerId: twin.handler.id })
               : undefined;
             const power: { value: string; unit: string } = steam
-              ? { value: formatCompact(steam.drawSteamPerTick * 20).replace(/\.0$/, ""), unit: "L/s" }
+              ? {
+                  value: formatCompact(steam.drawSteamPerTick * 20).replace(/\.0$/, ""),
+                  unit: "L/s",
+                }
               : stats.eut > 0
                 ? { value: formatCompact(stats.eut), unit: "EU/t" }
                 : { value: "none", unit: "" };
@@ -326,9 +379,16 @@ export function MachineMenu({
     <div
       ref={rootRef}
       role="listbox"
-      aria-label="Machine"
+      aria-label={t("Machine")}
       className="ui-zoom nodrag nowheel z-[300] overflow-y-auto overflow-x-hidden border-2 border-[var(--mc-15)] bg-[var(--mc-49)] py-1.5 shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25),2px_3px_6px_rgba(0,0,0,0.2)]"
-      style={{ position: "fixed", left: anchorAt.left, top: anchorAt.top, bottom: anchorAt.bottom, width: anchorAt.width, maxHeight: anchorAt.maxHeight }}
+      style={{
+        position: "fixed",
+        left: anchorAt.left,
+        top: anchorAt.top,
+        bottom: anchorAt.bottom,
+        width: anchorAt.width,
+        maxHeight: anchorAt.maxHeight,
+      }}
       onClick={(event) => event.stopPropagation()}
       onPointerDown={(event) => event.stopPropagation()}
       onWheel={(event) => event.stopPropagation()}
@@ -337,7 +397,7 @@ export function MachineMenu({
       {/* The list's title, in the same voice as the twins section below it:
           what these rows ARE, so the two sections read as two questions. */}
       <div className="mx-3 mb-1 mt-0.5 text-[13px] uppercase tracking-wide text-[var(--mc-ink-muted)]">
-        {title ?? "Machines that run this recipe"}
+        {title ?? t("Machines that run this recipe")}
       </div>
       {rows.map(({ handler, stats, power }) => {
         const active = handler.id === selectedId;
@@ -355,12 +415,17 @@ export function MachineMenu({
             }}
             className={[
               "grid w-full items-center gap-x-4 px-3 py-2 text-left text-[17px] leading-[24px]",
-              active ? "bg-[var(--mc-71)] text-white" : "text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white",
+              active
+                ? "bg-[var(--mc-71)] text-white"
+                : "text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white",
             ].join(" ")}
             style={{ gridTemplateColumns: rowColumns, columnGap: narrow ? 8 : undefined }}
           >
             {/* Bare art, no slot chrome: the list is a menu, not a crafting grid. */}
-            <span className="flex h-9 w-9 items-center justify-center" style={{ gridRow: narrow ? "span 2" : undefined }}>
+            <span
+              className="flex h-9 w-9 items-center justify-center"
+              style={{ gridRow: narrow ? "span 2" : undefined }}
+            >
               {icon ? (
                 <ResourceIcon
                   resource={{ ...icon, amount: 1 }}
@@ -373,9 +438,27 @@ export function MachineMenu({
                 />
               ) : null}
             </span>
-            <span title={handler.label} style={narrow ? { gridColumn: "2 / 4", whiteSpace: "normal", overflowWrap: "anywhere" } : undefined} className={getFusionMachine(handler.machineType) ? "min-w-0 whitespace-normal" : "min-w-0 truncate"}>{handler.label}</span>
+            <span
+              title={handler.label}
+              style={
+                narrow
+                  ? { gridColumn: "2 / 4", whiteSpace: "normal", overflowWrap: "anywhere" }
+                  : undefined
+              }
+              className={
+                getFusionMachine(handler.machineType)
+                  ? "min-w-0 whitespace-normal"
+                  : "min-w-0 truncate"
+              }
+            >
+              {handler.label}
+            </span>
             {figures ? <DurationFigure seconds={stats.seconds} /> : <span />}
-            {figures ? <Figure value={power.value} unit={power.unit} dim={power.unit === ""} /> : <span />}
+            {figures ? (
+              <Figure value={power.value} unit={power.unit} dim={power.unit === ""} />
+            ) : (
+              <span />
+            )}
           </button>
         );
       })}
@@ -387,49 +470,61 @@ export function MachineMenu({
               the two differ (Auto Workbench running a Shaped Crafting
               recipe). Everything here is a swap of the whole recipe. */}
           <div className="mx-3 mt-1.5 border-t-2 border-[var(--mc-33)] pt-2 text-[13px] uppercase tracking-wide text-[var(--mc-ink-muted)]">
-            Other recipes that take and make the same items
+            {t("Other recipes that take and make the same items")}
           </div>
           {twinRows.map(({ twin, stats, power }) => {
-              const icon = iconsById.get(twin.handler.id) ?? mapIcons?.get(twin.recipe.recipeMap);
-              const showMap = twin.recipe.recipeMap !== twin.handler.label;
-              return (
-                <button
-                  key={`${twin.recipe.id}:${twin.handler.id}`}
-                  type="button"
-                  role="option"
-                  aria-selected={false}
-                  onMouseEnter={() => onHover(undefined)}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onUseTwin?.(twin);
-                  }}
-                  className="grid w-full items-center gap-x-4 px-3 py-2 text-left text-[17px] leading-[24px] text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white"
-                  style={{ gridTemplateColumns: rowColumns, columnGap: narrow ? 8 : undefined }}
+            const icon = iconsById.get(twin.handler.id) ?? mapIcons?.get(twin.recipe.recipeMap);
+            const showMap = twin.recipe.recipeMap !== twin.handler.label;
+            return (
+              <button
+                key={`${twin.recipe.id}:${twin.handler.id}`}
+                type="button"
+                role="option"
+                aria-selected={false}
+                onMouseEnter={() => onHover(undefined)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onUseTwin?.(twin);
+                }}
+                className="grid w-full items-center gap-x-4 px-3 py-2 text-left text-[17px] leading-[24px] text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white"
+                style={{ gridTemplateColumns: rowColumns, columnGap: narrow ? 8 : undefined }}
+              >
+                <span
+                  className="flex h-9 w-9 items-center justify-center"
+                  style={{ gridRow: narrow ? "span 2" : undefined }}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center" style={{ gridRow: narrow ? "span 2" : undefined }}>
-                    {icon ? (
-                      <ResourceIcon
-                        resource={{ ...icon, amount: 1 }}
-                        size="sm"
-                        bare
-                        showAmount={false}
-                        tooltip={false}
-                        className="!h-9 !w-9"
-                        iconPixelSize={machineArtPixels(36)}
-                      />
-                    ) : null}
-                  </span>
-                  <span className="min-w-0 truncate" style={narrow ? { gridColumn: "2 / 4", whiteSpace: "normal", overflowWrap: "anywhere" } : undefined}>
-                    {twin.handler.label}
-                    {showMap ? (
-                      <span className="ml-2 text-[13px] text-[var(--mc-ink-muted)]">{twin.recipe.recipeMap}</span>
-                    ) : null}
-                  </span>
-                  <DurationFigure seconds={stats.seconds} />
-                  <Figure value={power.value} unit={power.unit} dim={power.unit === ""} />
-                </button>
-              );
-            })}
+                  {icon ? (
+                    <ResourceIcon
+                      resource={{ ...icon, amount: 1 }}
+                      size="sm"
+                      bare
+                      showAmount={false}
+                      tooltip={false}
+                      className="!h-9 !w-9"
+                      iconPixelSize={machineArtPixels(36)}
+                    />
+                  ) : null}
+                </span>
+                <span
+                  className="min-w-0 truncate"
+                  style={
+                    narrow
+                      ? { gridColumn: "2 / 4", whiteSpace: "normal", overflowWrap: "anywhere" }
+                      : undefined
+                  }
+                >
+                  {twin.handler.label}
+                  {showMap ? (
+                    <span className="ml-2 text-[13px] text-[var(--mc-ink-muted)]">
+                      {twin.recipe.recipeMap}
+                    </span>
+                  ) : null}
+                </span>
+                <DurationFigure seconds={stats.seconds} />
+                <Figure value={power.value} unit={power.unit} dim={power.unit === ""} />
+              </button>
+            );
+          })}
         </>
       ) : null}
       {onAddRecipe ? (
@@ -446,8 +541,12 @@ export function MachineMenu({
           }}
           className="mx-3 mt-1.5 flex w-[calc(100%-24px)] items-center gap-4 border-t-2 border-[var(--mc-33)] px-0 py-2 pt-3 text-left text-[17px] leading-[24px] text-[var(--mc-ink)] hover:bg-[var(--mc-61)] hover:text-white"
         >
-          <span className="flex h-9 w-9 items-center justify-center text-[24px] font-black leading-none">+</span>
-          <span className="min-w-0 whitespace-normal">Add another recipe to this machine</span>
+          <span className="flex h-9 w-9 items-center justify-center text-[24px] font-black leading-none">
+            +
+          </span>
+          <span className="min-w-0 whitespace-normal">
+            {t("Add another recipe to this machine")}
+          </span>
         </button>
       ) : null}
     </div>
@@ -463,14 +562,24 @@ export function MachineMenu({
 
 /** A figure with its unit the way the card writes them: small, muted, no space. */
 function DurationFigure({ seconds }: { seconds: number }) {
-  return seconds > 0 && seconds < 0.1
-    ? <Figure value={(seconds * 1000).toLocaleString("en-US", { maximumSignificantDigits: 3 })} unit="ms" />
-    : <Figure value={formatSeconds(seconds)} unit="s" />;
+  return seconds > 0 && seconds < 0.1 ? (
+    <Figure
+      value={(seconds * 1000).toLocaleString("en-US", { maximumSignificantDigits: 3 })}
+      unit="ms"
+    />
+  ) : (
+    <Figure value={formatSeconds(seconds)} unit="s" />
+  );
 }
 
 function Figure({ value, unit, dim }: { value: string; unit: string; dim?: boolean }) {
   return (
-    <span className={["whitespace-nowrap text-right tabular-nums", dim ? "text-[var(--mc-ink-muted)]" : ""].join(" ")}>
+    <span
+      className={[
+        "whitespace-nowrap text-right tabular-nums",
+        dim ? "text-[var(--mc-ink-muted)]" : "",
+      ].join(" ")}
+    >
       {value}
       {unit ? <span className="ml-0.5 text-[12px] text-[var(--mc-ink-muted)]">{unit}</span> : null}
     </span>

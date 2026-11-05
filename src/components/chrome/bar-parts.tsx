@@ -1,6 +1,14 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import { activateOnKey } from "@/lib/hooks/button-keys";
 import { playBoardSound } from "@/lib/board-sounds";
 import { sfxTick } from "@/lib/sound/sfx";
@@ -46,11 +54,12 @@ export function BarKey({
   ariaLabel?: string;
   menuAnchor?: boolean;
 }) {
+  const t = useT();
   return (
     <div
       role="button"
       tabIndex={off ? -1 : 0}
-      aria-label={ariaLabel ?? label ?? id}
+      aria-label={t(ariaLabel ?? label ?? id)}
       aria-haspopup={menuAnchor ? "menu" : undefined}
       aria-expanded={menuAnchor ? Boolean(open) : undefined}
       onKeyDown={activateOnKey}
@@ -62,7 +71,21 @@ export function BarKey({
       data-open={open ? "" : undefined}
       data-glyph={glyph}
       {...(menuAnchor ? { [MENU_ANCHOR_ATTR]: "" } : {})}
-      style={width ? { width } : undefined}
+      style={
+        width
+          ? {
+              width: Math.max(
+                width,
+                label && /[\u3400-\u9fff]/.test(t(label))
+                  ? Array.from(t(label)).reduce(
+                      (size, char) => size + (/[\u3400-\u9fff]/.test(char) ? 8 : 4.5),
+                      12,
+                    )
+                  : width,
+              ),
+            }
+          : undefined
+      }
       onMouseDown={(event) => event.preventDefault()}
       onClick={(event) => {
         if (off) return;
@@ -85,9 +108,9 @@ export function BarKey({
             }
           : undefined
       }
-      {...tipAttrs({ id: `bar|${id}`, title: tip, sub: tipSub })}
+      {...tipAttrs({ id: `bar|${id}`, title: t(tip), sub: tipSub ? t(tipSub) : undefined })}
     >
-      {children ?? label}
+      {children ?? (label ? t(label) : undefined)}
     </div>
   );
 }
@@ -113,7 +136,15 @@ export function useBarFit(
     const read = () => {
       // clientWidth is the bar's own px (the shell's zoom and the bar's are outside it).
       const width = bar.clientWidth;
-      setFit(width === 0 ? "roomy" : width < foldedBelow ? "folded" : width < tightBelow ? "tight" : "roomy");
+      setFit(
+        width === 0
+          ? "roomy"
+          : width < foldedBelow
+            ? "folded"
+            : width < tightBelow
+              ? "tight"
+              : "roomy",
+      );
     };
     read();
     const observer = new ResizeObserver(read);

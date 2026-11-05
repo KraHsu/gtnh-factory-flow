@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -56,7 +57,7 @@ const knownTags = new Set<string>();
 function wasEdited(plan: CommunityPlanSummary): boolean {
   return Boolean(
     plan.updatedAt &&
-      new Date(plan.updatedAt).getTime() - new Date(plan.createdAt).getTime() > 60_000,
+    new Date(plan.updatedAt).getTime() - new Date(plan.createdAt).getTime() > 60_000,
   );
 }
 
@@ -97,6 +98,7 @@ export function SetupsGrid({
   /** Told how many setups the shelf found. */
   onTotal?: (total: number) => void;
 }) {
+  const t = useT();
   const savedIds = useSavedSetups();
   const { user, isLoading: isAuthLoading } = useCommunityUser();
   const ownFilters = useSetupFilters("active");
@@ -173,9 +175,7 @@ export function SetupsGrid({
           key,
           page: 1,
           total: found.length,
-          plans: needle
-            ? found.filter((plan) => plan.name.toLowerCase().includes(needle))
-            : found,
+          plans: needle ? found.filter((plan) => plan.name.toLowerCase().includes(needle)) : found,
         });
       });
       return () => {
@@ -264,7 +264,10 @@ export function SetupsGrid({
   const patchPlan = (planId: string, patch: (plan: CommunityPlanSummary) => CommunityPlanSummary) =>
     setShelf((current) =>
       current
-        ? { ...current, plans: current.plans.map((plan) => (plan.id === planId ? patch(plan) : plan)) }
+        ? {
+            ...current,
+            plans: current.plans.map((plan) => (plan.id === planId ? patch(plan) : plan)),
+          }
         : current,
     );
   const dropPlan = (planId: string) =>
@@ -519,124 +522,147 @@ export function SetupsGrid({
         />
       ) : (
         <>
-      {/* Two rows: what you are looking for, then what it must be. */}
-      {bare ? null : (
-      <SetupsFilterBar
-        filters={filters}
-        placeholder={
-          scope === "mine"
-            ? "Search my posts (#tag, @name)"
-            : scope === "saved"
-              ? "Search saved setups"
-              : "Search public setups (#tag, @name)"
-        }
-        sortOptions={SETUP_SORTS}
-        knownTags={knownTags}
-        myPosts={
-          scope === "network" && username
-            ? { checked: onlyMine, onChange: setOnlyMine }
-            : undefined
-        }
-        itemFilter={scope !== "saved"}
-      />
-      )}
+          {/* Two rows: what you are looking for, then what it must be. */}
+          {bare ? null : (
+            <SetupsFilterBar
+              filters={filters}
+              placeholder={
+                scope === "mine"
+                  ? "Search my posts (#tag, @name)"
+                  : scope === "saved"
+                    ? "Search saved setups"
+                    : "Search public setups (#tag, @name)"
+              }
+              sortOptions={SETUP_SORTS}
+              knownTags={knownTags}
+              myPosts={
+                scope === "network" && username
+                  ? { checked: onlyMine, onChange: setOnlyMine }
+                  : undefined
+              }
+              itemFilter={scope !== "saved"}
+            />
+          )}
 
-      <div
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-3 compact:px-2"
-        onScroll={(event) => {
-          // Belt and braces beside the sentinel: within two screens of the
-          // end, ask for the next page.
-          const el = event.currentTarget;
-          if (hasMore && !isLoading && el.scrollTop + el.clientHeight > el.scrollHeight - 1600) {
-            setTarget({ key, page: activePage + 1 });
-          }
-        }}
-      >
-        {error ? <p className="mb-2 text-[11px] text-red-400">{error}</p> : null}
-        {needsAccount && !isAuthLoading ? (
-          <p className="text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
-            Sign in (top right) to see your posts here. Share a design with the Share button
-            in the header, then manage it from this page.
-          </p>
-        ) : isLoading && plans.length === 0 ? (
-          // Loading is a moment the whole page is about, so it sits in the
-          // middle, large, and breathes: not a whisper in the corner.
-          <div className="flex h-full min-h-[240px] items-center justify-center">
-            <LoaderCircle className="h-14 w-14 animate-spin text-neutral-200" aria-label="Loading" />
-          </div>
-        ) : plans.length === 0 && !error ? (
-          <p className="text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
-            {search
-              ? "No setups match."
-              : scope === "mine"
-                ? "Nothing posted yet. Share a design with the Share button in the header."
-                : scope === "saved"
-                  ? "Nothing saved yet. Click the ribbon on a public setup to keep it here."
-                  : "Nothing shared yet."}
-          </p>
-        ) : (
-          <>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2">
-              {plans.map((plan) => (
-                <div key={plan.id} className="h-full" onMouseEnter={() => refreshStats(plan.id)}>
-                  <LibraryTile
-                    icon={plan.icon}
-                    name={plan.name}
-                    creator={plan.authorName}
-                    onCreator={plan.authorName ? () => setQuery((current) => withAuthor(current, plan.authorName ?? "")) : undefined}
-                    when={
-                      copiedId === plan.id
-                        ? "link copied"
-                        : sort === "commented" && plan.lastCommentAt
-                          ? `commented ${formatRelativeDate(plan.lastCommentAt)}`
-                          : sort === "active" && plan.lastActivityAt
-                            ? `active ${formatRelativeDate(plan.lastActivityAt)}`
-                            : wasEdited(plan)
-                              ? `edited ${formatRelativeDate(plan.updatedAt ?? plan.createdAt)}`
-                              : `posted ${formatRelativeDate(plan.createdAt)}`
-                    }
-                    tier={plan.highestTier}
-                    onTier={
-                      plan.highestTierIndex >= 0
-                        ? () => setMaxTier(String(plan.highestTierIndex))
-                        : undefined
-                    }
-                    machines={plan.machineCount}
-                    euT={plan.totalEuT}
-                    social={{
-                      score: plan.score,
-                      myVote: plan.myVote,
-                      onVote: () => void vote(plan),
-                      downloads: plan.downloads,
-                      comments: plan.commentCount,
-                    }}
-                    marks={{ posted: plan.isMine === true, privatePost: plan.isMine && !plan.isPublic }}
-                    saved={savedIds.includes(plan.id)}
-                    onSave={() => toggleSavedSetup(plan.id)}
-                    busy={busyId === plan.id}
-                    menuOpen={menu?.id === plan.id}
-                    onOpen={() => {
-                      refreshStats(plan.id);
-                      setDetailId(plan.id);
-                    }}
-                    onMenu={(left, top) => {
-                      setArmed(undefined);
-                      setMenu({ id: plan.id, left, top });
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            {hasMore ? (
-              // The next page comes on its own as this sentinel scrolls into
-              // view; the spinner is only there to say so.
-              <div ref={moreRef} className="mt-3 flex h-10 items-center justify-center">
-                <LoaderCircle className="h-5 w-5 animate-spin text-neutral-400" aria-label="Loading more" />
+          <div
+            className="min-h-0 flex-1 overflow-y-auto px-4 py-3 compact:px-2"
+            onScroll={(event) => {
+              // Belt and braces beside the sentinel: within two screens of the
+              // end, ask for the next page.
+              const el = event.currentTarget;
+              if (
+                hasMore &&
+                !isLoading &&
+                el.scrollTop + el.clientHeight > el.scrollHeight - 1600
+              ) {
+                setTarget({ key, page: activePage + 1 });
+              }
+            }}
+          >
+            {error ? <p className="mb-2 text-[11px] text-red-400">{error}</p> : null}
+            {needsAccount && !isAuthLoading ? (
+              <p className="text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
+                {t(
+                  "Sign in (top right) to see your posts here. Share a design with the Share button in the header, then manage it from this page.",
+                )}
+              </p>
+            ) : isLoading && plans.length === 0 ? (
+              // Loading is a moment the whole page is about, so it sits in the
+              // middle, large, and breathes: not a whisper in the corner.
+              <div className="flex h-full min-h-[240px] items-center justify-center">
+                <LoaderCircle
+                  className="h-14 w-14 animate-spin text-neutral-200"
+                  aria-label={t("Loading")}
+                />
               </div>
-            ) : null}
-          </>
-        )}
-      </div>
+            ) : plans.length === 0 && !error ? (
+              <p className="text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
+                {search
+                  ? "No setups match."
+                  : scope === "mine"
+                    ? "Nothing posted yet. Share a design with the Share button in the header."
+                    : scope === "saved"
+                      ? "Nothing saved yet. Click the ribbon on a public setup to keep it here."
+                      : "Nothing shared yet."}
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2">
+                  {plans.map((plan) => (
+                    <div
+                      key={plan.id}
+                      className="h-full"
+                      onMouseEnter={() => refreshStats(plan.id)}
+                    >
+                      <LibraryTile
+                        icon={plan.icon}
+                        name={plan.name}
+                        creator={plan.authorName}
+                        onCreator={
+                          plan.authorName
+                            ? () =>
+                                setQuery((current) => withAuthor(current, plan.authorName ?? ""))
+                            : undefined
+                        }
+                        when={
+                          copiedId === plan.id
+                            ? "link copied"
+                            : sort === "commented" && plan.lastCommentAt
+                              ? `commented ${formatRelativeDate(plan.lastCommentAt)}`
+                              : sort === "active" && plan.lastActivityAt
+                                ? `active ${formatRelativeDate(plan.lastActivityAt)}`
+                                : wasEdited(plan)
+                                  ? `edited ${formatRelativeDate(plan.updatedAt ?? plan.createdAt)}`
+                                  : `posted ${formatRelativeDate(plan.createdAt)}`
+                        }
+                        tier={plan.highestTier}
+                        onTier={
+                          plan.highestTierIndex >= 0
+                            ? () => setMaxTier(String(plan.highestTierIndex))
+                            : undefined
+                        }
+                        machines={plan.machineCount}
+                        euT={plan.totalEuT}
+                        social={{
+                          score: plan.score,
+                          myVote: plan.myVote,
+                          onVote: () => void vote(plan),
+                          downloads: plan.downloads,
+                          comments: plan.commentCount,
+                        }}
+                        marks={{
+                          posted: plan.isMine === true,
+                          privatePost: plan.isMine && !plan.isPublic,
+                        }}
+                        saved={savedIds.includes(plan.id)}
+                        onSave={() => toggleSavedSetup(plan.id)}
+                        busy={busyId === plan.id}
+                        menuOpen={menu?.id === plan.id}
+                        onOpen={() => {
+                          refreshStats(plan.id);
+                          setDetailId(plan.id);
+                        }}
+                        onMenu={(left, top) => {
+                          setArmed(undefined);
+                          setMenu({ id: plan.id, left, top });
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                {hasMore ? (
+                  // The next page comes on its own as this sentinel scrolls into
+                  // view; the spinner is only there to say so.
+                  <div ref={moreRef} className="mt-3 flex h-10 items-center justify-center">
+                    <LoaderCircle
+                      className="h-5 w-5 animate-spin text-neutral-400"
+                      aria-label="Loading more"
+                    />
+                  </div>
+                ) : null}
+              </>
+            )}
+          </div>
         </>
       )}
 
@@ -648,14 +674,14 @@ export function SetupsGrid({
           onClose={closeMenu}
         >
           <MenuItem
-            label={menuPlan.isMine ? "Open" : "Open a copy"}
+            label={menuPlan.isMine ? t("Open") : "Open a copy"}
             onClick={() => {
               closeMenu();
               void open(menuPlan);
             }}
           />
           <MenuItem
-            label="Copy link"
+            label={t("Copy link")}
             onClick={() => {
               closeMenu();
               void copyLink(menuPlan);
@@ -665,7 +691,7 @@ export function SetupsGrid({
             <>
               <MenuRule />
               <MenuItem
-                label={menuPlan.isPublic ? "Make private" : "Make public"}
+                label={menuPlan.isPublic ? t("Make private") : t("Make public")}
                 onClick={() => {
                   closeMenu();
                   void setVisibility(menuPlan);
@@ -685,16 +711,18 @@ export function SetupsGrid({
                   setIconEditId(menuPlan.id);
                 }}
               />
-              {hasEditableDesign ? <ArmedMenuItem
-                label={`Replace with "${activeTabName}"`}
-                armedLabel="Confirm: replace the post"
-                armed={armed?.id === menuPlan.id && armed.what === "overwrite"}
-                onArm={() => setArmed({ id: menuPlan.id, what: "overwrite" })}
-                onFire={() => {
-                  closeMenu();
-                  void overwriteWithBoard(menuPlan);
-                }}
-              /> : null}
+              {hasEditableDesign ? (
+                <ArmedMenuItem
+                  label={`Replace with "${activeTabName}"`}
+                  armedLabel="Confirm: replace the post"
+                  armed={armed?.id === menuPlan.id && armed.what === "overwrite"}
+                  onArm={() => setArmed({ id: menuPlan.id, what: "overwrite" })}
+                  onFire={() => {
+                    closeMenu();
+                    void overwriteWithBoard(menuPlan);
+                  }}
+                />
+              ) : null}
               <ArmedMenuItem
                 label="Take down"
                 armedLabel="Confirm: take it down for everyone"
@@ -724,7 +752,7 @@ export function SetupsGrid({
 
       {iconEditId ? (
         <IconPicker
-          title="Pick an icon"
+          title={t("Pick an icon")}
           suggestions={iconSuggestionsFromStats(
             plans.find((entry) => entry.id === iconEditId)?.needs,
             plans.find((entry) => entry.id === iconEditId)?.outputs,

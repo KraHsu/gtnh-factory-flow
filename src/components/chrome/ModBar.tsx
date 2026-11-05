@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./chrome.css";
 
@@ -17,6 +18,7 @@ import { isEditableKeyboardTarget } from "@/components/flow/keyboard";
 import { downloadPlanFile } from "@/lib/import-export/open-plan-file";
 import { PastePlanDialog } from "@/components/export/PastePlanDialog";
 import { BarKey, useBarFit, useTopBarFit } from "./bar-parts";
+import { PUBLIC_TOOL } from "@/lib/krahsu";
 import { AccountKey } from "./AccountKey";
 import { ChromeMenu, chromeAnchorOf, type ChromeAnchor, type MenuEntry } from "./ChromeMenu";
 import { knock, OPEN_FEEDBACK_EVENT, OPEN_TOUR_EVENT, OPEN_CONTROLS_EVENT } from "./chrome-events";
@@ -84,7 +86,15 @@ export interface ModBarProps {
  * are flat like the tabs and + (chrome.css), the picture keys and the face bare until hovered. What edits or views the board (Non-recipe, undo and redo, Arrange, Fit,
  * the rate unit, EU/t, Avg) is the board's own toolbar (BoardToolbar), along the top of the board.
  */
-export function ModBar({ onShare, onScreenshot, onSettings, onChangelog, onDevMenu, unreadNotes }: ModBarProps) {
+export function ModBar({
+  onShare,
+  onScreenshot,
+  onSettings,
+  onChangelog,
+  onDevMenu,
+  unreadNotes,
+}: ModBarProps) {
+  const t = useT();
   useHistoryShortcuts();
   useEffect(() => ensureInteractionHost(), []);
   const barRef = useRef<HTMLElement | null>(null);
@@ -165,7 +175,10 @@ export function ModBar({ onShare, onScreenshot, onSettings, onChangelog, onDevMe
     { label: "Export plan file", onSelect: () => downloadPlanFile(plan()) },
     { label: "Screenshot...", onSelect: onScreenshot },
     openInModRow(modReach, plan),
-    ...libraryRows(Boolean(linkedPost), onShare, { disabled: isReadOnly, taskBoard: isTaskBoardPlan }).map(({ detail, ...row }, index) => {
+    ...libraryRows(Boolean(linkedPost), onShare, {
+      disabled: isReadOnly,
+      taskBoard: isTaskBoardPlan,
+    }).map(({ detail, ...row }, index) => {
       void detail;
       return index === 0 ? { ...row, ruleAbove: true } : row;
     }),
@@ -178,114 +191,144 @@ export function ModBar({ onShare, onScreenshot, onSettings, onChangelog, onDevMe
 
   return (
     <>
-      <header ref={barRef} className="mb" data-mod-bar="" data-fit={fit} data-help-anchor="plan-actions">
-      <ModTabs onPaste={() => setPasting(true)} onShare={onShare} />
-      {LIVE ? <LivePresence tight={tight} /> : null}
-      {compact ? (
-        <>
-          <BarKey
-            id="drawer-side"
-            label={planLayout ? "Overview" : "Resources"}
-            tip={planLayout ? "Overview: inputs, outputs and machines" : "Resources"}
-            open={sideOpen}
-            onClick={() =>
-              writeWorkspaceView(sideOpen ? { rightPanelOpen: false } : { rightPanelOpen: true, leftPanelOpen: false })
+      <header
+        ref={barRef}
+        className="mb"
+        data-mod-bar=""
+        data-fit={fit}
+        data-help-anchor="plan-actions"
+      >
+        <ModTabs onPaste={() => setPasting(true)} onShare={onShare} />
+        {LIVE ? <LivePresence tight={tight} /> : null}
+        {compact ? (
+          <>
+            <BarKey
+              id="drawer-side"
+              label={planLayout ? t("Overview") : t("Resources")}
+              tip={planLayout ? t("Overview: inputs, outputs and machines") : t("Resources")}
+              open={sideOpen}
+              onClick={() =>
+                writeWorkspaceView(
+                  sideOpen
+                    ? { rightPanelOpen: false }
+                    : { rightPanelOpen: true, leftPanelOpen: false },
+                )
+              }
+            />
+            <BarKey
+              id="drawer-items"
+              label={t("Items")}
+              tip={t("Items: search and place recipes")}
+              open={itemsOpen}
+              onClick={() =>
+                writeWorkspaceView(
+                  itemsOpen
+                    ? { leftPanelOpen: false }
+                    : { leftPanelOpen: true, rightPanelOpen: false },
+                )
+              }
+            />
+          </>
+        ) : null}
+        <BarKey
+          id="plans"
+          gap
+          label={pictures ? undefined : t("Plans")}
+          icon={pictures}
+          ariaLabel="Plans"
+          width={pictures ? undefined : 42}
+          open={library.active}
+          tip={t("Plans: your plans, the ones shared with you, and Community")}
+          // Opens the library on My plans, and shuts it again; its shelves are along its top.
+          onClick={() => (library.active ? leaveLibrary() : openLibrary({ kind: "all" }))}
+        >
+          {pictures ? <PixelIcon name="plans" /> : undefined}
+        </BarKey>
+        <BarKey
+          id="share"
+          label={pictures ? undefined : t("Share")}
+          icon={pictures}
+          ariaLabel="Share"
+          width={pictures ? undefined : 42}
+          tip={t("Share this plan: invite people to edit it with you, or send a copy")}
+          open={menu?.kind === "share"}
+          onClick={(event) => openMenuFrom("share", event)}
+          menuAnchor
+        >
+          {pictures ? <PixelIcon name="share" /> : undefined}
+        </BarKey>
+        {!PUBLIC_TOOL && <AccountKey pictures={pictures} />}
+        <BarKey
+          id="feedback"
+          gap
+          icon
+          open={feedbackOpen}
+          ariaLabel="Feedback"
+          tip={t("Feedback: report a bug, share an idea, or ask for help")}
+          onClick={() => {
+            if (PUBLIC_TOOL) {
+              window.open(
+                "https://github.com/KraHsu/gtnh-factory-flow/issues",
+                "_blank",
+                "noopener,noreferrer",
+              );
+              return;
             }
-          />
-          <BarKey
-            id="drawer-items"
-            label="Items"
-            tip="Items: search and place recipes"
-            open={itemsOpen}
-            onClick={() =>
-              writeWorkspaceView(itemsOpen ? { leftPanelOpen: false } : { leftPanelOpen: true, rightPanelOpen: false })
+            if (feedbackOpen) {
+              closeFeedback();
+              return;
             }
+            if (!knock(OPEN_FEEDBACK_EVENT))
+              window.open(HelpLinks.bugReport, "_blank", "noopener,noreferrer");
+          }}
+        >
+          <PixelIcon name="bug" className="mb-bug" />
+        </BarKey>
+        <BarKey id="settings" icon ariaLabel="Settings" tip={t("Settings")} onClick={onSettings}>
+          <PixelIcon name="gear" />
+        </BarKey>
+        <BarKey
+          id="help"
+          icon
+          ariaLabel="Help"
+          tip={t("Help: the tour, and every control")}
+          open={menu?.kind === "help"}
+          onClick={(event) => {
+            if (event.shiftKey) {
+              onDevMenu();
+              return;
+            }
+            openMenuFrom("help", event);
+          }}
+          menuAnchor
+        >
+          <PixelIcon name="help" />
+        </BarKey>
+        {menu?.kind === "share" ? (
+          <ChromeMenu
+            anchor={menu.anchor}
+            entries={shareEntries}
+            label={t("Share this plan")}
+            minWidth={110}
+            align="right"
+            onClose={closeMenu}
           />
-        </>
-      ) : null}
-      <BarKey
-        id="plans"
-        gap
-        label={pictures ? undefined : "Plans"}
-        icon={pictures}
-        ariaLabel="Plans"
-        width={pictures ? undefined : 42}
-        open={library.active}
-        tip="Plans: your plans, the ones shared with you, and Community"
-        // Opens the library on My plans, and shuts it again; its shelves are along its top.
-        onClick={() => (library.active ? leaveLibrary() : openLibrary({ kind: "all" }))}
-      >
-        {pictures ? <PixelIcon name="plans" /> : undefined}
-      </BarKey>
-      <BarKey
-        id="share"
-        label={pictures ? undefined : "Share"}
-        icon={pictures}
-        ariaLabel="Share"
-        width={pictures ? undefined : 42}
-        tip="Share this plan: invite people to edit it with you, or send a copy"
-        open={menu?.kind === "share"}
-        onClick={(event) => openMenuFrom("share", event)}
-        menuAnchor
-      >
-        {pictures ? <PixelIcon name="share" /> : undefined}
-      </BarKey>
-      <AccountKey pictures={pictures} />
-      <BarKey
-        id="feedback"
-        gap
-        icon
-        open={feedbackOpen}
-        ariaLabel="Feedback"
-        tip="Feedback: report a bug, share an idea, or ask for help"
-        onClick={() => {
-          if (feedbackOpen) {
-            closeFeedback();
-            return;
-          }
-          if (!knock(OPEN_FEEDBACK_EVENT)) window.open(HelpLinks.bugReport, "_blank", "noopener,noreferrer");
-        }}
-      >
-        <PixelIcon name="bug" className="mb-bug" />
-      </BarKey>
-      <BarKey id="settings" icon ariaLabel="Settings" tip="Settings" onClick={onSettings}>
-        <PixelIcon name="gear" />
-      </BarKey>
-      <BarKey
-        id="help"
-        icon
-        ariaLabel="Help"
-        tip="Help: the tour, and every control"
-        open={menu?.kind === "help"}
-        onClick={(event) => {
-          if (event.shiftKey) {
-            onDevMenu();
-            return;
-          }
-          openMenuFrom("help", event);
-        }}
-        menuAnchor
-      >
-        <PixelIcon name="help" />
-      </BarKey>
-      {menu?.kind === "share" ? (
-        <ChromeMenu anchor={menu.anchor} entries={shareEntries} label="Share this plan" minWidth={110} align="right" onClose={closeMenu} />
-      ) : null}
-      {menu?.kind === "help" ? (
-        <ChromeMenu
-          anchor={menu.anchor}
-          entries={helpEntries({
-            onChangelog,
-            unreadNotes,
-            openControls: () => setControlsOpen(true),
-          })}
-          label="Help"
-          minWidth={190}
-          align="right"
-          onClose={closeMenu}
-        />
-      ) : null}
-      {controlsOpen ? <ControlsList onClose={() => setControlsOpen(false)} /> : null}
+        ) : null}
+        {menu?.kind === "help" ? (
+          <ChromeMenu
+            anchor={menu.anchor}
+            entries={helpEntries({
+              onChangelog,
+              unreadNotes,
+              openControls: () => setControlsOpen(true),
+            })}
+            label={t("Help")}
+            minWidth={190}
+            align="right"
+            onClose={closeMenu}
+          />
+        ) : null}
+        {controlsOpen ? <ControlsList onClose={() => setControlsOpen(false)} /> : null}
       </header>
       {/* Outside the bar: its stacking context (z 30) would put the box under the side columns and drawers. */}
       {pasting ? <PastePlanDialog onClose={() => setPasting(false)} /> : null}
@@ -320,7 +363,10 @@ function LivePresence({ tight }: { tight: boolean }) {
       {...tipAttrs({
         id: "bar|live",
         title: `${LIVE_STATUS_TIP[status]}${waiting}`,
-        sub: present.length > 0 ? `Here now: ${present.map((person) => person.username).join(", ")}` : undefined,
+        sub:
+          present.length > 0
+            ? `Here now: ${present.map((person) => person.username).join(", ")}`
+            : undefined,
       })}
     >
       <span className="mb-live-dot" data-status={status} aria-hidden />
@@ -330,7 +376,9 @@ function LivePresence({ tight }: { tight: boolean }) {
             <span
               key={person.id}
               className="mb-face"
-              aria-label={person.client === "game" ? `${person.username} (in game)` : person.username}
+              aria-label={
+                person.client === "game" ? `${person.username} (in game)` : person.username
+              }
               style={{ background: person.color, color: inkOn(person.color) }}
             >
               {initialsOf(person.username)}
@@ -368,8 +416,16 @@ function helpEntries({
         ]),
     { label: "Controls and shortcuts", onSelect: openControls },
     { label: "Welcome", ruleAbove: true, onSelect: () => HelpLinks.openWelcome() },
-    { label: unreadNotes ? "What's new *" : "What's new", detail: HelpLinks.version, onSelect: onChangelog },
-    { label: "Download the mod", detail: "GTNH 2.9", onSelect: () => HelpLinks.open(HelpLinks.mod) },
+    {
+      label: unreadNotes ? "What's new *" : "What's new",
+      detail: HelpLinks.version,
+      onSelect: onChangelog,
+    },
+    {
+      label: "Download the mod",
+      detail: "GTNH 2.9",
+      onSelect: () => HelpLinks.open(HelpLinks.mod),
+    },
     { label: "Source on GitHub", onSelect: () => HelpLinks.open(HelpLinks.github) },
     { label: "Discord thread", onSelect: () => HelpLinks.open(HelpLinks.discord) },
     { label: "Support on Ko-fi", onSelect: () => HelpLinks.open(HelpLinks.kofi) },

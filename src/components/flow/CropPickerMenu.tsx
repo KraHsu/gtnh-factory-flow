@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { listRecipeDatasetCrops } from "@/lib/datasets/browser-loader";
 import type { RecipeSummary } from "@/lib/datasets/types";
@@ -13,22 +14,31 @@ function cropTier(crop: RecipeSummary): number | undefined {
 }
 
 function cropMachineOnly(crop: RecipeSummary): boolean {
-  return (crop.metadata as { cropsNh?: { machineOnly?: boolean } } | undefined)?.cropsNh?.machineOnly === true;
+  return (
+    (crop.metadata as { cropsNh?: { machineOnly?: boolean } } | undefined)?.cropsNh?.machineOnly ===
+    true
+  );
 }
 
 // Tier order, name inside a tier: the list reads as a progression.
 function byTierThenName(a: RecipeSummary, b: RecipeSummary): number {
-  return (cropTier(a) ?? 99) - (cropTier(b) ?? 99) || cropDisplayName(a.name).localeCompare(cropDisplayName(b.name));
+  return (
+    (cropTier(a) ?? 99) - (cropTier(b) ?? 99) ||
+    cropDisplayName(a.name).localeCompare(cropDisplayName(b.name))
+  );
 }
 
 /** The crop's harvest, drawn: each drop with its icon, name and roll chance. */
 function CropHover({ crop }: { crop: RecipeSummary }) {
+  const t = useT();
   const tier = cropTier(crop);
   return (
     <div className="min-w-[170px]" style={{ fontFamily: "var(--app-font)" }}>
       <p className="text-[14px] font-bold leading-4 text-white">
         {cropDisplayName(crop.name)}
-        {tier ? <span className="text-[11px] font-normal text-slate-400"> · Tier {tier}</span> : null}
+        {tier ? (
+          <span className="text-[11px] font-normal text-slate-400"> · Tier {tier}</span>
+        ) : null}
       </p>
       <div className="mt-1.5 space-y-1">
         {crop.outputs.map((output) => (
@@ -55,7 +65,9 @@ function CropHover({ crop }: { crop: RecipeSummary }) {
         ))}
       </div>
       {cropMachineOnly(crop) ? (
-        <p className="mt-1.5 text-[12px] leading-4 text-slate-400">Only works in an Industrial Farm.</p>
+        <p className="mt-1.5 text-[12px] leading-4 text-slate-400">
+          {t("Only works in an Industrial Farm.")}
+        </p>
       ) : null}
     </div>
   );
@@ -78,7 +90,9 @@ export function CropPickerMenu({ nodeId, onClose }: { nodeId: string; onClose: (
   return (
     <RecipeListPicker
       cacheKey="crops"
-      load={async (manifestUrl, version) => (await listRecipeDatasetCrops(manifestUrl, version)).crops}
+      load={async (manifestUrl, version) =>
+        (await listRecipeDatasetCrops(manifestUrl, version)).crops
+      }
       noun="crops"
       toggleSelector="[data-crop-picker-toggle]"
       onPick={(recipe) => setNodeRecipe(nodeId, recipe)}

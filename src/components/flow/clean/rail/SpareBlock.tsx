@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import {
   useRef,
@@ -139,6 +140,7 @@ export function SpareBlock({
   width?: number;
   onHoverPlace?: (index: number | null) => void;
 }) {
+  const t = useT();
   useRateDisplayUnits();
   const ink = inkOf(spare);
   const drag = useRef<{
@@ -189,20 +191,20 @@ export function SpareBlock({
           className="rail-spare-title"
           {...tipProps(`spare-head|${spare.key}`, () => headTip(spare))}
         >
-          Forced
+          {t("Forced")}
         </span>
         <RailKey
-          label="Split"
+          label={t("Split")}
           onClick={() => splitSpareEvenly(spare)}
           tip={() => ({
             title: "Split",
             actions: [{ input: "left", label: "Share it evenly between them" }],
           })}
         >
-          Split
+          {t("Split")}
         </RailKey>
         <RailKey
-          label="Auto"
+          label={t("Auto")}
           disabled={!spare.custom}
           onClick={() => clearSpare(spare)}
           tip={() => ({
@@ -210,7 +212,7 @@ export function SpareBlock({
             actions: [{ input: "left", label: "Back to the plan's own pick" }],
           })}
         >
-          Auto
+          {t("Auto")}
         </RailKey>
       </div>
       {spare.bearers.map((b, i) => {

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./tasks.css";
 import "./task-box.css";
@@ -129,6 +130,7 @@ function useBoxSize(): { w: number; h: number; rect?: DOMRect } {
 }
 
 export function TaskBox({ task, onClose }: { task: PlanTask; onClose: () => void }) {
+  const t = useT();
   const editTasks = useFactoryStore((state) => state.editTasks);
   const isReadOnly = useFactoryStore((state) => state.isReadOnly);
   const project = useFactoryStore((state) => state.project);
@@ -392,10 +394,10 @@ export function TaskBox({ task, onClose }: { task: PlanTask; onClose: () => void
             <div className="tbx-main">
               <TitleField task={task} readOnly={isReadOnly} />
               {wide ? null : <div className="tbx-side-under">{side}</div>}
-              <div className="tbx-label">Notes</div>
+              <div className="tbx-label">{t("Notes")}</div>
               <NotesField task={task} readOnly={isReadOnly} />
               <div className="tbx-label tbx-things-head" data-task-things-head="">
-                Things
+                {t("Things")}
                 {things.length > 0 ? (
                   <>
                     <i>
@@ -424,19 +426,20 @@ export function TaskBox({ task, onClose }: { task: PlanTask; onClose: () => void
                 }
               />
               {things.length === 0 ? (
-                <p className="tbx-faint tbx-nothing">Nothing on it yet.</p>
+                <p className="tbx-faint tbx-nothing">{t("Nothing on it yet.")}</p>
               ) : null}
               {gone ? (
                 <p className="tbx-gone" role="status" data-task-link-gone="">
                   {gone}
                 </p>
               ) : null}
-              <p className="tbx-faint tbx-hint">Add machines from a card&apos;s menu.</p>
+              <p className="tbx-faint tbx-hint">{t("Add machines from a card's menu.")}</p>
               <div className="tbx-label tbx-comments-head" data-task-comments="">
-                Comments{comments.length > 0 ? <i>{comments.length}</i> : null}
+                {t("Comments")}
+                {comments.length > 0 ? <i>{comments.length}</i> : null}
               </div>
               {comments.length === 0 ? (
-                <p className="tbx-faint tbx-nothing">No comments yet.</p>
+                <p className="tbx-faint tbx-nothing">{t("No comments yet.")}</p>
               ) : null}
               {comments.map((entry) => (
                 <div key={entry.id} className="tbx-comment" data-task-comment="">
@@ -455,7 +458,7 @@ export function TaskBox({ task, onClose }: { task: PlanTask; onClose: () => void
                           })}
                           onClick={() => editTasks((plan) => deleteTaskComment(plan, entry.id))}
                         >
-                          Delete
+                          {t("Delete")}
                         </button>
                       ) : null}
                     </div>
@@ -477,7 +480,7 @@ export function TaskBox({ task, onClose }: { task: PlanTask; onClose: () => void
                   {...tipAttrs({ id: "task-box|post", title: "Add your comment" })}
                   onClick={post}
                 >
-                  Comment
+                  {t("Comment")}
                 </button>
                 {wide ? (
                   <button
@@ -490,7 +493,7 @@ export function TaskBox({ task, onClose }: { task: PlanTask; onClose: () => void
                     })}
                     onClick={(event) => askDelete(chromeAnchorOf(event.currentTarget))}
                   >
-                    Delete task
+                    {t("Delete task")}
                   </button>
                 ) : null}
               </>
@@ -575,6 +578,7 @@ function TitleField({ task, readOnly }: { task: PlanTask; readOnly: boolean }) {
 }
 
 function NotesField({ task, readOnly }: { task: PlanTask; readOnly: boolean }) {
+  const t = useT();
   const editTasks = useFactoryStore((state) => state.editTasks);
   const [draft, setDraft] = useState<string>();
   const timer = useRef<number | undefined>(undefined);
@@ -593,7 +597,7 @@ function NotesField({ task, readOnly }: { task: PlanTask; readOnly: boolean }) {
       value={value}
       maxLength={PLAN_TASK_LIMITS.textLength}
       readOnly={readOnly}
-      placeholder="Add notes"
+      placeholder={t("Add notes")}
       aria-label="Task notes"
       onChange={(event) => {
         const text = event.target.value;
@@ -804,6 +808,7 @@ function ThingRow({
   onMenu: (anchor: ChromeAnchor) => void;
   onRewrite: (text: string) => void;
 }) {
+  const t = useT();
   const { item, kind } = thing;
   let words = item.text;
   let parts: string[] = [];
@@ -950,7 +955,7 @@ function ThingRow({
           })}
           onClick={onCopy}
         >
-          Copy
+          {t("Copy")}
         </button>
       ) : null}
       {readOnly ? null : (
@@ -1026,6 +1031,7 @@ function PictureView({
   rect: DOMRect | undefined;
   onClose: () => void;
 }) {
+  const t = useT();
   const ago = agoText(picture.takenAt);
   const said = `${ago ? `Taken ${ago}` : "Screenshot"}. The full shot is on the computer that took it`;
   return (
@@ -1042,7 +1048,7 @@ function PictureView({
           <img src={picture.thumb} alt="Screenshot" draggable={false} />
           <div className="tbp-caption">
             <span>{said}</span>
-            <i>Click to close</i>
+            <i>{t("Click to close")}</i>
           </div>
         </div>
       </div>
@@ -1080,6 +1086,7 @@ function SidePanel({
   onOpen: (id: string) => void;
   onDelete: (anchor: ChromeAnchor) => void;
 }) {
+  const t = useT();
   const editTasks = useFactoryStore((state) => state.editTasks);
   const isReadOnly = useFactoryStore((state) => state.isReadOnly);
   const project = useFactoryStore((state) => state.project);
@@ -1225,14 +1232,14 @@ function SidePanel({
       ) : null}
       {!user ? (
         <>
-          {assignees.length === 0 ? <p className="tbx-faint">No one yet.</p> : null}
+          {assignees.length === 0 ? <p className="tbx-faint">{t("No one yet.")}</p> : null}
           <button
             type="button"
             className="tbx-sign-in"
             {...tipAttrs({ id: "task-box|sign-in", title: "Sign in to your account" })}
             onClick={() => document.querySelector<HTMLElement>('[data-mb="account"]')?.click()}
           >
-            Sign in to assign
+            {t("Sign in to assign")}
           </button>
         </>
       ) : isReadOnly ? null : (
@@ -1273,7 +1280,7 @@ function SidePanel({
           onClick={pickBlocker}
         >
           <PixelIcon name="plus" style={{ color: "#22d3ee" }} />
-          Add
+          {t("Add")}
         </button>
       )}
       {refused ? (
@@ -1285,7 +1292,7 @@ function SidePanel({
   );
   const unblocksField = (
     <div className="tbx-links" data-task-unblocks="">
-      {unblocks.length === 0 ? <p className="tbx-faint">Nothing waits on it.</p> : null}
+      {unblocks.length === 0 ? <p className="tbx-faint">{t("Nothing waits on it.")}</p> : null}
       {unblocks.map((other) => (
         <TaskLinkRow
           key={other.id}
@@ -1352,7 +1359,7 @@ function SidePanel({
             })}
             onClick={(event) => onDelete(chromeAnchorOf(event.currentTarget))}
           >
-            Delete task
+            {t("Delete task")}
           </button>
         )}
       </div>

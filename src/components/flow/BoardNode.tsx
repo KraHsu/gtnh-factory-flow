@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 
@@ -71,14 +72,66 @@ const RESIZE_GRIPS: Array<{
   hitBox: Record<string, number | string>;
 }> = [
   // Edges first, corners over them: a corner grab beats an edge grab.
-  { side: "n", cursor: "cursor-ns-resize", hitBox: { top: -GRIP_REACH / 2, left: GRIP_CORNER, right: GRIP_CORNER, height: GRIP_REACH } },
-  { side: "s", cursor: "cursor-ns-resize", hitBox: { bottom: -GRIP_REACH / 2, left: GRIP_CORNER, right: GRIP_CORNER, height: GRIP_REACH } },
-  { side: "w", cursor: "cursor-ew-resize", hitBox: { left: -GRIP_REACH / 2, top: GRIP_CORNER, bottom: GRIP_CORNER, width: GRIP_REACH } },
-  { side: "e", cursor: "cursor-ew-resize", hitBox: { right: -GRIP_REACH / 2, top: GRIP_CORNER, bottom: GRIP_CORNER, width: GRIP_REACH } },
-  { side: "nw", cursor: "cursor-nwse-resize", hitBox: { top: -GRIP_REACH / 2, left: -GRIP_REACH / 2, width: GRIP_CORNER, height: GRIP_CORNER } },
-  { side: "ne", cursor: "cursor-nesw-resize", hitBox: { top: -GRIP_REACH / 2, right: -GRIP_REACH / 2, width: GRIP_CORNER, height: GRIP_CORNER } },
-  { side: "sw", cursor: "cursor-nesw-resize", hitBox: { bottom: -GRIP_REACH / 2, left: -GRIP_REACH / 2, width: GRIP_CORNER, height: GRIP_CORNER } },
-  { side: "se", cursor: "cursor-nwse-resize", hitBox: { bottom: -GRIP_REACH / 2, right: -GRIP_REACH / 2, width: GRIP_CORNER, height: GRIP_CORNER } },
+  {
+    side: "n",
+    cursor: "cursor-ns-resize",
+    hitBox: { top: -GRIP_REACH / 2, left: GRIP_CORNER, right: GRIP_CORNER, height: GRIP_REACH },
+  },
+  {
+    side: "s",
+    cursor: "cursor-ns-resize",
+    hitBox: { bottom: -GRIP_REACH / 2, left: GRIP_CORNER, right: GRIP_CORNER, height: GRIP_REACH },
+  },
+  {
+    side: "w",
+    cursor: "cursor-ew-resize",
+    hitBox: { left: -GRIP_REACH / 2, top: GRIP_CORNER, bottom: GRIP_CORNER, width: GRIP_REACH },
+  },
+  {
+    side: "e",
+    cursor: "cursor-ew-resize",
+    hitBox: { right: -GRIP_REACH / 2, top: GRIP_CORNER, bottom: GRIP_CORNER, width: GRIP_REACH },
+  },
+  {
+    side: "nw",
+    cursor: "cursor-nwse-resize",
+    hitBox: {
+      top: -GRIP_REACH / 2,
+      left: -GRIP_REACH / 2,
+      width: GRIP_CORNER,
+      height: GRIP_CORNER,
+    },
+  },
+  {
+    side: "ne",
+    cursor: "cursor-nesw-resize",
+    hitBox: {
+      top: -GRIP_REACH / 2,
+      right: -GRIP_REACH / 2,
+      width: GRIP_CORNER,
+      height: GRIP_CORNER,
+    },
+  },
+  {
+    side: "sw",
+    cursor: "cursor-nesw-resize",
+    hitBox: {
+      bottom: -GRIP_REACH / 2,
+      left: -GRIP_REACH / 2,
+      width: GRIP_CORNER,
+      height: GRIP_CORNER,
+    },
+  },
+  {
+    side: "se",
+    cursor: "cursor-nwse-resize",
+    hitBox: {
+      bottom: -GRIP_REACH / 2,
+      right: -GRIP_REACH / 2,
+      width: GRIP_CORNER,
+      height: GRIP_CORNER,
+    },
+  },
 ];
 
 /** The visible mark on each corner: an L of the board's own grip colour. */
@@ -140,9 +193,7 @@ function shadeHex(hex: string, amount: number): string {
     return hex;
   }
   const mix = (channel: number) =>
-    Math.round(
-      amount >= 0 ? channel + (255 - channel) * amount : channel * (1 + amount),
-    )
+    Math.round(amount >= 0 ? channel + (255 - channel) * amount : channel * (1 + amount))
       .toString(16)
       .padStart(2, "0");
   return `#${mix(parseInt(value.slice(0, 2), 16))}${mix(
@@ -228,9 +279,9 @@ export function useBoardResize(
   // release. The DRAFT carries a whole frame, not just a size: dragging the
   // top or left wall moves the origin too, and the board applies both halves
   // together (see board-resize.ts).
-  const draftRef = useRef<{ position: { x: number; y: number }; size: { width: number; height: number } } | undefined>(
-    undefined,
-  );
+  const draftRef = useRef<
+    { position: { x: number; y: number }; size: { width: number; height: number } } | undefined
+  >(undefined);
 
   const beginResize = (side: ResizeSide, event: ReactPointerEvent<HTMLElement>) => {
     if (event.button !== 0) {
@@ -392,12 +443,8 @@ export function useBoardResize(
   return beginResize;
 }
 
-function BoardNodeComponent({
-  data,
-  width,
-  height,
-  selected,
-}: NodeProps<BoardWindowFlowNode>) {
+function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWindowFlowNode>) {
+  const t = useT();
   const { pocket, memberCount } = data;
   const minimizePocket = useFactoryStore((state) => state.minimizePocket);
   const renamePocket = useFactoryStore((state) => state.renamePocket);
@@ -479,88 +526,95 @@ function BoardNodeComponent({
         style={{ zIndex: 30 }}
       >
         {/* ui-zoom: the toolbar portal lives inside .react-flow, which is unzoomed. */}
-        <div ref={paletteRef} className="ui-zoom nodrag nopan nowheel flex w-[340px] flex-col gap-1 border-2 border-[var(--mc-15)] bg-[var(--mc-47)] p-1 shadow-[6px_6px_0_rgba(0,0,0,0.45)]">
-        <div className="flex flex-wrap gap-1">
-          <button
-            type="button"
-            onClick={() => {
-              setPocketTheme(pocket.id, undefined);
-              setPaletteOpen(false);
-            }}
-            className={[
-              "flex h-7 w-9 items-center justify-center border-2 text-white",
-              pocket.theme === undefined
-                ? "border-white ring-2 ring-cyan-300"
-                : "border-[var(--mc-47)]",
-            ].join(" ")}
-            style={{ backgroundColor: ownPaper.base, backgroundImage: ownPaper.texture }}
-            title="Its own colour"
-            aria-label={`Clear the paper on board ${pocket.name}`}
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-          {BOARD_PAPERS.map((theme) => (
+        <div
+          ref={paletteRef}
+          className="ui-zoom nodrag nopan nowheel flex w-[340px] flex-col gap-1 border-2 border-[var(--mc-15)] bg-[var(--mc-47)] p-1 shadow-[6px_6px_0_rgba(0,0,0,0.45)]"
+        >
+          <div className="flex flex-wrap gap-1">
             <button
-              key={theme.id}
               type="button"
               onClick={() => {
-                setPocketTheme(pocket.id, theme.id);
+                setPocketTheme(pocket.id, undefined);
                 setPaletteOpen(false);
               }}
               className={[
-                "flex h-7 w-9 shrink-0 items-center justify-center gap-1 border-2",
-                pocket.theme === theme.id
+                "flex h-7 w-9 items-center justify-center border-2 text-white",
+                pocket.theme === undefined
                   ? "border-white ring-2 ring-cyan-300"
                   : "border-[var(--mc-47)]",
               ].join(" ")}
-              style={{ backgroundColor: theme.base, backgroundImage: theme.texture }}
-              title={theme.name}
-              aria-label={`Paper board ${pocket.name} in ${theme.name}`}
+              style={{ backgroundColor: ownPaper.base, backgroundImage: ownPaper.texture }}
+              title="Its own colour"
+              aria-label={`Clear the paper on board ${pocket.name}`}
             >
-              {[0, 1, 2].map((dot) => (
-                <span
-                  key={dot}
-                  aria-hidden
-                  className="h-[3px] w-[3px]"
-                  style={{ backgroundColor: theme.patternColor }}
-                />
-              ))}
+              <X className="h-3.5 w-3.5" />
             </button>
-          ))}
-        </div>
-        {/* The ruling on the paper, the same six the canvas itself offers. */}
-        <div className="flex flex-wrap gap-1 border-t border-[var(--mc-33)] pt-1">
-          {CANVAS_PATTERNS.map((pattern) => (
-            <button
-              key={pattern}
-              type="button"
-              onClick={() => {
-                setPocketPattern(pocket.id, pattern === "dots" ? undefined : pattern);
-                setPaletteOpen(false);
-              }}
-              className={[
-                "relative flex h-7 w-9 shrink-0 items-center justify-center overflow-hidden border-2",
-                (pocket.pattern ?? "dots") === pattern
-                  ? "border-white ring-2 ring-cyan-300"
-                  : "border-[var(--mc-47)]",
-              ].join(" ")}
-              style={{
-                backgroundColor: chrome.floorColor,
-                // The ruling itself, drawn small: a picture of the choice
-                // beats a four-letter abbreviation of its name.
-                ...boardRuling(pattern, chrome.dotColor, undefined, 7),
-              }}
-              title={`Rule this board's paper: ${pattern}`}
-              aria-label={`Rule board ${pocket.name} with ${pattern}`}
-            >
-              {pattern === "none" ? (
-                <span aria-hidden className="text-[9px] uppercase" style={{ color: chrome.inkMuted }}>
-                  off
-                </span>
-              ) : null}
-            </button>
-          ))}
-        </div>
+            {BOARD_PAPERS.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                onClick={() => {
+                  setPocketTheme(pocket.id, theme.id);
+                  setPaletteOpen(false);
+                }}
+                className={[
+                  "flex h-7 w-9 shrink-0 items-center justify-center gap-1 border-2",
+                  pocket.theme === theme.id
+                    ? "border-white ring-2 ring-cyan-300"
+                    : "border-[var(--mc-47)]",
+                ].join(" ")}
+                style={{ backgroundColor: theme.base, backgroundImage: theme.texture }}
+                title={theme.name}
+                aria-label={`Paper board ${pocket.name} in ${theme.name}`}
+              >
+                {[0, 1, 2].map((dot) => (
+                  <span
+                    key={dot}
+                    aria-hidden
+                    className="h-[3px] w-[3px]"
+                    style={{ backgroundColor: theme.patternColor }}
+                  />
+                ))}
+              </button>
+            ))}
+          </div>
+          {/* The ruling on the paper, the same six the canvas itself offers. */}
+          <div className="flex flex-wrap gap-1 border-t border-[var(--mc-33)] pt-1">
+            {CANVAS_PATTERNS.map((pattern) => (
+              <button
+                key={pattern}
+                type="button"
+                onClick={() => {
+                  setPocketPattern(pocket.id, pattern === "dots" ? undefined : pattern);
+                  setPaletteOpen(false);
+                }}
+                className={[
+                  "relative flex h-7 w-9 shrink-0 items-center justify-center overflow-hidden border-2",
+                  (pocket.pattern ?? "dots") === pattern
+                    ? "border-white ring-2 ring-cyan-300"
+                    : "border-[var(--mc-47)]",
+                ].join(" ")}
+                style={{
+                  backgroundColor: chrome.floorColor,
+                  // The ruling itself, drawn small: a picture of the choice
+                  // beats a four-letter abbreviation of its name.
+                  ...boardRuling(pattern, chrome.dotColor, undefined, 7),
+                }}
+                title={`Rule this board's paper: ${pattern}`}
+                aria-label={`Rule board ${pocket.name} with ${pattern}`}
+              >
+                {pattern === "none" ? (
+                  <span
+                    aria-hidden
+                    className="text-[9px] uppercase"
+                    style={{ color: chrome.inkMuted }}
+                  >
+                    off
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </div>
         </div>
       </CameraNodeToolbar>
       {/* The frame line only. The PAPER is a separate node underneath the
@@ -617,7 +671,11 @@ function BoardNodeComponent({
             >
               {/* Drawn rather than a "-" glyph: at this size Monocraft's
                   metrics baseline-align the hyphen low instead of centring. */}
-              <span aria-hidden className="block h-[2px] w-[8px]" style={{ backgroundColor: chrome.ink }} />
+              <span
+                aria-hidden
+                className="block h-[2px] w-[8px]"
+                style={{ backgroundColor: chrome.ink }}
+              />
             </button>
             <button
               type="button"
@@ -653,7 +711,7 @@ function BoardNodeComponent({
           >
             <span className="min-w-0 truncate">✦ {pocket.name}</span>
             <span className="ml-auto shrink-0 pl-2 text-[11px]" style={{ color: chrome.inkMuted }}>
-              {memberCount} {memberCount === 1 ? "card" : "cards"}
+              {memberCount} {memberCount === 1 ? "card" : t("cards")}
             </span>
           </div>
         ) : (
@@ -691,7 +749,7 @@ function BoardNodeComponent({
               data-board-palette-toggle=""
               className="nodrag flex h-6 w-6 shrink-0 items-center justify-center border-2 hover:brightness-125"
               style={buttonStyle}
-              title="Paper"
+              title={t("Paper")}
               aria-label={`Choose paper for board ${pocket.name}`}
             >
               <span
@@ -717,7 +775,8 @@ function BoardNodeComponent({
             >
               <PackageOpen aria-hidden className="h-3.5 w-3.5" />
             </button>
-            <button data-viewer-inspect
+            <button
+              data-viewer-inspect
               type="button"
               onClick={(event) => {
                 event.stopPropagation();

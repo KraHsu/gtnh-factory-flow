@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useRef } from "react";
 import {
@@ -21,12 +22,13 @@ const CORNERS: MinimapCorner[] = ["top-left", "top-right", "bottom-left", "botto
  * you select. Used by the map's own gear and by the settings dialog.
  */
 export function MinimapSettingsRows({ className = "" }: { className?: string }) {
+  const t = useT();
   const s = useMinimapSettings();
   return (
-    <div className={`mmap-rows ${className}`} role="group" aria-label="Minimap settings">
+    <div className={`mmap-rows ${className}`} role="group" aria-label={t("Minimap settings")}>
       <div className="mmap-row">
         <span className="mmap-row-name">
-          Show the minimap <kbd className="mmap-kbd">N</kbd>
+          {t("Show the minimap")} <kbd className="mmap-kbd">N</kbd>
         </span>
         <div
           role="switch"
@@ -39,8 +41,8 @@ export function MinimapSettingsRows({ className = "" }: { className?: string }) 
         />
       </div>
       <div className="mmap-row">
-        <span className="mmap-row-name">Size</span>
-        <div className="mmap-seg" role="radiogroup" aria-label="Size">
+        <span className="mmap-row-name">{t("Size")}</span>
+        <div className="mmap-seg" role="radiogroup" aria-label={t("Size")}>
           {SIZES.map((size) => (
             <div
               key={size}
@@ -51,14 +53,14 @@ export function MinimapSettingsRows({ className = "" }: { className?: string }) 
               data-on={s.size === size ? "" : undefined}
               onClick={() => setMinimap({ size })}
             >
-              {MINIMAP_SIZE_LABELS[size]}
+              {t(MINIMAP_SIZE_LABELS[size])}
             </div>
           ))}
         </div>
       </div>
       <div className="mmap-row">
-        <span className="mmap-row-name">Shape</span>
-        <div className="mmap-seg" role="radiogroup" aria-label="Shape">
+        <span className="mmap-row-name">{t("Shape")}</span>
+        <div className="mmap-seg" role="radiogroup" aria-label={t("Shape")}>
           {SHAPES.map((shape) => (
             <div
               key={shape}
@@ -69,15 +71,15 @@ export function MinimapSettingsRows({ className = "" }: { className?: string }) 
               data-on={s.shape === shape ? "" : undefined}
               onClick={() => setMinimap({ shape })}
             >
-              {shape === "circle" ? "Circle" : "Square"}
+              {t(shape === "circle" ? t("Circle") : t("Square"))}
             </div>
           ))}
         </div>
       </div>
       <div className="mmap-row">
-        <span className="mmap-row-name">Position</span>
-        <span className="mmap-row-aside">{MINIMAP_CORNER_LABELS[s.corner]}</span>
-        <div className="mmap-corners" role="radiogroup" aria-label="Position">
+        <span className="mmap-row-name">{t("Position")}</span>
+        <span className="mmap-row-aside">{t(MINIMAP_CORNER_LABELS[s.corner])}</span>
+        <div className="mmap-corners" role="radiogroup" aria-label={t("Position")}>
           {CORNERS.map((corner) => (
             <div
               key={corner}
@@ -93,7 +95,7 @@ export function MinimapSettingsRows({ className = "" }: { className?: string }) 
         </div>
       </div>
       <div className="mmap-row">
-        <span className="mmap-row-name">Centre on the card you select</span>
+        <span className="mmap-row-name">{t("Centre on the card you select")}</span>
         <div
           role="switch"
           aria-checked={s.follow}
@@ -101,7 +103,9 @@ export function MinimapSettingsRows({ className = "" }: { className?: string }) 
           className="mmap-switch"
           data-on={s.follow ? "" : undefined}
           onClick={() => setMinimap({ follow: !s.follow })}
-          onKeyDown={(e) => (e.key === " " || e.key === "Enter") && setMinimap({ follow: !s.follow })}
+          onKeyDown={(e) =>
+            (e.key === " " || e.key === "Enter") && setMinimap({ follow: !s.follow })
+          }
         />
       </div>
     </div>
@@ -110,6 +114,7 @@ export function MinimapSettingsRows({ className = "" }: { className?: string }) 
 
 /** The map's gear popover: the rows in a small panel beside it, shut by Escape or a press away from it. */
 export function MinimapSettingsPanel({ onClose }: { onClose: () => void }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const onDown = (event: PointerEvent) => {
@@ -127,10 +132,15 @@ export function MinimapSettingsPanel({ onClose }: { onClose: () => void }) {
     };
   }, [onClose]);
   return (
-    <div ref={ref} className="mmap-panel nodrag nopan nowheel" role="dialog" aria-label="Minimap settings">
+    <div
+      ref={ref}
+      className="mmap-panel nodrag nopan nowheel"
+      role="dialog"
+      aria-label={t("Minimap settings")}
+    >
       <div className="mmap-panel-head">
-        <span>Minimap</span>
-        <div role="button" aria-label="Close" className="mmap-panel-x" onClick={onClose} />
+        <span>{t("Minimap")}</span>
+        <div role="button" aria-label={t("Close")} className="mmap-panel-x" onClick={onClose} />
       </div>
       <MinimapSettingsRows />
     </div>

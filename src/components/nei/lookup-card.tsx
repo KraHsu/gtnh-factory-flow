@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "../flow/clean/clean.css";
 import "./nei-recipe.css";
@@ -180,6 +181,7 @@ export const LookupRecipeCard = memo(function LookupRecipeCard({
   onCardMenu: (event: ReactMouseEvent, add: () => void) => void;
   handlers: LookupHandlers;
 }) {
+  const t = useT();
   const preview = useMemo(
     () => contextualizePreviewRecipe(summaryToPreviewRecipe(recipe), contextResource),
     [contextResource, recipe],
@@ -364,7 +366,7 @@ export const LookupRecipeCard = memo(function LookupRecipeCard({
       <CardHead
         add={add}
         readOnly={isReadOnly}
-        label="Add recipe node"
+        label={t("Add recipe node")}
         tier={tier}
         circuit={circuit}
         press={headPress}
@@ -537,6 +539,7 @@ function CardHead({
   press: ReturnType<typeof useLongPress>;
   children: ReactNode;
 }) {
+  const t = useT();
   const chip = tier ? tierChipColors(tier) : undefined;
   const number = circuit ? circuitNumber(circuit) : undefined;
   return (
@@ -548,7 +551,7 @@ function CardHead({
         data-glyph="plus"
         aria-label={label}
         aria-disabled={readOnly || undefined}
-        title={readOnly ? "Open a copy to add recipes" : undefined}
+        title={readOnly ? t("Open a copy to add recipes") : undefined}
         onClick={(event) => {
           event.stopPropagation();
           if (press.consumeClick() || readOnly) {
@@ -566,7 +569,7 @@ function CardHead({
       {children}
       <span className="nrw-grow" />
       {circuit?.resource ? (
-        <span className="nrw-card-circuit" title={number ? `Circuit ${number}` : "Circuit"}>
+        <span className="nrw-card-circuit" title={number ? `Circuit ${number}` : t("Circuit")}>
           <ResourceIcon
             itemZoom={1.5}
             resource={{ ...circuit.resource, amount: 1, chance: undefined }}
@@ -610,6 +613,7 @@ function PowerRow({
   unit: string;
   side?: "input" | "output";
 }) {
+  const t = useT();
   return (
     <div className="cc-row" data-power="" data-side={side}>
       <span className="cc-bolt" />
@@ -620,7 +624,7 @@ function PowerRow({
       >
         {number}
       </span>
-      <span className="cc-pname">Power</span>
+      <span className="cc-pname">{t("Power")}</span>
     </div>
   );
 }
@@ -664,6 +668,7 @@ function LookupRow({
   onCycle?: (step: 1 | -1) => void;
   handlers: LookupHandlers;
 }) {
+  const t = useT();
   const { onBrowseResource, onChipMenu, onChipDragStart, onHoverSlot } = handlers;
   // The wheel listener is attached by hand, non-passive: React's synthetic wheel cannot preventDefault, and without it
   // every cycle also turns the page.
@@ -706,7 +711,7 @@ function LookupRow({
     const reading = kept
       ? undefined
       : amount.unit
-        ? `${amount.text}${amount.unit.startsWith("/") ? "" : " "}${amount.unit}`
+        ? `${t(amount.text)}${amount.unit.startsWith("/") ? "" : " "}${amount.unit}`
         : amount.text;
     const extra = [
       ...(reading ? [reading] : []),
@@ -719,6 +724,7 @@ function LookupRow({
     return out;
   }, [
     amount.text,
+    t,
     amount.unit,
     chanceText,
     consumeText,
@@ -786,7 +792,7 @@ function LookupRow({
         data-small={numberSmall ? "" : undefined}
         data-energy={amount.energy ? "" : undefined}
       >
-        {amount.text}
+        {t(amount.text)}
       </span>
       <span
         className="cc-pname"

@@ -6,31 +6,31 @@
 .tb,
 .tbx-layer,
 .tbp-layer {
-  --tb-canvas: #141414;
-  --tb-col: #18191c;
-  --tb-col-edge: #26282d;
-  --tb-surface: #23252a;
-  --tb-edge: #34363c;
-  --tb-hair: #2c2e34;
-  --tb-card-hot: #2a2c32;
-  --tb-ink: #e8e9ee;
-  --tb-muted: #9a9ca4;
-  --tb-dim: #7e8089;
-  --tb-faint: #6a6c74;
-  --tb-label: #6f727b;
-  --tb-well: #16171a;
-  --tb-control: #2a2c31;
-  --tb-control-hover: #33363c;
-  --tb-side: #1d1f23;
-  --tb-side-edge: #2c2e34;
-  --tb-cyan: #22d3ee;
+  --tb-canvas: var(--ks-well);
+  --tb-col: var(--ks-paper);
+  --tb-col-edge: var(--ks-paper);
+  --tb-surface: var(--ks-paper);
+  --tb-edge: var(--ks-paper);
+  --tb-hair: var(--ks-paper);
+  --tb-card-hot: var(--ks-paper);
+  --tb-ink: var(--ks-text);
+  --tb-muted: var(--ks-muted);
+  --tb-dim: var(--ks-muted);
+  --tb-faint: var(--ks-muted);
+  --tb-label: var(--ks-muted);
+  --tb-well: var(--ks-well);
+  --tb-control: var(--ks-paper);
+  --tb-control-hover: var(--ks-paper);
+  --tb-side: var(--ks-paper);
+  --tb-side-edge: var(--ks-paper);
+  --tb-cyan: var(--ks-green);
   --tb-ok: #5ee9b5;
   --tb-red: #e05252;
   --tb-amber: #e0a63a;
-  --tb-key: #26282d;
-  --tb-key-hover: #2d2f35;
-  --tb-key-hi: #4a4c54;
-  --tb-key-lo: #17191d;
+  --tb-key: var(--ks-paper);
+  --tb-key-hover: var(--ks-paper);
+  --tb-key-hi: var(--ks-line);
+  --tb-key-lo: var(--ks-paper);
   font-family: var(--app-font);
   font-size: 8px;
   line-height: 10px;
@@ -72,7 +72,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
-  scrollbar-color: #6a6c74 transparent;
+  scrollbar-color: var(--ks-muted) transparent;
 }
 .tb-col {
   display: flex;
@@ -154,7 +154,7 @@
   background: var(--tb-col);
   box-shadow: inset 0 0 0 1px var(--tb-col-edge);
   scrollbar-width: thin;
-  scrollbar-color: #4a4c54 transparent;
+  scrollbar-color: var(--ks-line) transparent;
 }
 .tb-well[data-drop-here] {
   background: color-mix(in srgb, var(--tb-drop) 5%, var(--tb-col));
@@ -310,7 +310,7 @@
 
 .mb-strip .tb-switch {
   display: inline-flex;
-  box-shadow: 0 0 0 1px #26282d;
+  box-shadow: 0 0 0 1px var(--ks-paper);
   margin-right: 5px;
 }
 .tb-switch button {
@@ -318,18 +318,18 @@
   padding: 0 6px;
   border: 0;
   margin: 0;
-  background: #18191c;
+  background: var(--ks-paper);
   color: var(--mc-muted);
   font: inherit;
   cursor: pointer;
 }
 .tb-switch button:hover {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 .tb-switch button[aria-pressed="true"] {
-  background: #33363c;
+  background: var(--ks-paper);
   color: var(--mc-ink);
-  box-shadow: inset 0 -1px 0 #22d3ee;
+  box-shadow: inset 0 -1px 0 var(--ks-green);
 }
 .mb-strip .mb-title[data-plain],
 .mb-strip .mb-count[data-plain] {
@@ -366,7 +366,7 @@
   cursor: pointer;
 }
 .tc-list[data-folded]:hover {
-  background: #24262b;
+  background: var(--ks-paper);
 }
 .tc-list-head {
   flex: none;
@@ -408,7 +408,7 @@
   overflow-y: auto;
   padding: 3px 1px 3px 0;
   scrollbar-width: thin;
-  scrollbar-color: #4a4c54 transparent;
+  scrollbar-color: var(--ks-line) transparent;
 }
 .tc-heading {
   display: flex;
@@ -436,10 +436,10 @@
   white-space: nowrap;
 }
 .tc-row:hover {
-  background: #24262b;
+  background: var(--ks-paper);
 }
 .tc-row[data-on] {
-  background: #2c3036;
+  background: var(--ks-paper);
   box-shadow: inset 2px 0 0 var(--tb-cyan);
 }
 .tc-row .tb-dot {

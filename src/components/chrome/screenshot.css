@@ -9,9 +9,9 @@
   flex-direction: column;
   width: min(1200px, calc(100 * var(--ui-vw) - 40px));
   height: min(720px, calc(100 * var(--ui-vh) - 40px));
-  background: #23252a;
+  background: var(--ks-paper);
   box-shadow:
-    inset 0 0 0 1px #34363c,
+    inset 0 0 0 1px var(--ks-paper),
     6px 8px 7px rgba(0, 0, 0, 0.36);
 }
 .mshot-title {
@@ -21,7 +21,7 @@
   justify-content: space-between;
   height: 22px;
   padding: 0 4px 0 10px;
-  box-shadow: inset 0 -1px 0 #2c2e34;
+  box-shadow: inset 0 -1px 0 var(--ks-paper);
 }
 .mshot-body {
   flex: 1 1 auto;
@@ -37,7 +37,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #0e0f11;
+  background: var(--ks-well);
 }
 .mshot-picture {
   position: relative;
@@ -52,7 +52,7 @@
   position: absolute;
   right: 8px;
   bottom: 6px;
-  color: #22d3ee;
+  color: var(--ks-green);
   font-size: 8px;
   line-height: 10px;
 }
@@ -85,7 +85,7 @@
   cursor: default;
 }
 .mshot-row:hover .ms-switch {
-  background: #44464d;
+  background: var(--ks-line);
 }
 .mshot-row:hover .ms-switch[data-on] {
   background: #3e8f72;
@@ -94,7 +94,7 @@
   margin-top: 4px;
   padding-top: 5px;
   color: var(--mc-muted);
-  box-shadow: inset 0 1px 0 #2c2e34;
+  box-shadow: inset 0 1px 0 var(--ks-paper);
 }
 .mshot-status {
   margin-top: 8px;
@@ -115,8 +115,8 @@
   padding: 0 10px;
 }
 .mshot-key[data-save] {
-  background: #22d3ee;
-  color: #0e0f12;
+  background: var(--ks-green);
+  color: var(--ks-well);
   box-shadow: none;
 }
 .mshot-key[data-save]:hover {
@@ -124,5 +124,5 @@
 }
 .mshot-key[data-save][data-off] {
   background: #1d5560;
-  color: #5a5c65;
+  color: var(--ks-line);
 }

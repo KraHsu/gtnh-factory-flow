@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./menus.css";
 
@@ -34,16 +35,17 @@ export function BoardMenu({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const t = useT();
   return (
     <MenuPortal
       anchor={{ left: x, top: y, bottom: y }}
       width={width}
       maxHeight={420}
-      label={label}
+      label={t(label)}
       onClose={onClose}
       className="cm-actions cm-board"
     >
-      {title ? <div className="cm-head">{title}</div> : null}
+      {title ? <div className="cm-head">{t(title)}</div> : null}
       <div className="cm-scroll">{children}</div>
     </MenuPortal>
   );
@@ -69,6 +71,7 @@ export function MenuRow({
   swatch?: string;
   onClick: () => void;
 }) {
+  const t = useT();
   const run = () => {
     if (!disabled) onClick();
   };
@@ -95,8 +98,8 @@ export function MenuRow({
       }}
     >
       {swatch ? <span aria-hidden className="cm-swatch" style={{ background: swatch }} /> : null}
-      <span className="cm-name">{label}</span>
-      {detail ? <span className="cm-note">{detail}</span> : null}
+      <span className="cm-name">{t(label)}</span>
+      {detail ? <span className="cm-note">{t(detail)}</span> : null}
       {checked ? <span aria-hidden className="cm-tick" /> : null}
     </div>
   );

@@ -40,8 +40,8 @@
 }
 .panel-handle:hover::after,
 .panel-handle:focus-visible::after {
-  background: #5a5c65;
+  background: var(--ks-line);
 }
 .panel-handle[data-dragging]::after {
-  background: #ffd257;
+  background: var(--ks-amber);
 }

@@ -10,16 +10,16 @@
 .nrw {
   --nrw-slot: 32px;
   --nrw-tab: 42px;
-  --nrw-surface: #23252a;
-  --nrw-raised: #2a2c32;
-  --nrw-sunk: #1a1b1f;
-  --nrw-edge: #111317;
-  --nrw-hi: #3e4047;
-  --nrw-lo: #16171a;
+  --nrw-surface: var(--ks-paper);
+  --nrw-raised: var(--ks-paper);
+  --nrw-sunk: var(--ks-paper);
+  --nrw-edge: var(--ks-well);
+  --nrw-hi: var(--ks-line);
+  --nrw-lo: var(--ks-well);
   --nrw-band: rgba(0, 0, 0, 0.22);
-  --nrw-ink: #e8e9ee;
-  --nrw-muted: #9a9ca4;
-  --nrw-dim: #6a6c74;
+  --nrw-ink: var(--ks-text);
+  --nrw-muted: var(--ks-muted);
+  --nrw-dim: var(--ks-muted);
   font-family: var(--app-font);
   -webkit-font-smoothing: none;
   color: var(--nrw-ink);
@@ -40,7 +40,7 @@
 /* Minecraft's text: the ink with its shadow one GUI pixel down and right. */
 .nrw-text {
   color: var(--nrw-ink);
-  text-shadow: 2px 2px 0 #121316;
+  text-shadow: 2px 2px 0 var(--ks-well);
   font-size: 14px;
   line-height: 16px;
   white-space: nowrap;
@@ -81,12 +81,12 @@
   border: 1px solid var(--nrw-edge);
   border-bottom: 0;
   box-shadow:
-    inset 1px 1px 0 #2f3137,
+    inset 1px 1px 0 var(--ks-paper),
     inset -1px 0 0 var(--nrw-lo);
   cursor: pointer;
 }
 .nrw-tab:hover {
-  background: #202227;
+  background: var(--ks-paper);
 }
 .nrw-tab[aria-selected="true"] {
   z-index: 3;
@@ -172,7 +172,7 @@
   text-overflow: ellipsis;
 }
 .nrw-title {
-  color: #ffffff;
+  color: var(--ks-text);
 }
 .nrw-count {
   margin-left: 8px;
@@ -189,11 +189,11 @@
   margin: 0 2px;
   padding: 0 6px;
   box-sizing: border-box;
-  background: #000000;
-  border: 1px solid #a0a0a0;
+  background: var(--ks-well);
+  border: 1px solid var(--ks-muted);
 }
 .nrw-find:focus-within {
-  border-color: #ffffff;
+  border-color: var(--ks-text);
 }
 .nrw-find input {
   flex: 1;
@@ -204,15 +204,15 @@
   background: transparent;
   border: 0;
   outline: none;
-  color: #e0e0e0;
-  caret-color: #d0d0d0;
-  text-shadow: 2px 2px 0 #383838;
+  color: var(--ks-text);
+  caret-color: var(--ks-text);
+  text-shadow: 2px 2px 0 var(--ks-paper);
   font-family: var(--app-font);
   font-size: 14px;
   line-height: 16px;
 }
 .nrw-find input::placeholder {
-  color: #4a4a4a;
+  color: var(--ks-line);
   text-shadow: none;
   opacity: 1;
 }
@@ -245,7 +245,7 @@
   height: 100%;
   padding: 16px;
   color: var(--nrw-muted);
-  text-shadow: 2px 2px 0 #121316;
+  text-shadow: 2px 2px 0 var(--ks-well);
   font-size: 14px;
   line-height: 18px;
   text-align: center;
@@ -263,7 +263,7 @@
   gap: 6px;
   min-height: 22px;
   padding-top: 5px;
-  border-top: 1px solid #2c2e34;
+  border-top: 1px solid var(--ks-paper);
 }
 .nrw-foot .nei-btn {
   width: 22px;
@@ -288,17 +288,17 @@
 }
 .nrw .nrw-seg > .nei-btn[aria-pressed="true"] {
   position: relative;
-  background: #1b1c20;
-  color: #ffd257;
+  background: var(--ks-paper);
+  color: var(--ks-amber);
   box-shadow:
-    inset 1px 1px 0 #0d0e10,
-    inset -1px -1px 0 #34363c;
+    inset 1px 1px 0 var(--ks-well),
+    inset -1px -1px 0 var(--ks-paper);
 }
 .nrw .nrw-seg > .nei-btn[data-gold] {
   color: #b99a45;
 }
 .nrw .nrw-seg > .nei-btn[data-gold][aria-pressed="true"] {
-  color: #ffd257;
+  color: var(--ks-amber);
 }
 .nrw-tier {
   width: 112px;
@@ -306,11 +306,11 @@
 }
 .nrw-tier .pn-pick-key {
   height: 22px;
-  background: #26282d;
+  background: var(--ks-paper);
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d;
-  border: 1px solid #111317;
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper);
+  border: 1px solid var(--ks-well);
 }
 
 /* ===== The body: the machines that run the open tab, then the page of cards ===== */
@@ -337,8 +337,8 @@
   scrollbar-width: none;
   background: rgba(0, 0, 0, 0.2);
   box-shadow:
-    inset 0 0 0 1px #1b1c20,
-    inset 1px 1px 0 1px #16171a;
+    inset 0 0 0 1px var(--ks-paper),
+    inset 1px 1px 0 1px var(--ks-well);
 }
 .nrw-machines::-webkit-scrollbar {
   display: none;
@@ -369,7 +369,7 @@
   cursor: default;
 }
 .nrw .cc-card[data-recipe]:hover {
-  --cc-frame: #4a4c54;
+  --cc-frame: var(--ks-line);
 }
 .nrw .cc-head {
   align-items: flex-start;
@@ -436,7 +436,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4a4c54;
+  color: var(--ks-line);
 }
 .nrw .cc-row.nrw-port {
   cursor: pointer;
@@ -457,7 +457,7 @@
   display: block;
   height: 10px;
   margin: 5px 4px 0;
-  background: #2c2e34;
+  background: var(--ks-paper);
 }
 
 /* A slot: the stencil's wells for its conditions and its add key. */
@@ -471,11 +471,11 @@
   height: var(--nrw-slot);
   padding: 0;
   margin: 0;
-  background: #17181b;
+  background: var(--ks-well);
   border: 0;
   box-shadow:
-    inset 1px 1px 0 #0b0c0e,
-    inset -1px -1px 0 #3a3c42;
+    inset 1px 1px 0 var(--ks-well),
+    inset -1px -1px 0 var(--ks-line);
 }
 .nrw-art {
   display: flex;
@@ -517,14 +517,14 @@
   padding: 2px 4px 2px 2px;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.14);
-  box-shadow: inset 0 0 0 1px #2a2c31;
+  box-shadow: inset 0 0 0 1px var(--ks-paper);
   cursor: grab;
   touch-action: none;
   user-select: none;
   transition: transform 150ms;
 }
 .nrw-cond:hover {
-  box-shadow: inset 0 0 0 1px #3a3c43;
+  box-shadow: inset 0 0 0 1px var(--ks-line);
 }
 .nrw-cond-name {
   flex: 1;
@@ -541,7 +541,7 @@
   cursor: grabbing;
   background: var(--nrw-raised);
   box-shadow:
-    inset 0 0 0 1px #4a4c54,
+    inset 0 0 0 1px var(--ks-line),
     6px 6px 0 rgba(0, 0, 0, 0.5);
 }
 .nrw-add-cond {
@@ -576,15 +576,15 @@
   padding: 0;
   background: transparent;
   border: 1px solid transparent;
-  color: #5c5e66;
+  color: var(--ks-line);
   cursor: pointer;
 }
 .nrw-swap:hover {
   border-color: var(--nrw-edge);
-  background: #26282d;
+  background: var(--ks-paper);
   box-shadow:
-    inset 1px 1px 0 #4a4c54,
-    inset -1px -1px 0 #17191d;
+    inset 1px 1px 0 var(--ks-line),
+    inset -1px -1px 0 var(--ks-paper);
   color: var(--nrw-ink);
 }
 .nrw-swap .nrw-swap-hover {
@@ -608,7 +608,7 @@
   padding: 6px;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.14);
-  box-shadow: inset 0 0 0 1px #2a2c31;
+  box-shadow: inset 0 0 0 1px var(--ks-paper);
   text-align: center;
 }
 /* The pin's unpin key, in its corner: a condition row's remove key. */
@@ -657,16 +657,16 @@
   cursor: pointer;
 }
 .nrw-menu-item:hover {
-  background: #2d2f35;
+  background: var(--ks-paper);
 }
 .nrw-menu-item[aria-current="true"] {
-  background: #2a2c32;
-  box-shadow: inset 2px 0 0 #ffd257;
+  background: var(--ks-paper);
+  box-shadow: inset 2px 0 0 var(--ks-amber);
 }
 .nrw-menu-rule {
   height: 1px;
   margin: 3px 6px;
-  background: #2c2e34;
+  background: var(--ks-paper);
 }
 
 /* A side's name is never cut: on a phone its keys give way instead. */
@@ -683,7 +683,7 @@ html[data-compact] .nrw-stencil-head .nrw-band {
 }
 .nrw-catalyst:focus-visible,
 .nrw-tab:focus-visible {
-  outline: 2px solid #ffd257;
+  outline: 2px solid var(--ks-amber);
   outline-offset: -2px;
 }
 /* A figure squeezed small keeps a gap before its unit, so 240k and EU/Item stay two words. */

@@ -1,13 +1,23 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "../clean.css";
 import "./group.css";
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { formatCompact } from "@/lib/model/resources";
-import { powerDisplayFromEuT, powerDisplaySuffix, rateMultiplierForKind, rateSuffixForKind } from "@/lib/model/rate-unit";
+import {
+  powerDisplayFromEuT,
+  powerDisplaySuffix,
+  rateMultiplierForKind,
+  rateSuffixForKind,
+} from "@/lib/model/rate-unit";
 import { useFactoryStore, useRateDisplayUnits } from "@/store/factory-store";
-import { POCKET_CARD_SOURCE_HANDLE, POCKET_CARD_TARGET_HANDLE, type PocketFlowNode } from "../../PocketNode";
+import {
+  POCKET_CARD_SOURCE_HANDLE,
+  POCKET_CARD_TARGET_HANDLE,
+  type PocketFlowNode,
+} from "../../PocketNode";
 import { useClickSlop } from "../interaction/click-slop";
 import { tipAttrs } from "../interaction/tip-spec";
 import { ResourceGlyph } from "../rail/OverviewRail";
@@ -44,6 +54,7 @@ function Cell({ flow, side }: { flow: GroupFlow; side: "in" | "out" }) {
  * handles), so the router and the edge building are unchanged.
  */
 function CleanGroupSummaryComponent({ data, selected }: NodeProps<PocketFlowNode>) {
+  const t = useT();
   useRateDisplayUnits();
   const { pocket } = data;
   const summary = data.groupSummary as GroupSummary | undefined;
@@ -52,7 +63,10 @@ function CleanGroupSummaryComponent({ data, selected }: NodeProps<PocketFlowNode
   const colors = groupColors(groupColorTag(pocket));
   const machines = summary?.machines ?? 0;
   const count = machinesText(machines);
-  const eu = summary && summary.euT > 0 ? `${formatCompact(powerDisplayFromEuT(summary.euT))} ${powerDisplaySuffix()}` : "";
+  const eu =
+    summary && summary.euT > 0
+      ? `${formatCompact(powerDisplayFromEuT(summary.euT))} ${powerDisplaySuffix()}`
+      : "";
   const line = [count || "No machines", eu].filter(Boolean).join("  ");
   const inputs = summary?.inputs ?? [];
   const outputs = summary?.outputs ?? [];
@@ -102,7 +116,11 @@ function CleanGroupSummaryComponent({ data, selected }: NodeProps<PocketFlowNode
           className="cg-key"
           data-plus=""
           data-group-key="expand"
-          {...tipAttrs({ id: `${pocket.id}|expand`, title: "Expand", actions: [{ input: "left", label: "Expand" }] })}
+          {...tipAttrs({
+            id: `${pocket.id}|expand`,
+            title: "Expand",
+            actions: [{ input: "left", label: "Expand" }],
+          })}
           onClick={(event) => {
             if (!slop.wasClick(event)) return;
             event.stopPropagation();
@@ -112,11 +130,19 @@ function CleanGroupSummaryComponent({ data, selected }: NodeProps<PocketFlowNode
       </div>
       <div className="cg-line">{line}</div>
       <div className="cg-rows">
-        {rows === 0 ? <div className="cg-cell cg-empty">Nothing goes in or out.</div> : null}
+        {rows === 0 ? <div className="cg-cell cg-empty">{t("Nothing goes in or out.")}</div> : null}
         {Array.from({ length: rows }, (_, index) => (
           <div key={index} style={{ display: "contents" }}>
-            {inputs[index] ? <Cell flow={inputs[index]!} side="in" /> : <div className="cg-cell cg-in" />}
-            {outputs[index] ? <Cell flow={outputs[index]!} side="out" /> : <div className="cg-cell cg-out" />}
+            {inputs[index] ? (
+              <Cell flow={inputs[index]!} side="in" />
+            ) : (
+              <div className="cg-cell cg-in" />
+            )}
+            {outputs[index] ? (
+              <Cell flow={outputs[index]!} side="out" />
+            ) : (
+              <div className="cg-cell cg-out" />
+            )}
           </div>
         ))}
       </div>

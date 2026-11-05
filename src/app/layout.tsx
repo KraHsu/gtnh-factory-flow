@@ -24,6 +24,8 @@ import { AnalyticsHeartbeat } from "./AnalyticsHeartbeat";
 import { WhatsNewGate } from "@/components/WhatsNewGate";
 import { GlobalTitleTooltip } from "@/components/nei/GlobalTitleTooltip";
 import "./globals.css";
+import "./krahsu.css";
+import { themeBootScript } from "@/lib/theme-boot";
 
 const monocraft = localFont({
   src: [
@@ -180,7 +182,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   // The app's charcoal, so the browser chrome around the page matches it.
-  themeColor: "#1b1d21",
+  themeColor: "#eff1f5",
 };
 
 /**
@@ -232,7 +234,11 @@ export default function RootLayout({
       // React ever renders, and the server markup does not carry it.
       suppressHydrationWarning
     >
+      <head>
+        <link rel="stylesheet" href="/krahsu-fonts/noto-serif-sc-v35/serif.css" />
+      </head>
       <body className="min-h-full">
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
         <script dangerouslySetInnerHTML={{ __html: appFontBootScript }} />
         <script dangerouslySetInnerHTML={{ __html: uiScaleBoot }} />
         <script

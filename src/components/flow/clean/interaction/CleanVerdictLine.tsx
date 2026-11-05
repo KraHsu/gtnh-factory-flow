@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Position } from "@xyflow/react";
 import { carriedHome } from "./accept";
@@ -37,6 +38,7 @@ export function CleanVerdictLine({
   pointer: { x: number; y: number };
   verdict: WireVerdict;
 }) {
+  const t = useT();
   // A picked-up port carried back over its own card snaps home: shown just as it was, no line, no green.
   if (carriedHome()) return <g className="react-flow__connection" data-verdict="home" />;
   const color = verdict === "connect" || verdict === "spawn" ? GO : NO;
@@ -52,8 +54,14 @@ export function CleanVerdictLine({
         strokeDasharray={dotted ? "0.1 6" : undefined}
       />
       {verdict === "dead" ? (
-        <text x={pointer.x + 8} y={pointer.y + 6 + 12} fill={NO} fontSize={12} fontFamily="var(--app-font, sans-serif)">
-          Drawer already exists
+        <text
+          x={pointer.x + 8}
+          y={pointer.y + 6 + 12}
+          fill={NO}
+          fontSize={12}
+          fontFamily="var(--app-font, sans-serif)"
+        >
+          {t("Drawer already exists")}
         </text>
       ) : null}
     </g>

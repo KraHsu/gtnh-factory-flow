@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import "./mod-panel.css";
 
@@ -23,6 +24,7 @@ export function ModPick<T extends string>({
   label: string;
   title?: string;
 }) {
+  const t = useT();
   const [anchor, setAnchor] = useState<ChromeAnchor>();
   const close = useCallback(() => setAnchor(undefined), []);
   const current = options.find((option) => option.value === value);
@@ -31,7 +33,7 @@ export function ModPick<T extends string>({
       <button
         type="button"
         className="pn-pick-key"
-        aria-label={label}
+        aria-label={t(label)}
         aria-haspopup="menu"
         aria-expanded={anchor !== undefined}
         title={title}
@@ -42,7 +44,7 @@ export function ModPick<T extends string>({
           setAnchor((open) => (open ? undefined : next));
         }}
       >
-        <span>{current?.label ?? value}</span>
+        <span>{t(current?.label ?? value)}</span>
         <span className="pn-pick-arrow" aria-hidden />
       </button>
       {anchor ? (

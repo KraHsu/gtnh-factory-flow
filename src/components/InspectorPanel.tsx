@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import {
   memo,
@@ -298,7 +299,8 @@ export function InspectorPanel() {
 }
 
 function FlowIOPanel() {
-  const readOnly = useFactoryStore(state => state.isReadOnly);
+  const t = useT();
+  const readOnly = useFactoryStore((state) => state.isReadOnly);
   const project = useFactoryStore((state) => state.project);
   const result = useFactoryStore((state) => state.lastResult);
   // Every row prints a rate: follow the rate and power dials.
@@ -480,14 +482,16 @@ function FlowIOPanel() {
   // Counted against the plan's own books, so resources hidden on some other
   // design never inflate the badge here.
   const hiddenCount = useMemo(
-    () =>
-      Object.keys(scope.resources).filter((key) => marks.hidden.has(key)).length,
+    () => Object.keys(scope.resources).filter((key) => marks.hidden.has(key)).length,
     [marks.hidden, scope.resources],
   );
 
   // Rates are set here in Solve: sources behind Inputs rows, products
   // behind Outputs rows. Build and viewers only mark the products.
-  const canEditRates = useFactoryStore((state) => !state.isReadOnly && (state.project.solveMode === true || state.project.poolMode === true));
+  const canEditRates = useFactoryStore(
+    (state) =>
+      !state.isReadOnly && (state.project.solveMode === true || state.project.poolMode === true),
+  );
   const drawers = useMemo<BoundaryDrawers>(() => {
     const roles = getStorageRoles(project);
     const selected = selection ? new Set(debouncedSelectionKey.split("\0")) : undefined;
@@ -503,14 +507,27 @@ function FlowIOPanel() {
     return { need, output };
   }, [project, selection, debouncedSelectionKey]);
 
-  const contentHeight = 78 + (selection ? 28 : 0) + measureFlowRows(
-    buildFlowRows(sections, collapsed, workspace.trendsOpen && !selection ? marks.favourites : EMPTY_KEYS, canEditRates ? drawers : undefined),
-    ROW_HEIGHTS,
-  ).totalHeight;
+  const contentHeight =
+    78 +
+    (selection ? 28 : 0) +
+    measureFlowRows(
+      buildFlowRows(
+        sections,
+        collapsed,
+        workspace.trendsOpen && !selection ? marks.favourites : EMPTY_KEYS,
+        canEditRates ? drawers : undefined,
+      ),
+      ROW_HEIGHTS,
+    ).totalHeight;
 
   return (
     <section
-      style={{ flex: "0 1 auto", height: contentHeight, maxHeight: "var(--inspector-resource-max, 100%)", minHeight: "min(190px, 45%)" }}
+      style={{
+        flex: "0 1 auto",
+        height: contentHeight,
+        maxHeight: "var(--inspector-resource-max, 100%)",
+        minHeight: "min(190px, 45%)",
+      }}
       className={[
         // The ring wraps the WHOLE panel so the selection mode reads from
         // anywhere in the list. Only the controls sit on a card; the list sits
@@ -520,15 +537,17 @@ function FlowIOPanel() {
       ].join(" ")}
     >
       {selection ? (
-        <ScopeStrip
-          machineCount={selection.machineCount}
-          storageCount={selection.storageCount}
-        />
+        <ScopeStrip machineCount={selection.machineCount} storageCount={selection.storageCount} />
       ) : null}
 
       <div className="inspector-section-heading">
-        <h2>Resources</h2>
-        <div hidden={readOnly} className={readOnly ? "ml-auto hidden" : "inspector-header-actions ml-auto flex items-center gap-1"}>
+        <h2>{t("Resources")}</h2>
+        <div
+          hidden={readOnly}
+          className={
+            readOnly ? "ml-auto hidden" : "inspector-header-actions ml-auto flex items-center gap-1"
+          }
+        >
           <ToolbarToggle
             on={workspace.showHiddenResources}
             onClick={() =>
@@ -569,31 +588,29 @@ function FlowIOPanel() {
           >
             <span className="text-[13px] leading-none">★</span>
           </ToolbarToggle>
-
         </div>
 
-          <button
-            type="button"
-            onClick={() => writeWorkspaceView({ rightPanelOpen: false })}
-            title="Hide"
-            aria-label="Hide the resources column"
-            className={[
-              "ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-100",
-
-            ].join(" ")}
+        <button
+          type="button"
+          onClick={() => writeWorkspaceView({ rightPanelOpen: false })}
+          title="Hide"
+          aria-label="Hide the resources column"
+          className={[
+            "ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-100",
+          ].join(" ")}
+        >
+          <svg
+            viewBox="0 0 16 16"
+            className="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <svg
-              viewBox="0 0 16 16"
-              className="h-3.5 w-3.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M6 3l5 5-5 5" />
-            </svg>
-          </button>
+            <path d="M6 3l5 5-5 5" />
+          </svg>
+        </button>
       </div>
       <div className="inspector-controls mx-2 shrink-0 border-b border-neutral-700 pb-1">
         <div className="relative">
@@ -672,7 +689,9 @@ function ToolbarToggle({
       aria-pressed={on}
       className={[
         "flex h-6 w-7 shrink-0 items-center justify-center rounded border",
-        on ? onStyle : "border-neutral-700 text-neutral-400 hover:border-neutral-700 hover:text-neutral-100",
+        on
+          ? onStyle
+          : "border-neutral-700 text-neutral-400 hover:border-neutral-700 hover:text-neutral-100",
       ].join(" ")}
     >
       {children}
@@ -682,7 +701,13 @@ function ToolbarToggle({
 
 function ChartIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg
+      viewBox="0 0 16 16"
+      className="h-3.5 w-3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
       <path d="M1.5 11.5 5 7l3 3 6-7" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -690,7 +715,13 @@ function ChartIcon() {
 
 function EyeIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4">
+    <svg
+      viewBox="0 0 16 16"
+      className="h-3.5 w-3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    >
       <path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8Z" />
       <circle cx="8" cy="8" r="1.9" />
     </svg>
@@ -699,7 +730,13 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4">
+    <svg
+      viewBox="0 0 16 16"
+      className="h-3.5 w-3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    >
       <path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8Z" />
       <circle cx="8" cy="8" r="1.9" />
       <path d="M2 14 14 2" />
@@ -719,6 +756,7 @@ function ScopeStrip({
   machineCount: number;
   storageCount: number;
 }) {
+  const t = useT();
   const parts = [`${machineCount} ${machineCount === 1 ? "machine" : "machines"}`];
   if (storageCount > 0) {
     parts.push(`${storageCount} ${storageCount === 1 ? "drawer" : "drawers"}`);
@@ -727,7 +765,7 @@ function ScopeStrip({
   return (
     <div className="flex shrink-0 items-center gap-2 border-b border-[var(--selection-line)] bg-[var(--selection-wash)] px-2 py-1">
       <span className="text-xs font-bold uppercase tracking-wider text-[var(--selection-ink)]">
-        Selection
+        {t("Selection")}
       </span>
       <span className="ml-auto truncate text-xs text-[var(--selection-ink-dim)]">
         {parts.join(", ")}
@@ -780,6 +818,7 @@ function FlowVirtualList({
   onHover: (resourceKey?: string) => void;
   onFocusBoard: (resourceKey: string) => void;
 }) {
+  const t = useT();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(320);
@@ -787,7 +826,13 @@ function FlowVirtualList({
   // No chart rows at all when charts are off, so the list closes up rather
   // than leaving gaps where they were.
   const targetRows = useMemo(
-    () => buildFlowRows(sections, collapsed, showCharts ? favourites : EMPTY_KEYS, editRates ? drawers : undefined),
+    () =>
+      buildFlowRows(
+        sections,
+        collapsed,
+        showCharts ? favourites : EMPTY_KEYS,
+        editRates ? drawers : undefined,
+      ),
     [collapsed, favourites, sections, showCharts, drawers, editRates],
   );
   // Membership rides the value-motion clock: rows grow in and fold out, and
@@ -805,12 +850,9 @@ function FlowVirtualList({
     right: number;
     startWidth: number;
   }>();
-  const setExpanded = useCallback(
-    (key: string, top: number, right: number, startWidth: number) => {
-      setExpandedState({ key, top, right, startWidth });
-    },
-    [],
-  );
+  const setExpanded = useCallback((key: string, top: number, right: number, startWidth: number) => {
+    setExpandedState({ key, top, right, startWidth });
+  }, []);
   /**
    * Starring or hiding from the wide copy closes it. Both change the row (a
    * star adds a chart, a hide can drop it), and a lingering copy re-renders so
@@ -1044,8 +1086,8 @@ function FlowVirtualList({
         if (row.type === "header") {
           return (
             <FlowSectionHeader
-          rateColumn={rateColumn}
-          onRateColumnChange={onRateColumnChange}
+              rateColumn={rateColumn}
+              onRateColumnChange={onRateColumnChange}
               key={row.key}
               section={row.section}
               collapsed={row.collapsed}
@@ -1086,15 +1128,19 @@ function FlowVirtualList({
               ].join(" ")}
             >
               {/* The row is one fixed-height line, so wrapping would clip. */}
-              <span className="truncate">
-                {isFiltered ? "No matches." : row.section.empty}
-              </span>
+              <span className="truncate">{isFiltered ? t("No matches.") : row.section.empty}</span>
             </p>,
           );
         }
 
         if (row.type === "drawer") {
-          return shell(<DrawerTargetRow storage={row.storage} input={row.section.id === "need"} isLast={row.last} />);
+          return shell(
+            <DrawerTargetRow
+              storage={row.storage}
+              input={row.section.id === "need"}
+              isLast={row.last}
+            />,
+          );
         }
 
         if (row.type === "chart") {
@@ -1116,7 +1162,9 @@ function FlowVirtualList({
         return shell(
           <FlowResourceRow
             rateColumn={rateColumn}
-            productMarker={!editRates && row.section.id === "output" && drawers.output.has(row.balance.key)}
+            productMarker={
+              !editRates && row.section.id === "output" && drawers.output.has(row.balance.key)
+            }
             balance={row.balance}
             sectionId={row.section.id}
             tone={row.section.tone}
@@ -1144,61 +1192,65 @@ function FlowVirtualList({
       */}
       {expandedRow && typeof document !== "undefined"
         ? createPortal(
-        <div
-          // The row's own width, measured on pointer arrival, is where the
-          // grow animation starts.
-          key={expandedRow.balance.key}
-          ref={overlayRef}
-          style={
-            {
-              // The row's position on pointer arrival, for the first frame;
-              // the layout effect above owns these afterwards. Reported in real
-              // px by the row; this portal positions in shell px (see
-              // positionExpanded).
-              top: expandedRow.top / getUiScale(),
-              right: expandedRow.right / getUiScale(),
-              "--row-start-width": `${expandedRow.startWidth / getUiScale()}px`,
-            } as React.CSSProperties
-          }
-          // One ring around the row and its chart. A pointer GHOST: every
-          // event falls through to the real list, so the wheel scrolls it, the
-          // scrollbar stays grabbable and double-click still flies the board.
-          // Only the mark buttons opt back in (pointer-events-auto). Hover and
-          // dismissal belong to the underlying rows and the document watcher.
-          className="resource-row-expand ui-zoom pointer-events-none fixed z-[60] overflow-hidden rounded bg-[#2a2d33] shadow-xl ring-1 ring-cyan-500/60"
-        >
-          <FlowResourceRow
-            rateColumn={rateColumn}
-            productMarker={!editRates && expandedRow.section.id === "output" && drawers.output.has(expandedRow.balance.key)}
-            balance={expandedRow.balance}
-            sectionId={expandedRow.section.id}
-            tone={expandedRow.section.tone}
-            sign={expandedRow.section.sign}
-            resource={resourcesByKey.get(expandedRow.balance.key)}
-            isActive
-            isHidden={hidden.has(expandedRow.balance.key)}
-            isFavourite={favourites.has(expandedRow.balance.key)}
-            manageMode={manageMode}
-            energyEuT={expandedRow.section.id !== "internal" ? energyEuT : undefined}
-            expanded
-            onHover={onHover}
-            onExpand={setExpanded}
-            onMarkChanged={dismissExpanded}
-            onFocusBoard={onFocusBoard}
-          />
-          {/* The chart comes along, so the pair widens together rather than
+            <div
+              // The row's own width, measured on pointer arrival, is where the
+              // grow animation starts.
+              key={expandedRow.balance.key}
+              ref={overlayRef}
+              style={
+                {
+                  // The row's position on pointer arrival, for the first frame;
+                  // the layout effect above owns these afterwards. Reported in real
+                  // px by the row; this portal positions in shell px (see
+                  // positionExpanded).
+                  top: expandedRow.top / getUiScale(),
+                  right: expandedRow.right / getUiScale(),
+                  "--row-start-width": `${expandedRow.startWidth / getUiScale()}px`,
+                } as React.CSSProperties
+              }
+              // One ring around the row and its chart. A pointer GHOST: every
+              // event falls through to the real list, so the wheel scrolls it, the
+              // scrollbar stays grabbable and double-click still flies the board.
+              // Only the mark buttons opt back in (pointer-events-auto). Hover and
+              // dismissal belong to the underlying rows and the document watcher.
+              className="resource-row-expand ui-zoom pointer-events-none fixed z-[60] overflow-hidden rounded bg-[#2a2d33] shadow-xl ring-1 ring-cyan-500/60"
+            >
+              <FlowResourceRow
+                rateColumn={rateColumn}
+                productMarker={
+                  !editRates &&
+                  expandedRow.section.id === "output" &&
+                  drawers.output.has(expandedRow.balance.key)
+                }
+                balance={expandedRow.balance}
+                sectionId={expandedRow.section.id}
+                tone={expandedRow.section.tone}
+                sign={expandedRow.section.sign}
+                resource={resourcesByKey.get(expandedRow.balance.key)}
+                isActive
+                isHidden={hidden.has(expandedRow.balance.key)}
+                isFavourite={favourites.has(expandedRow.balance.key)}
+                manageMode={manageMode}
+                energyEuT={expandedRow.section.id !== "internal" ? energyEuT : undefined}
+                expanded
+                onHover={onHover}
+                onExpand={setExpanded}
+                onMarkChanged={dismissExpanded}
+                onFocusBoard={onFocusBoard}
+              />
+              {/* The chart comes along, so the pair widens together rather than
               leaving the graph at column width under a row that grew. */}
-          {showCharts && favourites.has(expandedRow.balance.key) ? (
-            <FlowChartRow
-              balance={expandedRow.balance}
-              series={selectTrendSeries(history, expandedRow.balance.key)}
-              expanded
-              onHover={onHover}
-              onExpand={setExpanded}
-              onFocusBoard={onFocusBoard}
-            />
-          ) : null}
-        </div>,
+              {showCharts && favourites.has(expandedRow.balance.key) ? (
+                <FlowChartRow
+                  balance={expandedRow.balance}
+                  series={selectTrendSeries(history, expandedRow.balance.key)}
+                  expanded
+                  onHover={onHover}
+                  onExpand={setExpanded}
+                  onFocusBoard={onFocusBoard}
+                />
+              ) : null}
+            </div>,
             document.body,
           )
         : null}
@@ -1287,6 +1339,7 @@ function FlowSectionHeader({
   isFiltered: boolean;
   onToggle: (id: FlowSectionId) => void;
 }) {
+  const t = useT();
   const tone = TONE_STYLES[section.tone];
   const showRatio = isFiltered && section.items.length !== section.totalCount;
 
@@ -1298,19 +1351,42 @@ function FlowSectionHeader({
         tone.header,
       ].join(" ")}
     >
-      <button type="button" onClick={() => onToggle(section.id)} aria-expanded={!collapsed} className="flex min-w-0 flex-1 items-center gap-1 text-left">
-      <span className={["text-[11px] leading-none", collapsed ? "" : "rotate-90"].join(" ")}>▶</span>
-      <span className="text-sm font-bold uppercase tracking-wider">{section.label}</span>
-      <span className={["rounded px-1.5 py-0.5 text-xs font-bold tabular-nums", tone.badge].join(" ")}>
-        {showRatio ? `${section.items.length} / ${section.totalCount}` : section.totalCount}
-      </span>
+      <button
+        type="button"
+        onClick={() => onToggle(section.id)}
+        aria-expanded={!collapsed}
+        className="flex min-w-0 flex-1 items-center gap-1 text-left"
+      >
+        <span className={["text-[11px] leading-none", collapsed ? "" : "rotate-90"].join(" ")}>
+          ▶
+        </span>
+        <span className="text-sm font-bold uppercase tracking-wider">{section.label}</span>
+        <span
+          className={["rounded px-1.5 py-0.5 text-xs font-bold tabular-nums", tone.badge].join(" ")}
+        >
+          {showRatio ? `${section.items.length} / ${section.totalCount}` : section.totalCount}
+        </span>
       </button>
-      {section.id === "need" && <span className="inspector-rate-selector ml-auto flex shrink-0 justify-end gap-0.5" role="group" aria-label="Resource rate display">
-        {(["raw", "net"] as const).map(value => <button key={value} type="button" aria-pressed={rateColumn === value}
-          onClick={() => onRateColumnChange(value)} className="px-2 py-0.5" aria-label={value === "raw" ? "Show raw rates" : "Show net rates"}>
-          {value === "raw" ? "Raw" : "Net"}
-        </button>)}
-      </span>}
+      {section.id === "need" && (
+        <span
+          className="inspector-rate-selector ml-auto flex shrink-0 justify-end gap-0.5"
+          role="group"
+          aria-label="Resource rate display"
+        >
+          {(["raw", "net"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={rateColumn === value}
+              onClick={() => onRateColumnChange(value)}
+              className="px-2 py-0.5"
+              aria-label={value === "raw" ? "Show raw rates" : "Show net rates"}
+            >
+              {value === "raw" ? t("Raw") : t("Net")}
+            </button>
+          ))}
+        </span>
+      )}
     </div>
   );
 }
@@ -1359,9 +1435,10 @@ const FlowResourceRow = memo(function FlowResourceRow({
   onMarkChanged?: () => void;
   onFocusBoard: (resourceKey: string) => void;
 }) {
+  const t = useT();
   // Memoized rows keep the same balance when only a display dial changes.
   useRateDisplayUnits();
-  const readOnly = useFactoryStore(state => state.isReadOnly);
+  const readOnly = useFactoryStore((state) => state.isReadOnly);
   const toneStyle = TONE_STYLES[tone];
   const value = getFlowRowValue(sectionId, balance);
   // The energy reading: what the whole scope spends per unit of this product.
@@ -1371,13 +1448,17 @@ const FlowResourceRow = memo(function FlowResourceRow({
       ? energyPerUnit(energyEuT, Math.abs(value))
       : undefined;
   const netValue = balance.surplusPerSecond - balance.deficitPerSecond;
-  const netEnergy = energyEuT !== undefined && balance.kind !== "power"
-    ? energyPerUnit(energyEuT, Math.abs(netValue)) : undefined;
+  const netEnergy =
+    energyEuT !== undefined && balance.kind !== "power"
+      ? energyPerUnit(energyEuT, Math.abs(netValue))
+      : undefined;
   const unit = rateUnitFor(balance.kind);
   const category = useFactoryStore((state) =>
     getCategoryPresentation(state.project.recipes, balance.kind, balance.resourceId),
   );
-  const name = resourceLabel(category ?? { id: balance.resourceId, displayName: balance.displayName });
+  const name = resourceLabel(
+    category ?? { id: balance.resourceId, displayName: balance.displayName },
+  );
 
   return (
     // The row is a group, not one button: the star and the eye are their own
@@ -1407,12 +1488,7 @@ const FlowResourceRow = memo(function FlowResourceRow({
         // an `overflow-y: auto` box that clips anything past its edge. The copy
         // is pointer-transparent, so this enter keeps firing through it.
         const box = event.currentTarget.getBoundingClientRect();
-        onExpand(
-          balance.key,
-          box.top,
-          document.documentElement.clientWidth - box.right,
-          box.width,
-        );
+        onExpand(balance.key, box.top, document.documentElement.clientWidth - box.right, box.width);
       }}
       onMouseLeave={expanded ? undefined : () => onHover(undefined)}
     >
@@ -1464,7 +1540,11 @@ const FlowResourceRow = memo(function FlowResourceRow({
             tooltip={false}
             className="!h-full !w-full"
           />
-          {productMarker ? <span className="inspector-product-marker" role="img" aria-label="Product">◆</span> : null}
+          {productMarker ? (
+            <span className="inspector-product-marker" role="img" aria-label={t("Product")}>
+              ◆
+            </span>
+          ) : null}
         </span>
 
         {/* Truncates in the wide copy too. The extra width fits most names in
@@ -1474,69 +1554,86 @@ const FlowResourceRow = memo(function FlowResourceRow({
           <span className="min-w-0 truncate text-base font-medium text-neutral-100">{name}</span>
         </span>
 
-        {rateColumn === "raw" && <span
-          className={[
-            "inspector-resource-rate ml-2 flex shrink-0 items-baseline",
-            euEach !== undefined ? ENERGY_READING_TEXT : toneStyle.value,
-          ].join(" ")}
-        >
-          <span className="text-base font-bold tabular-nums">
+        {rateColumn === "raw" && (
+          <span
+            className={[
+              "inspector-resource-rate ml-2 flex shrink-0 items-baseline",
+              euEach !== undefined ? ENERGY_READING_TEXT : toneStyle.value,
+            ].join(" ")}
+          >
+            <span className="text-base font-bold tabular-nums">
+              {euEach !== undefined ? (
+                // The chain's cost per unit, in energy gold with a small grey
+                // unit. Not eased: it is a quotient of two moving figures, and
+                // tweening it would show the cost drifting on its own.
+                <>
+                  {formatEnergyPerUnitParts(euEach, balance.kind).value}
+                  <span className="inspector-unit">
+                    {formatEnergyPerUnitParts(euEach, balance.kind).unit}
+                  </span>
+                </>
+              ) : (
+                <>
+                  {/* Eases to a new solve on the board's value-motion clock; the
+                    sign and tone flip immediately, only the digits travel. */}
+                  <MotionNumberText
+                    values={[Math.abs(value)]}
+                    render={(shown) =>
+                      formatSignedRate(shown[0] ?? Math.abs(value), balance.kind, sign)
+                    }
+                  />
+                  <span className="inspector-unit">{unit}</span>
+                </>
+              )}
+            </span>
+
+            {/*
+            The star sits past the rate at the far right, so it holds still when
+            the row widens on hover. It fades out as the mark buttons slide in,
+            since the favourite button is also a filled star.
+          */}
+            {isFavourite ? (
+              <span
+                aria-hidden
+                className={[
+                  "ml-1 shrink-0 text-[11px] leading-none text-amber-300",
+                  manageMode || expanded
+                    ? "opacity-0"
+                    : "group-focus-within:opacity-0 group-hover:opacity-0",
+                ].join(" ")}
+              >
+                ★
+              </span>
+            ) : null}
+          </span>
+        )}
+
+        {rateColumn === "net" && (
+          <span
+            className={`inspector-resource-net ${euEach !== undefined ? ENERGY_READING_TEXT : toneStyle.value}`}
+          >
             {euEach !== undefined ? (
-              // The chain's cost per unit, in energy gold with a small grey
-              // unit. Not eased: it is a quotient of two moving figures, and
-              // tweening it would show the cost drifting on its own.
-              <>
-                {formatEnergyPerUnitParts(euEach, balance.kind).value}
-                <span className="inspector-unit">
-                  {formatEnergyPerUnitParts(euEach, balance.kind).unit}
-                </span>
-              </>
+              netEnergy === undefined ? (
+                "—"
+              ) : (
+                <>
+                  {formatEnergyPerUnitParts(netEnergy, balance.kind).value}
+                  <span className="inspector-unit">
+                    {formatEnergyPerUnitParts(netEnergy, balance.kind).unit}
+                  </span>
+                </>
+              )
             ) : (
               <>
-                {/* Eases to a new solve on the board's value-motion clock; the
-                    sign and tone flip immediately, only the digits travel. */}
                 <MotionNumberText
-                  values={[Math.abs(value)]}
-                  render={(shown) => formatSignedRate(shown[0] ?? Math.abs(value), balance.kind, sign)}
+                  values={[netValue]}
+                  render={([net = 0]) => formatSignedRate(net, balance.kind, net)}
                 />
                 <span className="inspector-unit">{unit}</span>
               </>
             )}
           </span>
-
-          {/*
-            The star sits past the rate at the far right, so it holds still when
-            the row widens on hover. It fades out as the mark buttons slide in,
-            since the favourite button is also a filled star.
-          */}
-          {isFavourite ? (
-            <span
-              aria-hidden
-              className={[
-                "ml-1 shrink-0 text-[11px] leading-none text-amber-300",
-                manageMode || expanded
-                  ? "opacity-0"
-                  : "group-focus-within:opacity-0 group-hover:opacity-0",
-              ].join(" ")}
-            >
-              ★
-            </span>
-          ) : null}
-        </span>}
-
-
-        {rateColumn === "net" && <span className={`inspector-resource-net ${euEach !== undefined ? ENERGY_READING_TEXT : toneStyle.value}`}>
-          {euEach !== undefined ? (netEnergy === undefined ? "—" : <>
-            {formatEnergyPerUnitParts(netEnergy, balance.kind).value}
-            <span className="inspector-unit">{formatEnergyPerUnitParts(netEnergy, balance.kind).unit}</span>
-          </>) : <>
-          <MotionNumberText
-            values={[netValue]}
-            render={([net = 0]) => formatSignedRate(net, balance.kind, net)}
-          />
-          <span className="inspector-unit">{unit}</span>
-          </>}
-        </span>}
+        )}
         {/*
           The room the mark buttons slide into: a real grid column, not an
           overlay, so the hide button never covers the rate. Zero-wide until
@@ -1656,14 +1753,14 @@ const TONE_STYLES: Record<
   },
   /* One Outputs section, one colour: red in, green out. */
   output: {
-    header: "border-[var(--flow-output)]/40 bg-emerald-950/85 text-[var(--flow-output)] hover:bg-emerald-900/60",
+    header:
+      "border-[var(--flow-output)]/40 bg-emerald-950/85 text-[var(--flow-output)] hover:bg-emerald-900/60",
     badge: "bg-[var(--flow-output)]/30 text-[var(--flow-output)]",
     value: "text-[var(--flow-output)]",
     tint: "bg-[var(--flow-output)]/5",
   },
   internal: {
-    header:
-      "border-neutral-800 bg-[#1b1d21]/90 text-neutral-300 hover:bg-[#25272c]",
+    header: "border-neutral-800 bg-[#1b1d21]/90 text-neutral-300 hover:bg-[#25272c]",
     badge: "bg-fg-muted/20 text-neutral-300",
     value: "text-neutral-300",
     // No tint. Internal is the long tail and the one group that means "nothing

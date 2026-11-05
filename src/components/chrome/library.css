@@ -8,7 +8,7 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  background: #141414;
+  background: var(--ks-well);
 }
 .ml-head {
   flex: none;
@@ -17,8 +17,8 @@
   gap: 4px;
   height: 24px;
   padding: 0 8px;
-  background: #2a2d33;
-  box-shadow: inset 0 -1px 0 #52545c;
+  background: var(--ks-paper);
+  box-shadow: inset 0 -1px 0 var(--ks-line);
   position: relative;
 }
 .ml-tab {
@@ -34,7 +34,7 @@
   white-space: nowrap;
 }
 .ml-tab:hover {
-  color: #d0d2d8;
+  color: var(--ks-text);
 }
 .ml-tab[data-on] {
   color: var(--mc-ink);
@@ -53,8 +53,8 @@
   padding: 0 3px;
   height: 10px;
   line-height: 10px;
-  background: #353942;
-  color: #a3a3a3;
+  background: var(--ks-paper);
+  color: var(--ks-muted);
 }
 .ml-search {
   box-sizing: border-box;
@@ -65,13 +65,13 @@
   border: 0;
   border-radius: 0;
   outline: none;
-  background: #000;
+  background: var(--ks-well);
   color: var(--mc-ink);
   font: inherit;
-  box-shadow: 0 0 0 1px #111317;
+  box-shadow: 0 0 0 1px var(--ks-well);
 }
 .ml-search::placeholder {
-  color: #6f737c;
+  color: var(--ks-muted);
 }
 .ml-search:focus {
   box-shadow: 0 0 0 1px var(--mc-cyan);
@@ -104,7 +104,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: #4a4c54 transparent;
+  scrollbar-color: var(--ks-line) transparent;
 }
 .ml-public {
   height: 100%;
@@ -127,23 +127,23 @@
   position: relative;
   box-sizing: border-box;
   height: 50px;
-  background: #24262b;
+  background: var(--ks-paper);
   box-shadow:
-    0 0 0 1px #3a3c43,
+    0 0 0 1px var(--ks-line),
     3px 3px 0 rgba(0, 0, 0, 0.4);
   margin: 1px;
   cursor: pointer;
   overflow: hidden;
-  color: #fff;
+  color: var(--ks-text);
 }
 .ml-tile:hover {
-  background: #2e3036;
+  background: var(--ks-paper);
   box-shadow:
-    0 0 0 1px #52545c,
+    0 0 0 1px var(--ks-line),
     3px 3px 0 rgba(0, 0, 0, 0.4);
 }
 .ml-tile[data-showing] {
-  background: #2e3036;
+  background: var(--ks-paper);
   box-shadow:
     0 0 0 1px var(--mc-cyan),
     3px 3px 0 rgba(0, 0, 0, 0.4);
@@ -154,14 +154,14 @@
   justify-content: center;
   background: transparent;
   box-shadow: none;
-  outline: 1px dashed #3a3c43;
+  outline: 1px dashed var(--ks-line);
   outline-offset: -1px;
   color: var(--mc-cyan);
 }
 .ml-new:hover {
-  background: #1d1f23;
+  background: var(--ks-paper);
   box-shadow: none;
-  outline-color: #52545c;
+  outline-color: var(--ks-line);
 }
 .ml-face {
   position: absolute;
@@ -177,7 +177,7 @@
   position: relative;
   width: 24px;
   height: 24px;
-  background: #1d1f23;
+  background: var(--ks-paper);
 }
 .ml-noface::before,
 .ml-noface::after {
@@ -185,7 +185,7 @@
   position: absolute;
   width: 3px;
   height: 3px;
-  background: #36383f;
+  background: var(--ks-paper);
 }
 .ml-noface::before {
   left: 5px;
@@ -203,7 +203,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #fff;
+  color: var(--ks-text);
 }
 .ml-tile[data-tasks]::before {
   content: "";
@@ -227,8 +227,8 @@
   height: 10px;
   padding: 0 3px;
   line-height: 10px;
-  background: #353942;
-  color: #a3a3a3;
+  background: var(--ks-paper);
+  color: var(--ks-muted);
 }
 .ml-chip[data-showing] {
   background: #1e4a52;
@@ -242,7 +242,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #8a8c94;
+  color: var(--ks-muted);
 }
 .ml-when {
   position: absolute;
@@ -266,8 +266,8 @@
   padding: 0 2px;
   border: 0;
   outline: 1px solid var(--mc-cyan);
-  background: #000;
-  color: #fff;
+  background: var(--ks-well);
+  color: var(--ks-text);
   font: inherit;
 }
 
@@ -317,13 +317,13 @@
   border: 0;
   border-radius: 0;
   background: var(--mc-cyan);
-  color: #0e0f12;
+  color: var(--ks-well);
   font: inherit;
   cursor: pointer;
 }
 .ml-sign-go:disabled {
   background: #1d5560;
-  color: #5a5c65;
+  color: var(--ks-line);
   cursor: default;
 }
 .ml-sign-switch {

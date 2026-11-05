@@ -258,7 +258,9 @@
   position: absolute;
   pointer-events: none;
   background: var(--cg-body);
-  transition: background-color 120ms linear, box-shadow 120ms linear;
+  transition:
+    background-color 120ms linear,
+    box-shadow 120ms linear;
 }
 .cg-floor[data-drop] {
   background: color-mix(in srgb, var(--cg-c) 22%, transparent);
@@ -268,7 +270,7 @@
   background: color-mix(in srgb, var(--cg-c) 3%, transparent);
 }
 .cg-frame[data-drop]::before {
-  border-color: var(--cg-c-hi, #fff);
+  border-color: var(--cg-c-hi, var(--ks-text));
 }
 .cg-frame[data-drop] .cg-strip {
   background: var(--cg-c-strip-hi, var(--cg-strip));
