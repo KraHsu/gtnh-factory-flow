@@ -37,10 +37,13 @@ older release notes retain the upstream language.
 
 Game names and tooltips use a separate, versioned display pack under
 `public/i18n/gtnh`. The default 2.9.0-RC-2 pack matches the published dataset hash.
-It reuses the pinned GTNH-Translations English/Chinese language keys and official
-material/ore-prefix templates. Ambiguous names and unrecognized text stay English.
-The current pack resolves 48,733 of 67,718 resource names (72.0%) and 725 tooltip
-lines on 179 resources; this is partial coverage, not a complete Chinese dataset.
+It reuses pinned GTNH-Translations keys, Minecraft 1.7.10 language assets, and
+built-in languages from all 241 mod JARs in the matching official client pack.
+Material/tool templates and the pinned GregTech ore-prefix registry cover
+generated item and ore dictionary names. Ambiguous names and unrecognized text
+stay English. The current pack resolves 61,797 of 67,718 resource names (91.3%),
+744 game-tooltip lines and 16,190 planner-generated ore-tooltip lines. This is
+partial coverage, not a complete Chinese dataset.
 The source revision, method, coverage and upstream terms accompany the pack, and
 Help links to its attribution notice. Translations have their upstream terms;
 they are not relicensed under this application's code license.
@@ -60,12 +63,15 @@ canonical English query. Unknown or ambiguous aliases are left unchanged.
 Chinese search currently supports the default RC-2 dataset; older datasets use
 English names and queries.
 
-To rebuild, check out the GTNH-Translations revision recorded in `provenance.json`
-and obtain the matching published resource and lookup indexes plus manifest:
+To rebuild, check out the GTNH-Translations revision recorded in `provenance.json`,
+extract the pinned built-in language assets as described in
+`tools/i18n/README.md`, and obtain the matching published resource and lookup indexes
+plus manifest:
 
 ```sh
 node tools/i18n/build-gtnh-zh.mjs <translation-checkout> \
-  <resource-index.json.gz> <recipe-lookup-index.json.gz> <datasets.manifest.json>
+  <resource-index.json.gz> <recipe-lookup-index.json.gz> <datasets.manifest.json> \
+  public/i18n/gtnh <game-assets.json>
 ```
 
 The builder writes a display pack, a compressed canonical search index, coverage,
@@ -101,6 +107,7 @@ npm run build:rooms
 NEXT_PUBLIC_SITE_URL=https://gtnh.krahsu.top \
 NEXT_PUBLIC_PUBLIC_TOOL=1 \
 NEXT_PUBLIC_ROOMS=1 \
+NEXT_PUBLIC_LIVE_URL=/live \
 GTNH_DATASET_BACKEND_URL=https://gtnhplanner.com npm run build
 ```
 

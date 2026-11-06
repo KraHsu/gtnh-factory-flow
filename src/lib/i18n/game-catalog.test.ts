@@ -46,6 +46,9 @@ describe("game display language", () => {
     );
     expect(game.gameResourceLabel("zh-CN", { ...resource, id: "custom:plate" })).toBe("Iron Plate");
     expect(game.gameResourceTooltip("zh-CN", resource)).toEqual(["铁板", "厚度：1"]);
+    expect(game.gameText("zh-CN", "Any Iron Plate")).toBe("任意铁板");
+    expect(game.gameText("zh-CN", "Any Unknown Plate")).toBe("Any Unknown Plate");
+    expect(game.gameText("en", "Any Iron Plate")).toBe("Any Iron Plate");
     expect(game.localizedGameQuery("铁 plate", "v1", hash)).toBe("Iron plate");
     expect(game.localizedGameQuery("铁板", "v1", hash)).toBe("Iron Plate");
     expect(game.localizedGameQuery("铁板", "v2", hash)).toBe("铁板");

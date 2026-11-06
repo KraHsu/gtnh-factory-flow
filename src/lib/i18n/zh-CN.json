@@ -1748,5 +1748,12 @@
   "Rooms stay available and saved on the server when the owner closes their browser.": "房主关闭浏览器后，房间仍保存在服务器，其他成员可以继续编辑。",
   "This room is unavailable. Join again with the room number and password.": "房间暂时无法访问，请通过房间号和密码重新加入。",
   "This room was closed. Your local copy is still on this device.": "房间已关闭，本机仍保留此方案的副本。",
-  "Your room session ended. Join again with the room number and password.": "房间会话已结束，请通过房间号和密码重新加入。"
+  "Your room session ended. Join again with the room number and password.": "房间会话已结束，请通过房间号和密码重新加入。",
+  "Any wooden planks": "任意木板",
+  "Any wooden sticks": "任意木棍",
+  "Any wood logs": "任意原木",
+  "More Chinese game names": "补充游戏名称汉化",
+  "Built-in Minecraft and mod translations cover more item names, including planks, potions and tool parts.": "复用原版和模组内置汉化，补充木板、药水、工具部件等物品名称。",
+  "Ore dictionary ingredients and their accepted items now have Chinese labels and explanations.": "补充矿物词典材料类别及其可接受物品的中文名称和说明。",
+  "Game language templates no longer leave formatting markers in item names.": "修正游戏语言模板，物品名称不再残留格式标记。"
 }

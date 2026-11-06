@@ -106,6 +106,11 @@ export function gameText(locale: string, text: string): string {
   if (locale !== "zh-CN" || !active) return text;
   const direct = active.names[text];
   if (typeof direct === "string") return direct;
+  // Ore categories display a concrete member name prefixed with "Any".
+  if (text.startsWith("Any ")) {
+    const member = active.names[text.slice(4)];
+    if (typeof member === "string") return "任意" + member;
+  }
   const parts = text.split(": ");
   if (parts.length === 2 && parts.every((part) => Object.hasOwn(active!.names, part)))
     return parts.map((part) => active!.names[part]).join("：");

@@ -40,6 +40,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.10.1",
+    date: "2026-11-06",
+    headline: "More Chinese game names",
+    notes: [
+      "Built-in Minecraft and mod translations cover more item names, including planks, potions and tool parts.",
+      "Ore dictionary ingredients and their accepted items now have Chinese labels and explanations.",
+      "Game language templates no longer leave formatting markers in item names.",
+    ],
+  },
+  {
     version: "4.10.0",
     date: "2026-11-06",
     headline: "Persistent collaboration rooms",

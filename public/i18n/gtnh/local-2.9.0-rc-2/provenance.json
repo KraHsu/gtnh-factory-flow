@@ -4,13 +4,24 @@
   "translationLicense": "CC-BY-NC-SA (as declared in the Chinese translation README)",
   "attribution": "GTNH Chinese translation contributors / ParaTranz project 4964",
   "datasetVersion": "2.9.0-RC-2",
-  "method": "Paired language keys, exact names and official ore-prefix/material templates; ambiguous matches fall back to English.",
+  "method": "Paired language keys, pinned built-in game languages, GTNH overrides, material/tool templates and unanimous ore alternatives; ambiguous matches fall back to English.",
+  "gameAssets": {
+    "sourceInventory": "/i18n/gtnh/game-sources/sources.json",
+    "modpackVersion": "2.9.0-RC-2",
+    "modpackSha256": "0c7da79f4ac1982c8a7dbfdcc1f1af6cf96ac5cb345a1c3387fb090d974b0a8d",
+    "minecraftVersion": "1.7.10",
+    "jars": 241,
+    "languageDomains": 245,
+    "assetBundleSha256": "ccd1b1886e8dc9d8a3be3cf2837fd766677176a72334216f219eb0c8ca6768cc"
+  },
   "coverage": {
     "resources": 67718,
-    "translatedNames": 48733,
-    "translatedTooltipResources": 179,
-    "translatedTooltipLines": 725,
-    "languagePairs": 73838
+    "translatedNames": 61797,
+    "translatedTooltipResources": 8274,
+    "translatedTooltipLines": 16934,
+    "translatedGameTooltipLines": 744,
+    "translatedGeneratedTooltipLines": 16190,
+    "languagePairs": 145931
   },
   "resourceIndexSha256": "f271f8975f2d213fda5976c9989b9eaa9694615cd377fc7cabb56666abe6daab",
   "lookupIndexSha256": "841fbfc306ba521a89a25115bd76527f5109e1d29729ed2bda22bb6db9ef2d38"
