@@ -69,7 +69,8 @@ if __name__ == '__main__':
         run('systemctl', 'enable', 'gtnh-flow')
         run('systemctl', 'restart', 'gtnh-flow')
         expected = json.loads((release / 'release.json').read_text())['version']
-        for attempt in range(40):
+        deadline = time.monotonic() + 90
+        while True:
             try:
                 with urllib.request.urlopen('http://127.0.0.1:8792/api/version', timeout=3) as response:
                     assert json.load(response)['version'] == expected
@@ -77,7 +78,7 @@ if __name__ == '__main__':
                     assert b'GTNH' in response.read()
                 break
             except Exception:
-                if attempt == 39: raise
+                if time.monotonic() >= deadline: raise
                 time.sleep(.5)
         write_atomic(CONF, (release / 'deploy/gtnh.krahsu.top.conf').read_text())
         nginx(['-t'])
