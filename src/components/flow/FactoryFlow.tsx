@@ -6931,11 +6931,12 @@ export function FactoryFlow() {
           ].join(" ")}
         >
           {overwritePicking.create ? (
-            <>Pick a pocket on the board. It lands on your shelf. Esc cancels.</>
+            <>{t("Pick a pocket on the board. It lands on your shelf. Esc cancels.")}</>
           ) : (
             <>
-              Pick a pocket on the board. It becomes &ldquo;{overwritePicking.name}&rdquo;. Esc
-              cancels.
+              {t("Pick a pocket on the board. It becomes “")}
+              {overwritePicking.name}
+              {t("”. Esc cancels.")}
             </>
           )}
         </div>
@@ -7013,7 +7014,7 @@ const UnwiredNotice = memo(function UnwiredNotice({
       {/* One line, always: the cards explain themselves. */}
       <span className="text-[#c2cad6]">
         {unwired.length === 1
-          ? "1 machine has a slot with nothing on it"
+          ? t("1 machine has a slot with nothing on it")
           : `${unwired.length} machines have slots with nothing on them`}
       </span>
       <button
@@ -7073,7 +7074,7 @@ const DeathSpiralNotice = memo(function DeathSpiralNotice({
         type="button"
         onClick={() => setDismissedId(spiral.id)}
         title={t("Dismiss")}
-        aria-label="Dismiss this notice"
+        aria-label={t("Dismiss this notice")}
         className="flex h-5 w-5 shrink-0 items-center justify-center border border-[#7a3636] text-[#e0b3b3] hover:bg-[#4a2424]"
       >
         ×
@@ -7133,7 +7134,7 @@ const ClogLockNotice = memo(function ClogLockNotice({
         type="button"
         onClick={() => setDismissedId(lock.id)}
         title={t("Dismiss")}
-        aria-label="Dismiss this notice"
+        aria-label={t("Dismiss this notice")}
         className="flex h-5 w-5 shrink-0 items-center justify-center border border-[#365d7a] text-[#b3cbe0] hover:bg-[#24384a]"
       >
         ×
@@ -7302,6 +7303,7 @@ const SelectionActionsBar = memo(function SelectionActionsBar({
         <button
           type="button"
           onClick={onCombine}
+          data-tour-label={`Combine ${selectionCount}`}
           {...tipAttrs(COMBINE_TIP)}
           className="flex h-9 items-center gap-1.5 whitespace-nowrap border-2 border-[var(--selection)] bg-[#0b5563] px-3 font-mono text-[12px] font-bold text-white shadow-[inset_2px_2px_0_var(--selection-soft),inset_-2px_-2px_0_#063640] hover:brightness-110"
         >
@@ -7313,7 +7315,7 @@ const SelectionActionsBar = memo(function SelectionActionsBar({
         <button
           type="button"
           onClick={onWrap}
-          title={planBoard ? "Group these (Ctrl+G)" : "Wrap in a board (Ctrl+G)"}
+          title={planBoard ? t("Group these (Ctrl+G)") : t("Wrap in a board (Ctrl+G)")}
           // Plain chrome, like every other button: boards have no house colour.
           className="flex h-9 items-center gap-1.5 whitespace-nowrap border-2 border-[var(--mc-15)] bg-[var(--mc-49)] px-3 font-mono text-[12px] font-bold text-white shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25)] hover:brightness-110"
         >
@@ -7509,8 +7511,8 @@ const SmartViewToolbar = memo(function SmartViewToolbar({
           type="button"
           onClick={onFitView}
           className={buttonClass(false)}
-          title="Fit on screen"
-          aria-label="Fit the plan on the screen"
+          title={t("Fit on screen")}
+          aria-label={t("Fit the plan on the screen")}
         >
           <Focus className="h-4 w-4" />
         </button>
@@ -7522,8 +7524,8 @@ const SmartViewToolbar = memo(function SmartViewToolbar({
           type="button"
           onClick={() => onModeChange("identity")}
           className={buttonClass(glanceMode === "identity")}
-          title="Big icons"
-          aria-label="Big icons"
+          title={t("Big icons")}
+          aria-label={t("Big icons")}
           aria-pressed={glanceMode === "identity"}
         >
           <Box className="h-4 w-4" />
@@ -7857,7 +7859,7 @@ const SourceToolbar = memo(function SourceToolbar({
                     setPowerUnitMenuOpen(false);
                   }}
                   aria-pressed={powerDisplayUnit === "eu"}
-                  aria-label="EU per tick"
+                  aria-label={t("EU per tick")}
                   className={[
                     // The EU/t cell wears the same bevel as the tier chips,
                     // on the toolbar's dark face with the amber bolt.
@@ -8139,6 +8141,7 @@ const CHIP_CLASS =
 const HOP_MAP_SETTLE_MS = 90;
 
 const HopMapLegend = memo(function HopMapLegend() {
+  const t = useT();
   const map = useHopMapSummary();
   // Any map gets a key, including a card wired to nothing (maxDepth 0): a
   // lone card in a field of grey needs the explanation most.
@@ -8166,7 +8169,7 @@ const HopMapLegend = memo(function HopMapLegend() {
       // a picker is open. bottom-16 leaves the corner to the view buttons.
       className="nodrag pointer-events-none absolute bottom-16 right-3 z-40 flex flex-col gap-2 border-2 border-[var(--mc-15)] bg-[var(--mc-49)] px-3 py-2.5 font-mono font-bold text-white shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25),4px_4px_0_rgba(0,0,0,0.35)]"
     >
-      <span className="text-[13px] uppercase tracking-[1px]">Hops needed</span>
+      <span className="text-[13px] uppercase tracking-[1px]">{t("Hops needed")}</span>
       {chipped ? (
         <div className="flex items-center gap-1.5">
           {/* The hub (the card under the cursor) is step 0. */}
@@ -8490,8 +8493,8 @@ const BoardViewMenu = memo(function BoardViewMenu({
           "relative z-10 flex h-8 w-8 items-center justify-center border-2 border-[var(--mc-15)]",
           open ? TOOL_FACE_ON : TOOL_FACE_OFF,
         ].join(" ")}
-        title="View options"
-        aria-label="View options"
+        title={t("View options")}
+        aria-label={t("View options")}
       >
         <Eye className="h-4 w-4" />
       </button>
@@ -8567,7 +8570,7 @@ const BoardViewMenu = memo(function BoardViewMenu({
                       on ? "text-[var(--mc-good)]" : "text-[var(--mc-ink-muted)]",
                     ].join(" ")}
                   >
-                    {on ? "ON" : "OFF"}
+                    {on ? t("ON") : t("OFF")}
                   </span>
                 </span>
                 {line ? (
@@ -8602,7 +8605,7 @@ const BoardViewMenu = memo(function BoardViewMenu({
                       arrange.keepBoards ? "text-[var(--mc-good)]" : "text-[var(--mc-ink-muted)]",
                     ].join(" ")}
                   >
-                    {arrange.keepBoards ? "ON" : "OFF"}
+                    {arrange.keepBoards ? t("ON") : t("OFF")}
                   </span>
                 </span>
               </span>
@@ -8614,7 +8617,7 @@ const BoardViewMenu = memo(function BoardViewMenu({
                 arrange.onArrange({ keepBoards: arrange.keepBoards });
               }}
               className="mt-1 flex w-full items-center justify-center gap-2 border-2 border-[var(--mc-15)] bg-[var(--mc-49)] p-2 font-mono text-[12px] font-black uppercase text-white shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25)] hover:brightness-110"
-              aria-label="Arrange the board"
+              aria-label={t("Arrange the board")}
             >
               <Network className="h-4 w-4" />
               {t("Arrange")}
@@ -8899,7 +8902,7 @@ const PaintToolbar = memo(function PaintToolbar({
                 )}
               </span>
               <span className="whitespace-nowrap font-mono text-[11px] font-semibold">
-                {paintMode === null ? "Erasing colours" : "Paint cards"}
+                {paintMode === null ? t("Erasing colours") : t("Paint cards")}
               </span>
               <span
                 aria-hidden
@@ -8920,8 +8923,8 @@ const PaintToolbar = memo(function PaintToolbar({
                     ? "border-white ring-2 ring-cyan-300"
                     : "border-[var(--mc-15)]",
                 ].join(" ")}
-                title="Erase colours"
-                aria-label="Erase colours"
+                title={t("Erase colours")}
+                aria-label={t("Erase colours")}
               >
                 <X className="h-3 w-3" />
               </button>

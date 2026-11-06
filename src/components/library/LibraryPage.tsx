@@ -434,9 +434,13 @@ export function LibraryPage() {
               aria-label={t("Where in Plans")}
               className="h-9 w-full border-2 border-[var(--mc-33)] bg-[#17191d] px-2 text-[13px] font-bold text-neutral-100 outline-none shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607]"
             >
-              <option value="all">My designs ({designs.length})</option>
+              <option value="all">
+                {t("My designs") + " ("}
+                {designs.length})
+              </option>
               <option value="favorites">
-                Favorites ({designs.filter((design) => design.favorite).length})
+                {t("Favorites") + " ("}
+                {designs.filter((design) => design.favorite).length})
               </option>
               {folders.map((folder) => (
                 <option key={folder.id} value={`folder:${folder.id}`}>
@@ -445,10 +449,16 @@ export function LibraryPage() {
               ))}
               <option value="new">{t("New collection…")}</option>
               {showShared ? (
-                <option value="shared">Shared with me ({sharedCount ?? 0})</option>
+                <option value="shared">
+                  {t("Shared with me") + " ("}
+                  {sharedCount ?? 0})
+                </option>
               ) : null}
               <option value="public">{t("Community")}</option>
-              <option value="saved">Saved ({savedIds.length})</option>
+              <option value="saved">
+                {t("Saved") + " ("}
+                {savedIds.length})
+              </option>
             </select>
           </div>
           <aside className="flex w-[184px] shrink-0 flex-col gap-1 overflow-y-auto bg-[#101215] px-2 py-2 compact:hidden">

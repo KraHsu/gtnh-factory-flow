@@ -301,7 +301,7 @@ export function RecipeListPicker({
           })}
           {filtered.length === 0 ? (
             <div className="col-span-5 px-2 py-3 text-[12px] font-bold text-[var(--mc-ink-muted)]">
-              {t("No")} {noun} match.
+              {t("No")} {noun} {t("match.")}
             </div>
           ) : null}
         </div>

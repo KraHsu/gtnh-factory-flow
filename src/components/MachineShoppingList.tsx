@@ -118,7 +118,7 @@ export function MachineShoppingList() {
           <span
             className="inspector-rate-selector ml-auto flex justify-end gap-0.5"
             role="group"
-            aria-label="Machine power display"
+            aria-label={t("Machine power display")}
           >
             {(["peak", "average"] as const).map((value) => (
               <button
@@ -412,7 +412,7 @@ function ListLine({
       <div className="w-max max-w-[280px]">
         {count !== undefined ? (
           <div className="text-[13px] font-semibold text-white">
-            {count}× {count === 1 ? "machine" : t("machines")}
+            {count}× {count === 1 ? t("machine") : t("machines")}
           </div>
         ) : null}
         <div className="mt-0.5 flex items-center gap-1.5 text-[13px] font-semibold text-white">
@@ -547,7 +547,7 @@ function ListLine({
             <span className="flex items-baseline gap-1">
               {stalled ? (
                 <span className={[COLUMN_CLASS, "font-bold text-red-400"].join(" ")}>
-                  {state === "under-powered" ? "LOW!" : "TIER!"}
+                  {state === "under-powered" ? t("LOW!") : t("TIER!")}
                 </span>
               ) : (
                 <FigureCell figure={peak} className="text-[13px]" />

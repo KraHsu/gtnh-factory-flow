@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useRef, useState, type MouseEvent, type WheelEvent } from "react";
 import { startPromptClock } from "../../virtual/prompt-phase";
@@ -42,6 +43,7 @@ export function PortRateControls({
   unset: boolean;
   wasClick: (event: MouseEvent) => boolean;
 }) {
+  const t = useT();
   const [draft, setDraft] = useState<string>();
   const cancelled = useRef(false);
   const kind = p.port.kind;
@@ -172,7 +174,7 @@ export function PortRateControls({
         ) : pinned ? (
           formatSlotRateBare(p.rate!, kind)
         ) : (
-          "Set"
+          t("Set")
         )}
       </div>
     </>

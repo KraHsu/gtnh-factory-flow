@@ -1047,7 +1047,7 @@ function RecipeNodeComponent({
             machineConfigTiers: { ...(projectNode.machineConfigTiers ?? {}), ...patch },
           })
         }
-        getControlHelp={(controlId) => cropControlHelp(effectiveRecipe, controlId)}
+        getControlHelp={(controlId) => cropControlHelp(effectiveRecipe, controlId, t)}
       />
     ) : beePanelControls.length > 0 ? (
       <PassiveProductionConfigPanel
@@ -1910,8 +1910,8 @@ function RecipeNodeComponent({
                       duplicateNode(projectNode.id);
                     }}
                     className="flex h-6 w-6 items-center justify-center border-2 border-[var(--mc-15)] bg-[var(--mc-49)] text-white shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25)] hover:bg-[var(--mc-61)]"
-                    title="Clone node"
-                    aria-label="Clone node"
+                    title={t("Clone node")}
+                    aria-label={t("Clone node")}
                   >
                     <Copy aria-hidden className="h-3.5 w-3.5" />
                   </button>
@@ -1923,8 +1923,8 @@ function RecipeNodeComponent({
                         beginRecipeRefactor(projectNode.id);
                       }}
                       className="flex h-6 w-6 items-center justify-center border-2 border-[var(--mc-15)] bg-[var(--mc-49)] text-white shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25)] hover:bg-[var(--mc-61)]"
-                      title="Replace the recipe"
-                      aria-label="Refactor node"
+                      title={t("Replace the recipe")}
+                      aria-label={t("Refactor node")}
                     >
                       <RefreshCw aria-hidden className="h-3.5 w-3.5" />
                     </button>
@@ -2084,7 +2084,7 @@ function RecipeNodeComponent({
                     with the text it is measuring. */}
                     <span ref={titleRef} className="min-w-0 flex-1 truncate text-center">
                       {isCropFarmPlaceholder
-                        ? "Pick a crop..."
+                        ? t("Pick a crop...")
                         : isCustomRateNode
                           ? // The resource is already on the port right below,
                             // with its icon. Repeating its name in the title only
@@ -2353,8 +2353,8 @@ function RecipeNodeComponent({
                           ×{" "}
                           {isCropProductionNode
                             ? projectNode.machineCount === 1 && !solveMode
-                              ? "Seed"
-                              : "Seeds"
+                              ? t("Seed")
+                              : t("Seeds")
                             : projectNode.machineCount === 1 && !solveMode
                               ? t("Machine")
                               : t("Machines")}
@@ -3344,6 +3344,7 @@ function PortRail({
  * nothing to look up, only something to set down next to the machine.
  */
 function FreePortRow({ nodeId, port }: { nodeId: string; port: RailPort }) {
+  const t = useT();
   // A controller-slot item (the EEC's spawner) sits in the machine for good,
   // and swapping it is how the card changes mob.
   if (port.resource && isControllerSlotInput(port.resource)) {
@@ -3386,7 +3387,7 @@ function FreePortRow({ nodeId, port }: { nodeId: string; port: RailPort }) {
           {/* Same dress as a port's rate line, so the word sits where the
             number would and reads as its stand-in. */}
           <span className="block truncate text-[9px] leading-[9px] tabular-nums text-[var(--mc-ink-muted)] opacity-80">
-            free
+            {t("free")}
           </span>
         </span>
       </div>
@@ -3400,6 +3401,7 @@ function FreePortRow({ nodeId, port }: { nodeId: string; port: RailPort }) {
  * it opens the mob picker, the way a player swaps the spawner.
  */
 function ControllerSlotRow({ nodeId, port }: { nodeId: string; port: RailPort }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const locked = useFactoryStore((state) => state.isReadOnly || state.checklistMode);
   return (
@@ -3450,7 +3452,7 @@ function ControllerSlotRow({ nodeId, port }: { nodeId: string; port: RailPort })
               {port.displayName}
             </span>
             <span className="block truncate text-[9px] leading-[9px] tabular-nums text-[var(--mc-ink-muted)] opacity-80">
-              in controller
+              {t("in controller")}
             </span>
           </span>
           {locked ? null : (
@@ -5417,7 +5419,7 @@ function CropConfigPanel({
         {crops.toLocaleString()} {t("planted /")} {capacity.toLocaleString()} {t("per machine")}
       </span>
       <span className="ml-auto shrink-0 text-[var(--mc-ink)]">
-        ×{machines.toLocaleString()} {isFarm ? "Industrial Farm" : "Crop Manager"}
+        ×{machines.toLocaleString()} {isFarm ? t("Industrial Farm") : t("Crop Manager")}
         {machines === 1 ? "" : "s"}
       </span>
     </div>
@@ -5520,10 +5522,11 @@ function CropConfigPanel({
       line(
         "food",
         <>
-          (5+{waterBonus}+{fertBonus}+{skyBonus}+{env.biomeBonus})·5 vs {cropStats.tier}·10
+          (5+{waterBonus}+{fertBonus}+{skyBonus}+{env.biomeBonus}
+          {t(")·5 vs")} {cropStats.tier}·10
         </>,
         <>
-          {supply} vs {demand}{" "}
+          {supply} {t("vs")} {demand}{" "}
           <span style={{ color: supply >= demand ? "#7fd94a" : "#e06060" }}>→ {surplusPct}%</span>
         </>,
       ),
@@ -5533,7 +5536,7 @@ function CropConfigPanel({
           (6+{env.growth})·{surplusPct}%
         </>,
         <>
-          {rate} pts per {formatCompact(cycleSec)}s
+          {rate} {t("pts per")} {formatCompact(cycleSec)}s
         </>,
       ),
       line(
@@ -5553,12 +5556,12 @@ function CropConfigPanel({
             </>
           )
         ) : (
-          <>too hungry to grow</>
+          <>{t("too hungry to grow")}</>
         ),
         rate > 0 ? (
           <>{formatCompact(harvestSec)}s</>
         ) : (
-          <span style={{ color: "#e06060" }}>never</span>
+          <span style={{ color: "#e06060" }}>{t("never")}</span>
         ),
       ),
       line(
@@ -5607,7 +5610,10 @@ function CropConfigPanel({
       lines.push(
         line(
           "power",
-          <>{(euPerHarvest * 8).toLocaleString()}/8 per crop picked</>,
+          <>
+            {(euPerHarvest * 8).toLocaleString()}
+            {t("/8 per crop picked")}
+          </>,
           <>{euPerHarvest.toLocaleString()} EU</>,
         ),
       );
@@ -5707,7 +5713,7 @@ function CropHelpPanel({
   const t = useT();
   return (
     <div className="w-[400px]">
-      <p className="text-[18px] font-semibold leading-snug text-amber-300">{title}</p>
+      <p className="text-[18px] font-semibold leading-snug text-amber-300">{t(title)}</p>
       <div className="mt-1.5 space-y-2 text-[16px] leading-relaxed text-slate-100">{children}</div>
       {feeding ? (
         <p className="mt-2.5 border-t border-white/10 pt-2 text-[16px] leading-relaxed text-slate-100">
@@ -5716,7 +5722,7 @@ function CropHelpPanel({
           {t("food out of a possible 275. Every point of extra food makes it grow")}{" "}
           <span style={{ color: CROP_HELP_GOOD }}>{t("a little faster")}</span>
           {t("; every missing point slows it")}{" "}
-          <span style={{ color: CROP_HELP_BAD }}>four times as hard</span>
+          <span style={{ color: CROP_HELP_BAD }}>{t("four times as hard")}</span>
           {t(". If it is 25 or more short, it")}{" "}
           <span style={{ color: CROP_HELP_BAD }}>{t("stops growing completely")}</span>.
         </p>
@@ -5734,15 +5740,15 @@ function CropHelpPanel({
  * Friendly hover explainers for the crop source dropdowns, with this crop's
  * own numbers. Plain words first, the exact formula as fine print.
  */
-function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
+function cropControlHelp(recipe: Recipe, controlId: string, t: ReturnType<typeof useT>): ReactNode {
   const stats = getCropsNhStats(recipe);
   if (!stats) {
     return undefined;
   }
   const meta = (recipe.metadata as { cropsNh?: { biomeTags?: string[] } } | undefined)?.cropsNh;
   const biomeTags = Array.isArray(meta?.biomeTags) ? meta.biomeTags : [];
-  const good = (text: string) => <span style={{ color: CROP_HELP_GOOD }}>{text}</span>;
-  const bad = (text: string) => <span style={{ color: CROP_HELP_BAD }}>{text}</span>;
+  const good = (text: string) => <span style={{ color: CROP_HELP_GOOD }}>{t(text)}</span>;
+  const bad = (text: string) => <span style={{ color: CROP_HELP_BAD }}>{t(text)}</span>;
 
   switch (controlId) {
     case "cropGrowthStat":
@@ -5751,18 +5757,22 @@ function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
           title="Growth"
           finePrint={
             <>
-              every 12.8 s the plant gains (6 + Growth) points, scaled by feeding. This crop is ripe
-              at {stats.growthPoints.toLocaleString()} points and restarts from 0 after each
-              harvest.
+              {t(
+                "every 12.8 s the plant gains (6 + Growth) points, scaled by feeding. This crop is ripe at",
+              )}{" "}
+              {stats.growthPoints.toLocaleString()}{" "}
+              {t("points and restarts from 0 after each harvest.")}
             </>
           }
         >
           <p>
-            The higher the Growth stat, the sooner each harvest comes around. A 31-Growth plant
-            regrows {good("about five times faster")} than a 1-Growth one.
+            {t(
+              "The higher the Growth stat, the sooner each harvest comes around. A 31-Growth plant regrows",
+            )}{" "}
+            {good("about five times faster")} {t("than a 1-Growth one.")}
           </p>
           <p className="text-slate-300">
-            In the game you raise Growth by cross-breeding crops between double crop sticks.
+            {t("In the game you raise Growth by cross-breeding crops between double crop sticks.")}
           </p>
         </CropHelpPanel>
       );
@@ -5772,18 +5782,21 @@ function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
           title="Gain"
           finePrint={
             <>
-              drop rounds = {stats.dropChance.toFixed(3)} × 1.03^Gain, and every successful drop has
-              a (Gain + 1)% chance of one bonus item.
+              {t("drop rounds =")} {stats.dropChance.toFixed(3)}{" "}
+              {t(
+                "× 1.03^Gain, and every successful drop has a (Gain + 1)% chance of one bonus item.",
+              )}
             </>
           }
         >
           <p>
-            The higher the Gain stat, the more items each harvest gives. At 31 you collect{" "}
-            {good("roughly 2.5× as much")} as at 1.
+            {t("The higher the Gain stat, the more items each harvest gives. At 31 you collect")}{" "}
+            {good("roughly 2.5× as much")} {t("as at 1.")}
           </p>
           <p className="text-slate-300">
-            Like Growth, it&apos;s raised by cross-breeding. It never changes how fast the plant
-            grows, only how much it drops.
+            {t(
+              "Like Growth, it's raised by cross-breeding. It never changes how fast the plant grows, only how much it drops.",
+            )}
           </p>
         </CropHelpPanel>
       );
@@ -5792,12 +5805,16 @@ function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
         <CropHelpPanel
           title="Water"
           feeding={{ tier: stats.tier }}
-          finePrint={<>water bonus = floor((water + 9) ÷ 10): 0 → +1, 50 → +5, 100 → +10.</>}
+          finePrint={<>{t("water bonus = floor((water + 9) ÷ 10): 0 → +1, 50 → +5, 100 → +10.")}</>}
         >
-          <p>Full water is {good("+10 food")}, one of the two biggest boosts you control.</p>
+          <p>
+            {t("Full water is")} {good("+10 food")}
+            {t(", one of the two biggest boosts you control.")}
+          </p>
           <p className="text-slate-300">
-            A Crop Manager keeps water at full automatically, so &quot;Full&quot; matches an
-            automated farm.
+            {t(
+              'A Crop Manager keeps water at full automatically, so "Full" matches an automated farm.',
+            )}
           </p>
         </CropHelpPanel>
       );
@@ -5807,15 +5824,15 @@ function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
           title="Fertilizer"
           feeding={{ tier: stats.tier }}
           finePrint={
-            <>fertilizer bonus = floor((fertilizer + 9) ÷ 10): 0 → +1, 50 → +5, 100 → +10.</>
+            <>{t("fertilizer bonus = floor((fertilizer + 9) ÷ 10): 0 → +1, 50 → +5, 100 → +10.")}</>
           }
         >
           <p>
-            Fertilizer works like water: keeping it full is {good("+10 food")}. Without it a
-            high-tier crop {bad("slows down or stops")}.
+            {t("Fertilizer works like water: keeping it full is")} {good("+10 food")}
+            {t(". Without it a high-tier crop")} {bad("slows down or stops")}.
           </p>
           <p className="text-slate-300">
-            Crop Managers and Industrial Farms can supply it for you.
+            {t("Crop Managers and Industrial Farms can supply it for you.")}
           </p>
         </CropHelpPanel>
       );
@@ -5824,11 +5841,13 @@ function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
         <CropHelpPanel
           title="Sky"
           feeding={{ tier: stats.tier }}
-          finePrint={<>sky bonus = +2 when the block above the crop can see the sky.</>}
+          finePrint={<>{t("sky bonus = +2 when the block above the crop can see the sky.")}</>}
         >
           <p>
-            Plants under open sky get a small {good("+2 food")} bonus. Roofed or underground farms
-            lose it. That only matters when the crop is close to being underfed.
+            {t("Plants under open sky get a small")} {good("+2 food")}{" "}
+            {t(
+              "bonus. Roofed or underground farms lose it. That only matters when the crop is close to being underfed.",
+            )}
           </p>
         </CropHelpPanel>
       );
@@ -5839,27 +5858,30 @@ function cropControlHelp(recipe: Recipe, controlId: string): ReactNode {
           feeding={{ tier: stats.tier }}
           finePrint={
             <>
-              biome bonus = max(humidity, likes): each matching tag +14, capped at 2 tags; humidity
-              scales 0–14 between 50% and 80% biome humidity.
+              {t(
+                "biome bonus = max(humidity, likes): each matching tag +14, capped at 2 tags; humidity scales 0–14 between 50% and 80% biome humidity.",
+              )}
             </>
           }
         >
           <p>
             {biomeTags.length > 0 ? (
               <>
-                This crop likes{" "}
-                <span className="text-white">{biomeTags.join(" and ").toLowerCase()}</span> places.
+                {t("This crop likes")}{" "}
+                <span className="text-white">{biomeTags.join(" and ").toLowerCase()}</span>{" "}
+                {t("places.")}
               </>
             ) : (
-              <>This crop has no favourite biome.</>
+              <>{t("This crop has no favourite biome.")}</>
             )}{" "}
-            Each matching like is {good("+14 food")}, so matching both is {good("+28")}, the biggest
-            feeding boost there is.
+            {t("Each matching like is")} {good("+14 food")}
+            {t(", so matching both is")} {good("+28")}
+            {t(", the biggest feeding boost there is.")}
           </p>
           <p className="text-slate-300">
-            Without a matching biome, humidity stands in for one like: the percent options are the
-            biome&apos;s humidity, worth +4 at 60%, +9 at 70% and the full +14 at 80% or wetter (a
-            swamp or jungle). It never stacks with real likes.
+            {t(
+              "Without a matching biome, humidity stands in for one like: the percent options are the biome's humidity, worth +4 at 60%, +9 at 70% and the full +14 at 80% or wetter (a swamp or jungle). It never stacks with real likes.",
+            )}
           </p>
         </CropHelpPanel>
       );
@@ -5956,6 +5978,7 @@ export function SolvedMachinesStat({
   onPin: (machines: number | undefined) => void;
   inline?: boolean;
 }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const isPinned = pinned !== undefined && pinned > 0;
@@ -6008,7 +6031,7 @@ export function SolvedMachinesStat({
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => event.stopPropagation()}
             inputMode="decimal"
-            aria-label="Pinned machine count"
+            aria-label={t("Pinned machine count")}
             className={`nodrag h-5 ${inline ? "w-16" : "w-full"} min-w-0 border border-[var(--mc-47)] bg-[var(--mc-85)] px-1 text-center text-[13px] font-medium leading-4 text-[var(--mc-ink)] outline-none focus:border-cyan-700 focus:ring-1 focus:ring-cyan-400`}
           />
         ) : (
@@ -6482,7 +6505,7 @@ function MachineCountStat({
           }}
           onPointerDown={(event) => event.stopPropagation()}
           className={stepButtonClassName}
-          title="Remove 1"
+          title={t("Remove 1")}
           aria-label={`Decrease ${label.toLowerCase()} count`}
         >
           <Minus className="h-3 w-3" />
@@ -6528,7 +6551,7 @@ function MachineCountStat({
           }}
           onPointerDown={(event) => event.stopPropagation()}
           className={stepButtonClassName}
-          title="Add 1"
+          title={t("Add 1")}
           aria-label={`Increase ${label.toLowerCase()} count`}
         >
           <Plus className="h-3 w-3" />

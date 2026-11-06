@@ -1,10 +1,13 @@
 "use client";
 
 import { isLiveConfigured } from "@/lib/live/live-config";
+import { PUBLIC_TOOL } from "@/lib/krahsu";
+import { getLocale, translate } from "@/lib/i18n";
 import { useFactoryStore } from "@/store/factory-store";
 import { setMinimap } from "../minimap/minimap-settings";
 import { A, type Action, type Step } from "./director";
 import { pressKey } from "./input";
+import { tourDesignId } from "./sandbox";
 import {
   addRecipe,
   barKey,
@@ -48,7 +51,7 @@ import {
   topKey,
   undoKey,
 } from "./script-targets";
-import { card, css, keepDetail, portRow, textOf, within, type Target } from "./targets";
+import { card, css, keepDetail, named, portRow, textOf, within, type Target } from "./targets";
 
 /**
  * The tour, step by step (the mod's Script, on the website's planner): each step acts something out on the real UI,
@@ -105,7 +108,7 @@ const MIXER = /^Mixer$/;
 function drawerIs(name: string, kind: "Trash" | "Product"): boolean {
   const key = drawerPart(name, "rule")();
   if (!key) return false;
-  const trash = key.getAttribute("aria-label") === "Rule: Trash";
+  const trash = key.closest(".cd")?.getAttribute("data-kind") === "trash";
   return kind === "Trash" ? trash : !trash;
 }
 
@@ -153,6 +156,15 @@ const pageToRecipe = (machine: RegExp, has: RegExp | undefined, label: string): 
     ),
   ),
   A.until(() => addRecipe(machine, has)() !== null, label, 20000),
+];
+
+/** Narrow large recipe maps before paging so the demonstration stays independent of list order. */
+const filterRecipes = (query: string): Action[] => [
+  A.click(overlayKey("Filter recipes by name"), { label: "recipe name filter" }),
+  A.type(named("input", "Filter recipes by name", recipeOverlay), query, {
+    label: "recipe name filter",
+  }),
+  A.wait(500),
 ];
 
 /** Search for the plates and open their recipes, down to the bender's add key. */
@@ -571,6 +583,7 @@ const forcedWired: Step = {
   actions: [
     ...searchFromPort(portRow(0, "Input", "Oxygen"), 0, "the oxygen input"),
     ...openMachineTab(ELECTROLYZER, "the electrolyzer"),
+    ...filterRecipes("water"),
     ...pageToRecipe(ELECTROLYZER, WATER_TO_OXYGEN, "the electrolyzer's recipe"),
     A.show(addRecipe(ELECTROLYZER, WATER_TO_OXYGEN)),
     A.click(addRecipe(ELECTROLYZER, WATER_TO_OXYGEN), { label: "add the electrolyzer's recipe" }),
@@ -606,6 +619,7 @@ const forcedUses: Step = {
   actions: [
     ...searchFromPort(portRow(0, "Output", "Sulfuric Acid"), 2, "the acid output"),
     ...openMachineTab(MIXER, "the mixer"),
+    ...filterRecipes("sugar"),
     ...pageToRecipe(MIXER, SUGAR_MIXER, "the mixer's recipe"),
     A.show(addRecipe(MIXER, SUGAR_MIXER)),
     A.click(addRecipe(MIXER, SUGAR_MIXER), { label: "add the mixer's recipe" }),
@@ -767,10 +781,15 @@ const stickyNote: Step = {
     }),
     A.until(() => css(".sn")() !== null, "the note"),
     A.wait(300),
-    A.type(css(".sn-area"), "Hydrogen comes from the electrolyzers by the door.", {
-      keep: true,
-      label: "the note's text",
-    }),
+    (ctx) =>
+      A.type(
+        css(".sn-area"),
+        translate(getLocale(), "Hydrogen comes from the electrolyzers by the door."),
+        {
+          keep: true,
+          label: "the note's text",
+        },
+      )(ctx),
     A.wait(300),
     A.click(boardSpot(0.5, 0.92), { label: "free board" }),
     A.wait(300),
@@ -798,7 +817,12 @@ const inviteStep: Step = {
 const plansStep: Step = {
   id: "plans",
   actions: [closeMenus, A.click(plansKey, { label: "Plans" }), A.wait(1000)],
-  note: { text: "*Plans* has all your plans, and the ones people shared with you.", at: plansKey },
+  note: {
+    text: PUBLIC_TOOL
+      ? "*Plans* keeps your designs in this browser. Use *Share* to copy a link or export a backup."
+      : "*Plans* has all your plans, and the ones people shared with you.",
+    at: plansKey,
+  },
 };
 
 const noticeOpen: Target = textOf("button", /^Open$/, css("[data-live-notice]"));
@@ -845,13 +869,22 @@ const libraryStep: Step = {
     A.click(libraryTab, { label: "Community" }),
     A.wait(1200),
   ],
-  note: { text: "*Community* is where people post their plans. You can browse them here.", at: libraryTab },
+  note: {
+    text: "*Community* is where people post their plans. You can browse them here.",
+    at: libraryTab,
+  },
 };
 
 const newPlan: Step = {
   id: "new-plan",
   actions: [
-    A.click(textOf("[data-design-id]", /^Tour plan/), { label: "the Tour plan tab" }),
+    A.click(
+      () => {
+        const id = tourDesignId();
+        return id ? css(`[data-design-id="${CSS.escape(id)}"]`)() : null;
+      },
+      { label: "the Tour plan tab" },
+    ),
     A.wait(600),
   ],
   note: {
@@ -864,7 +897,9 @@ const feedback: Step = {
   id: "feedback",
   actions: [closeMenus, A.wait(200)],
   note: {
-    text: "That's everything! Found a bug, or have an idea? *Feedback* sends it from here. Questions about your own setup do well in GTNH Planner's thread on the *GT New Horizons Discord*.",
+    text: PUBLIC_TOOL
+      ? "That's everything! *Feedback* opens this project's issue tracker on GitHub. Your plans stay in this browser; export a backup to keep a separate copy."
+      : "That's everything! Found a bug, or have an idea? *Feedback* sends it from here. Questions about your own setup do well in GTNH Planner's thread on the *GT New Horizons Discord*.",
     at: feedbackKey,
   },
 };
@@ -906,7 +941,7 @@ export const STEPS: Step[] = [
   stickyNote,
   ...(isLiveConfigured() ? [inviteStep] : []),
   plansStep,
-  libraryStep,
+  ...(!PUBLIC_TOOL ? [libraryStep] : []),
   newPlan,
   ...(isLiveConfigured() ? [taskBoardStep, taskStep] : []),
   feedback,

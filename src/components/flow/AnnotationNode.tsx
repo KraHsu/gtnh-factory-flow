@@ -1,12 +1,7 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
-import {
-  NodeResizer,
-  Position,
-  useReactFlow,
-  type Node,
-  type NodeProps,
-} from "@xyflow/react";
+import { NodeResizer, Position, useReactFlow, type Node, type NodeProps } from "@xyflow/react";
 import { Ban, ImageOff, Trash2 } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
 import type {
@@ -319,10 +314,22 @@ function BoxShape({ look }: { look: AnnotationLook }) {
         ) : null}
       </div>
       {/* Inset from the ends: the corners belong to the resize grabbers. */}
-      <div className={`${stripBase} -top-3 left-4 right-4 h-6 cursor-grab`} style={{ pointerEvents: "all" }} />
-      <div className={`${stripBase} -bottom-3 left-4 right-4 h-6 cursor-grab`} style={{ pointerEvents: "all" }} />
-      <div className={`${stripBase} -left-3 bottom-4 top-4 w-6 cursor-grab`} style={{ pointerEvents: "all" }} />
-      <div className={`${stripBase} -right-3 bottom-4 top-4 w-6 cursor-grab`} style={{ pointerEvents: "all" }} />
+      <div
+        className={`${stripBase} -top-3 left-4 right-4 h-6 cursor-grab`}
+        style={{ pointerEvents: "all" }}
+      />
+      <div
+        className={`${stripBase} -bottom-3 left-4 right-4 h-6 cursor-grab`}
+        style={{ pointerEvents: "all" }}
+      />
+      <div
+        className={`${stripBase} -left-3 bottom-4 top-4 w-6 cursor-grab`}
+        style={{ pointerEvents: "all" }}
+      />
+      <div
+        className={`${stripBase} -right-3 bottom-4 top-4 w-6 cursor-grab`}
+        style={{ pointerEvents: "all" }}
+      />
     </div>
   );
 }
@@ -333,6 +340,7 @@ function BoxShape({ look }: { look: AnnotationLook }) {
  * and the style panel offers the same border dressing a box has.
  */
 function ImageShape({ annotation, look }: { annotation: FactoryAnnotation; look: AnnotationLook }) {
+  const t = useT();
   const [failed, setFailed] = useState(false);
   return (
     <div className="h-full w-full" style={{ pointerEvents: "none" }}>
@@ -361,7 +369,7 @@ function ImageShape({ annotation, look }: { annotation: FactoryAnnotation; look:
         ) : (
           <div className="flex h-full w-full items-center justify-center gap-2 bg-[var(--mc-49)] text-[var(--mc-ink)]">
             <ImageOff className="h-5 w-5 opacity-60" />
-            <span className="text-xs opacity-60">image unavailable</span>
+            <span className="text-xs opacity-60">{t("image unavailable")}</span>
           </div>
         )}
       </div>
@@ -379,14 +387,7 @@ const SURFACE_WORD: Record<AnnotationSurface, string> = {
   solid: "solid",
   none: "off",
 };
-const MARKS_OPTIONS: FactoryAnnotationMarks[] = [
-  "none",
-  "dots",
-  "grid",
-  "graph",
-  "ruled",
-  "hatch",
-];
+const MARKS_OPTIONS: FactoryAnnotationMarks[] = ["none", "dots", "grid", "graph", "ruled", "hatch"];
 const MARKS_WORD: Record<FactoryAnnotationMarks, string> = {
   none: "off",
   dots: "dots",
@@ -426,6 +427,7 @@ function AnnotationStylePanel({
   annotation: FactoryAnnotation;
   selected: boolean;
 }) {
+  const t = useT();
   const updateAnnotation = useFactoryStore((state) => state.updateAnnotation);
   const deleteAnnotation = useFactoryStore((state) => state.deleteAnnotation);
   const [openMenu, setOpenMenu] = useState<StylePanelMenu | undefined>(undefined);
@@ -484,7 +486,9 @@ function AnnotationStylePanel({
             onClick={() => toggleMenu("border")}
             className={[
               STYLE_CHIP_CLASS,
-              openMenu === "border" ? "bg-[var(--mc-85)] shadow-[inset_2px_2px_0_var(--mc-100)]" : "",
+              openMenu === "border"
+                ? "bg-[var(--mc-85)] shadow-[inset_2px_2px_0_var(--mc-100)]"
+                : "",
             ].join(" ")}
             title={`Border style: ${look.border}`}
             aria-label={`Border style: ${look.border}`}
@@ -509,8 +513,8 @@ function AnnotationStylePanel({
                 ? "bg-[var(--mc-85)] shadow-[inset_2px_2px_0_var(--mc-100)]"
                 : "",
             ].join(" ")}
-            title="Border colour"
-            aria-label="Border colour"
+            title={t("Border colour")}
+            aria-label={t("Border colour")}
             aria-expanded={openMenu === "borderColor"}
           >
             <span
@@ -554,8 +558,8 @@ function AnnotationStylePanel({
                     ? "bg-[var(--mc-85)] shadow-[inset_2px_2px_0_var(--mc-100)]"
                     : "",
                 ].join(" ")}
-                title="Fill colour"
-                aria-label="Fill colour"
+                title={t("Fill colour")}
+                aria-label={t("Fill colour")}
                 aria-expanded={openMenu === "fillColor"}
               >
                 <span
@@ -603,8 +607,8 @@ function AnnotationStylePanel({
                 type="button"
                 onClick={() => deleteAnnotation(annotation.id)}
                 className={STYLE_CHIP_CLASS}
-                title="Delete image"
-                aria-label="Delete this image"
+                title={t("Delete image")}
+                aria-label={t("Delete this image")}
               >
                 <Trash2 className="h-3.5 w-3.5 text-red-400" />
               </button>
@@ -615,134 +619,136 @@ function AnnotationStylePanel({
             its own plate: the row above it never moves, and the options run
             downward into the shape. */}
         {openMenu ? (
-          <div
-            className="absolute left-0 top-[calc(100%+4px)] w-max border-2 border-[var(--mc-15)] bg-[var(--mc-78)] p-1 shadow-[inset_2px_2px_0_var(--mc-100),inset_-2px_-2px_0_var(--mc-33)]"
-          >
-        {openMenu === "border" ? (
-          <div className="flex gap-1">
-            {BORDER_OPTIONS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => commitStyle({ border: value })}
-                className={optionChipClass(look.border === value)}
-                title={value}
-                aria-label={`Use ${value === "none" ? "no" : value} border`}
-              >
-                {value === "none" ? (
-                  <Ban className="h-3.5 w-3.5 opacity-60" />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="h-4 w-4"
-                    style={{ border: `2px ${value} ${look.borderSwatch}` }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {openMenu === "surface" ? (
-          <div className="flex gap-1">
-            {SURFACE_OPTIONS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => commitStyle({ fill: value })}
-                className={optionChipClass(look.surface === value)}
-                title={SURFACE_WORD[value]}
-                aria-label={`Use ${value === "none" ? "no" : SURFACE_WORD[value]} fill`}
-              >
-                {value === "none" ? (
-                  <Ban className="h-3.5 w-3.5 opacity-60" />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="h-4 w-4 border border-black/40"
-                    style={surfaceStyle({ ...look, surface: value })}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {openMenu === "marks" ? (
-          <div className="flex gap-1">
-            {MARKS_OPTIONS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => commitStyle({ marks: value })}
-                className={optionChipClass(look.marks === value)}
-                title={MARKS_WORD[value]}
-                aria-label={value === "none" ? "Use no marks" : `Use ${MARKS_WORD[value]} marks`}
-              >
-                {value === "none" ? (
-                  <Ban className="h-3.5 w-3.5 opacity-60" />
-                ) : (
-                  <span
-                    aria-hidden
-                    className="h-4 w-4 border border-black/40"
-                    style={marksStyle(value, look.markInk, 8)}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {openMenu === "borderColor" || openMenu === "fillColor" ? (
-          <>
-            <div className="grid grid-cols-8 gap-1">
-              {GT_NODE_COLOR_PALETTE.map((entry) => (
-                <button
-                  key={entry.tag}
-                  type="button"
-                  onClick={() =>
-                    commitStyle(
-                      openMenu === "borderColor"
-                        ? { borderColor: entry.tag }
-                        : // A dye replaces a paper: the two are one choice.
-                          { fillColor: entry.tag, fillTheme: undefined },
-                    )
-                  }
-                  className={[
-                    "h-6 w-6 border-2 shadow-[inset_1px_1px_0_rgba(255,255,255,0.45),inset_-1px_-1px_0_rgba(0,0,0,0.45)]",
-                    (openMenu === "borderColor"
-                      ? entry.color.swatch === look.borderSwatch
-                      : !look.fillTheme && entry.color.swatch === look.fillSwatch)
-                      ? "border-white ring-2 ring-cyan-300"
-                      : "border-[var(--mc-15)]",
-                  ].join(" ")}
-                  style={{ backgroundColor: entry.color.swatch }}
-                  title={entry.tag}
-                  aria-label={`Use ${entry.tag} for the ${openMenu === "borderColor" ? "border" : "fill"}`}
-                />
-              ))}
-            </div>
-            {openMenu === "fillColor" ? (
-              // The textured papers, on the same shelf as the dyes: a fill
-              // colour is either one.
-              <div className="mt-1 grid grid-cols-8 gap-1">
-                {CANVAS_THEMES.map((theme) => (
+          <div className="absolute left-0 top-[calc(100%+4px)] w-max border-2 border-[var(--mc-15)] bg-[var(--mc-78)] p-1 shadow-[inset_2px_2px_0_var(--mc-100),inset_-2px_-2px_0_var(--mc-33)]">
+            {openMenu === "border" ? (
+              <div className="flex gap-1">
+                {BORDER_OPTIONS.map((value) => (
                   <button
-                    key={theme.id}
+                    key={value}
                     type="button"
-                    onClick={() => commitStyle({ fillTheme: theme.id })}
-                    className={[
-                      "h-6 w-6 border-2 shadow-[inset_1px_1px_0_rgba(255,255,255,0.45),inset_-1px_-1px_0_rgba(0,0,0,0.45)]",
-                      look.fillTheme?.id === theme.id
-                        ? "border-white ring-2 ring-cyan-300"
-                        : "border-[var(--mc-15)]",
-                    ].join(" ")}
-                    style={{ backgroundColor: theme.base, backgroundImage: theme.texture }}
-                    title={`${theme.name} paper`}
-                    aria-label={`Use ${theme.name} paper for the fill`}
-                  />
+                    onClick={() => commitStyle({ border: value })}
+                    className={optionChipClass(look.border === value)}
+                    title={value}
+                    aria-label={`Use ${value === "none" ? "no" : value} border`}
+                  >
+                    {value === "none" ? (
+                      <Ban className="h-3.5 w-3.5 opacity-60" />
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="h-4 w-4"
+                        style={{ border: `2px ${value} ${look.borderSwatch}` }}
+                      />
+                    )}
+                  </button>
                 ))}
               </div>
             ) : null}
-          </>
-        ) : null}
+            {openMenu === "surface" ? (
+              <div className="flex gap-1">
+                {SURFACE_OPTIONS.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => commitStyle({ fill: value })}
+                    className={optionChipClass(look.surface === value)}
+                    title={SURFACE_WORD[value]}
+                    aria-label={`Use ${value === "none" ? "no" : SURFACE_WORD[value]} fill`}
+                  >
+                    {value === "none" ? (
+                      <Ban className="h-3.5 w-3.5 opacity-60" />
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="h-4 w-4 border border-black/40"
+                        style={surfaceStyle({ ...look, surface: value })}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {openMenu === "marks" ? (
+              <div className="flex gap-1">
+                {MARKS_OPTIONS.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => commitStyle({ marks: value })}
+                    className={optionChipClass(look.marks === value)}
+                    title={MARKS_WORD[value]}
+                    aria-label={
+                      value === "none" ? "Use no marks" : `Use ${MARKS_WORD[value]} marks`
+                    }
+                  >
+                    {value === "none" ? (
+                      <Ban className="h-3.5 w-3.5 opacity-60" />
+                    ) : (
+                      <span
+                        aria-hidden
+                        className="h-4 w-4 border border-black/40"
+                        style={marksStyle(value, look.markInk, 8)}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {openMenu === "borderColor" || openMenu === "fillColor" ? (
+              <>
+                <div className="grid grid-cols-8 gap-1">
+                  {GT_NODE_COLOR_PALETTE.map((entry) => (
+                    <button
+                      key={entry.tag}
+                      type="button"
+                      onClick={() =>
+                        commitStyle(
+                          openMenu === "borderColor"
+                            ? { borderColor: entry.tag }
+                            : // A dye replaces a paper: the two are one choice.
+                              { fillColor: entry.tag, fillTheme: undefined },
+                        )
+                      }
+                      className={[
+                        "h-6 w-6 border-2 shadow-[inset_1px_1px_0_rgba(255,255,255,0.45),inset_-1px_-1px_0_rgba(0,0,0,0.45)]",
+                        (
+                          openMenu === "borderColor"
+                            ? entry.color.swatch === look.borderSwatch
+                            : !look.fillTheme && entry.color.swatch === look.fillSwatch
+                        )
+                          ? "border-white ring-2 ring-cyan-300"
+                          : "border-[var(--mc-15)]",
+                      ].join(" ")}
+                      style={{ backgroundColor: entry.color.swatch }}
+                      title={entry.tag}
+                      aria-label={`Use ${entry.tag} for the ${openMenu === "borderColor" ? "border" : "fill"}`}
+                    />
+                  ))}
+                </div>
+                {openMenu === "fillColor" ? (
+                  // The textured papers, on the same shelf as the dyes: a fill
+                  // colour is either one.
+                  <div className="mt-1 grid grid-cols-8 gap-1">
+                    {CANVAS_THEMES.map((theme) => (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => commitStyle({ fillTheme: theme.id })}
+                        className={[
+                          "h-6 w-6 border-2 shadow-[inset_1px_1px_0_rgba(255,255,255,0.45),inset_-1px_-1px_0_rgba(0,0,0,0.45)]",
+                          look.fillTheme?.id === theme.id
+                            ? "border-white ring-2 ring-cyan-300"
+                            : "border-[var(--mc-15)]",
+                        ].join(" ")}
+                        style={{ backgroundColor: theme.base, backgroundImage: theme.texture }}
+                        title={`${theme.name} paper`}
+                        aria-label={`Use ${theme.name} paper for the fill`}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -835,40 +841,39 @@ function ZoneAnnotation({
     commitPoints([...settled.slice(0, bestIndex + 1), minted, ...settled.slice(bestIndex + 1)]);
   };
 
-  const beginCornerDrag =
-    (index: number) => (event: React.PointerEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const settled = annotation.points ?? [];
-      const localPoint = (client: { clientX: number; clientY: number }): ArrowPoint => {
-        const flow = screenToFlowPosition({ x: client.clientX, y: client.clientY });
-        return { x: flow.x - annotation.position.x, y: flow.y - annotation.position.y };
-      };
-
-      const handleMove = (moveEvent: PointerEvent) => {
-        const moving = localPoint(moveEvent);
-        setDraftPoints(settled.map((point, i) => (i === index ? moving : point)));
-      };
-      const handleUp = (upEvent: PointerEvent) => {
-        window.removeEventListener("pointermove", handleMove);
-        window.removeEventListener("pointerup", handleUp);
-        setDraftPoints(undefined);
-
-        const moving = localPoint(upEvent);
-        commitPoints(
-          settled.map((point, i) =>
-            i === index
-              ? {
-                  x: Math.round(moving.x / BOARD_GRID) * BOARD_GRID,
-                  y: Math.round(moving.y / BOARD_GRID) * BOARD_GRID,
-                }
-              : point,
-          ),
-        );
-      };
-      window.addEventListener("pointermove", handleMove);
-      window.addEventListener("pointerup", handleUp);
+  const beginCornerDrag = (index: number) => (event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const settled = annotation.points ?? [];
+    const localPoint = (client: { clientX: number; clientY: number }): ArrowPoint => {
+      const flow = screenToFlowPosition({ x: client.clientX, y: client.clientY });
+      return { x: flow.x - annotation.position.x, y: flow.y - annotation.position.y };
     };
+
+    const handleMove = (moveEvent: PointerEvent) => {
+      const moving = localPoint(moveEvent);
+      setDraftPoints(settled.map((point, i) => (i === index ? moving : point)));
+    };
+    const handleUp = (upEvent: PointerEvent) => {
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerup", handleUp);
+      setDraftPoints(undefined);
+
+      const moving = localPoint(upEvent);
+      commitPoints(
+        settled.map((point, i) =>
+          i === index
+            ? {
+                x: Math.round(moving.x / BOARD_GRID) * BOARD_GRID,
+                y: Math.round(moving.y / BOARD_GRID) * BOARD_GRID,
+              }
+            : point,
+        ),
+      );
+    };
+    window.addEventListener("pointermove", handleMove);
+    window.addEventListener("pointerup", handleUp);
+  };
 
   return (
     <>
@@ -901,10 +906,7 @@ function closestPointOnSegment(point: ArrowPoint, a: ArrowPoint, b: ArrowPoint):
   if (lengthSquared === 0) {
     return a;
   }
-  const t = Math.max(
-    0,
-    Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / lengthSquared),
-  );
+  const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / lengthSquared));
   return { x: a.x + t * dx, y: a.y + t * dy };
 }
 
@@ -1343,6 +1345,7 @@ function TextShape({
   annotation: FactoryAnnotation;
   color: (typeof GT_NODE_COLORS)[keyof typeof GT_NODE_COLORS];
 }) {
+  const t = useT();
   const updateAnnotation = useFactoryStore((state) => state.updateAnnotation);
   const [isEditing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState(annotation.text ?? "");
@@ -1395,7 +1398,7 @@ function TextShape({
         setDraftText(annotation.text ?? "");
         setEditing(true);
       }}
-      title={isEditing ? undefined : "Double-click to edit"}
+      title={isEditing ? undefined : t("Double-click to edit")}
     >
       {/* Size controls, top right, on hover only: a note is something you read,
           and two buttons parked on every note permanently would be furniture in
@@ -1411,8 +1414,8 @@ function TextShape({
           onPointerDown={(event) => event.stopPropagation()}
           disabled={fontSize <= MIN_ANNOTATION_FONT_SIZE}
           className={ANNOTATION_STEP_BUTTON_CLASS}
-          title="Smaller text"
-          aria-label="Smaller text"
+          title={t("Smaller text")}
+          aria-label={t("Smaller text")}
         >
           <span aria-hidden className="block h-[2px] w-[8px] bg-current" />
         </button>
@@ -1425,8 +1428,8 @@ function TextShape({
           onPointerDown={(event) => event.stopPropagation()}
           disabled={fontSize >= MAX_ANNOTATION_FONT_SIZE}
           className={ANNOTATION_STEP_BUTTON_CLASS}
-          title="Bigger text"
-          aria-label="Bigger text"
+          title={t("Bigger text")}
+          aria-label={t("Bigger text")}
         >
           <span aria-hidden className="relative block h-[8px] w-[8px]">
             <span className="absolute left-0 top-[3px] block h-[2px] w-[8px] bg-current" />
@@ -1452,7 +1455,7 @@ function TextShape({
         />
       ) : (
         <div className="h-full w-full overflow-hidden whitespace-pre-wrap p-2">
-          {annotation.text?.length ? annotation.text : "Double-click to edit"}
+          {annotation.text?.length ? annotation.text : t("Double-click to edit")}
         </div>
       )}
     </div>

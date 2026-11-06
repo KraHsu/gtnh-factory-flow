@@ -96,7 +96,7 @@ export function RatioSplitPreview({
     <div
       data-ratio-preview
       role="tooltip"
-      aria-label="Ratio split"
+      aria-label={t("Ratio split")}
       className="w-[220px] max-w-[calc(100vw-40px)] text-[10px] font-normal leading-[14px] text-fg-subtle"
     >
       <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold text-fg">
@@ -143,11 +143,11 @@ export function RatioSplitPreview({
       </div>
       {!locked && (
         <div className="mt-1 flex items-center gap-1 border-t border-line pt-1 text-[9px] leading-3 text-fg-muted">
-          <span role="img" aria-label="Mouse wheel" className="[&_svg]:h-3.5 [&_svg]:w-3">
+          <span role="img" aria-label={t("Mouse wheel")} className="[&_svg]:h-3.5 [&_svg]:w-3">
             <MouseIcon gesture="wheel" />
           </span>
           <span>↑ +1% · ↓ −1%</span>
-          <span className="ml-auto">Shift: 10%</span>
+          <span className="ml-auto">{t("Shift: 10%")}</span>
         </div>
       )}
     </div>

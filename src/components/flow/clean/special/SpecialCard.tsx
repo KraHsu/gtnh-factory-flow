@@ -246,10 +246,11 @@ function Rail({
   power?: React.ReactNode;
   shared: boolean;
 }) {
+  const t = useT();
   return (
     <div className="cc-rail" data-side={side} style={{ gridRow: row }} data-section={section}>
       {ports.length === 0 && shared ? (
-        <div className="sp-none">{side === "input" ? "No input" : "No output"}</div>
+        <div className="sp-none">{side === "input" ? t("No input") : t("No output")}</div>
       ) : null}
       {ports.map((p) => (
         <CleanPortRow key={p.key} p={p} wasClick={wasClick} unset={unset} />

@@ -168,7 +168,7 @@ function RatioPanel({ request, onClose }: { request: RatioEditorRequest; onClose
   return (
     <dialog
       ref={rootRef}
-      aria-label="Drawer split"
+      aria-label={t("Drawer split")}
       data-ratio-editor
       data-tooltip-stop
       className="nodrag nopan nowheel fixed inset-0 z-[35] m-auto max-h-[calc(88*var(--ui-vh))] w-[calc(100*var(--ui-vw)-32px)] max-w-sm flex-col overflow-hidden border-2 border-[var(--mc-15)] bg-[var(--mc-49)] p-0 text-[var(--mc-ink)] shadow-[inset_2px_2px_0_var(--mc-85),inset_-2px_-2px_0_var(--mc-25),4px_4px_0_rgba(0,0,0,0.45)] open:flex"
@@ -219,7 +219,7 @@ function RatioPanel({ request, onClose }: { request: RatioEditorRequest; onClose
           <section key={side} className="border-b-2 border-[var(--mc-15)] last:border-b-0">
             <div className="flex items-center justify-between gap-2 border-b border-[var(--mc-36)] py-2">
               <h3 className="text-base font-bold text-[var(--mc-ink)]">
-                {side === "input" ? "Incoming" : "Outgoing"}
+                {side === "input" ? t("Incoming") : t("Outgoing")}
               </h3>
               <button
                 type="button"
@@ -283,6 +283,7 @@ function RatioBranchRow({
   drawerRole?: StorageRole;
   currentRate: string;
 }) {
+  const t = useT();
   const setPercentage = useFactoryStore((s) => s.setRatioBranchPercentage);
   const percentage = Number((branch.share * 100).toFixed(4));
   const [draft, setDraft] = useState(String(percentage));
@@ -366,7 +367,7 @@ function RatioBranchRow({
       <span
         data-ratio-rate
         aria-label={`${name} current ${side === "input" ? "incoming" : "outgoing"} rate`}
-        title="Current flow"
+        title={t("Current flow")}
         className="whitespace-nowrap text-right text-[10px] tabular-nums text-[var(--mc-ink-muted)] opacity-70"
       >
         {currentRate}
@@ -375,7 +376,7 @@ function RatioBranchRow({
         <button
           type="button"
           aria-label={`Zero ${fieldLabel}`}
-          title="Set to zero"
+          title={t("Set to zero")}
           disabled={percentage === 0 && (!editing || Number(draft) === 0)}
           onPointerDown={(event) => event.preventDefault()}
           onClick={() => {
@@ -399,7 +400,7 @@ function RatioBranchRow({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percentage}
-            title="Type or scroll the percentage"
+            title={t("Type or scroll the percentage")}
             className="min-h-0 min-w-0 w-full border-0 bg-transparent p-0 pl-1 text-right text-xs tabular-nums outline-none"
             value={editing ? draft : String(percentage)}
             onFocus={() => {

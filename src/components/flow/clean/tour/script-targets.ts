@@ -8,6 +8,8 @@ import {
   closestOf,
   css,
   escapeRe,
+  matches,
+  named,
   portRow,
   rectOf,
   textOf,
@@ -30,14 +32,14 @@ const q = (selector: string): Element | null => {
 
 // region The items column and the recipe search
 
-export const itemsSearch: Target = () => q('input[aria-label="Search items and fluids"]');
+export const itemsSearch: Target = named("input", "Search items and fluids");
 
 export const itemTile =
   (name: string): Target =>
   () =>
     q(`[role="option"][aria-label="${name.replace(/"/g, '\\"')}"]`);
 
-export const recipeOverlay: Target = closestOf(css('button[aria-label="Close recipe search"]'), ".fixed");
+export const recipeOverlay: Target = closestOf(named("button", "Close recipe search"), ".fixed");
 
 /** A machine's tab on the recipe search's top edge, when its page of tabs is showing. */
 export const machineTab = (re: RegExp): Target => textOf("[data-machine-tab]", re, recipeOverlay);
@@ -52,7 +54,7 @@ export function machineTabOpen(re: RegExp): boolean {
 export const overlayKey =
   (name: string): Target =>
   () => {
-    const key = recipeOverlay()?.querySelector(`button[aria-label="${name}"]`) ?? null;
+    const key = named("button", name, recipeOverlay)();
     return key && visible(key) && !(key as HTMLButtonElement).disabled ? key : null;
   };
 
@@ -73,9 +75,7 @@ export const addRecipe =
   () => {
     const overlay = recipeOverlay();
     if (!overlay || !machineTabOpen(machine)) return null;
-    for (const key of overlay.querySelectorAll(
-      '[data-recipe-page] [aria-label="Add recipe node"]',
-    )) {
+    for (const key of overlay.querySelectorAll('[data-recipe-page] [data-glyph="plus"]')) {
       if (!visible(key)) continue;
       if (!has) return key;
       const recipe = key.closest("[data-recipe]");
@@ -153,7 +153,9 @@ export const clearBeside =
       p.x <= pane.right - m &&
       p.y >= pane.top + m &&
       p.y <= pane.bottom - m &&
-      !others.some((o) => p.x >= o.x - 8 && p.x <= o.x + o.w + 8 && p.y >= o.y - 8 && p.y <= o.y + o.h + 8);
+      !others.some(
+        (o) => p.x >= o.x - 8 && p.x <= o.x + o.w + 8 && p.y >= o.y - 8 && p.y <= o.y + o.h + 8,
+      );
     return spots.find(free) ?? rightOf(target, gap)();
   };
 
@@ -168,7 +170,10 @@ export const underCard =
     const ra = rectOf(ea);
     const rb = rectOf(eb);
     const rh = rectOf(h);
-    return { x: rh.x + rh.w / 2 + (ra.x - rb.x), y: rh.y + rh.h / 2 + (ra.y + ra.h + gapPx - rb.y) };
+    return {
+      x: rh.x + rh.w / 2 + (ra.x - rb.x),
+      y: rh.y + rh.h / 2 + (ra.y + ra.h + gapPx - rb.y),
+    };
   };
 
 /** A point inside a thing at a fraction of its box. */
@@ -211,16 +216,19 @@ export const around =
 
 /** The card's name key, tier chip, count, gear, menu, picture, power row. */
 export const cardPart =
-  (index: number, part: "name" | "tier" | "count" | "gear" | "menu" | "power" | "picture" | "head"): Target =>
+  (
+    index: number,
+    part: "name" | "tier" | "count" | "gear" | "menu" | "power" | "picture" | "head",
+  ): Target =>
   () => {
     const root = card(index)();
     if (!root) return null;
     const sel = {
       name: ".cc-name",
-      tier: '.cc-chip[aria-label^="Tier"]',
+      tier: ".cc-chip[data-hatch-menu-anchor]",
       count: ".cc-count",
-      gear: '[aria-label="Machine settings"]',
-      menu: '[aria-label="Card actions"]',
+      gear: '[data-glyph="gear"]',
+      menu: '[data-glyph="menu"]',
       picture: ".cc-pic",
       head: ".cc-head",
       power: ".cc-bolt",
@@ -272,7 +280,9 @@ export const drawerPart =
   () => {
     const d = drawerOf(name)();
     if (!d) return null;
-    const sel = { rule: "[data-cd-key]", rate: ".cd-box", delete: ".cd-del", body: ".cd-body" }[part];
+    const sel = { rule: "[data-cd-key]", rate: ".cd-box", delete: ".cd-del", body: ".cd-body" }[
+      part
+    ];
     const el = d.querySelector(sel);
     return el && visible(el) ? el : null;
   };
@@ -286,14 +296,16 @@ export const forcedRow = (cardIndex: number, side: "Input" | "Output", name: str
 // region The top bar and the chrome
 
 /** A key of the board's toolbars or the app's header by its label or title. */
-export const topKey = (re: RegExp): Target => () => {
-  for (const el of document.querySelectorAll("button, [role=button]")) {
-    if (!visible(el)) continue;
-    if (el.closest("[data-tour]")) continue;
-    if (re.test(el.getAttribute("aria-label") ?? "") || re.test(el.getAttribute("title") ?? "")) return el;
-  }
-  return null;
-};
+export const topKey =
+  (re: RegExp): Target =>
+  () => {
+    for (const el of document.querySelectorAll("button, [role=button]")) {
+      if (!visible(el)) continue;
+      if (el.closest("[data-tour]")) continue;
+      if (matches(el, re)) return el;
+    }
+    return null;
+  };
 
 /** A key of the mod's top bar (chrome/ModBar), by its id. */
 export const barKey =
@@ -318,30 +330,22 @@ export const openMenu: Target = () => q('[role="menu"]');
 
 /** The card's settings sheet: the smallest box holding both the Settings and the Formulas columns. */
 export const settingsSheet: Target = () => {
-  let best: Element | null = null;
-  let area = Infinity;
-  for (const el of document.querySelectorAll("div")) {
-    if (!visible(el) || el.closest("[data-tour]")) continue;
-    const text = el.textContent ?? "";
-    if (!/^Settings/.test(text) || !/Formulas/.test(text)) continue;
-    const r = el.getBoundingClientRect();
-    if (r.width * r.height < area) {
-      area = r.width * r.height;
-      best = el;
+  return q("[data-cc-sheet]");
+};
+export const menuRow =
+  (re: RegExp): Target =>
+  () => {
+    const menu = openMenu();
+    const pool = menu
+      ? [...menu.querySelectorAll("*")]
+      : [...document.querySelectorAll('[role="menuitem"]')];
+    for (const el of pool) {
+      if (!visible(el)) continue;
+      if (el.children.length > 2) continue;
+      if (matches(el, re)) return el;
     }
-  }
-  return best;
-};
-export const menuRow = (re: RegExp): Target => () => {
-  const menu = openMenu();
-  const pool = menu ? [...menu.querySelectorAll("*")] : [...document.querySelectorAll('[role="menuitem"]')];
-  for (const el of pool) {
-    if (!visible(el)) continue;
-    if (el.children.length > 2) continue;
-    if (re.test(el.textContent ?? "")) return el;
-  }
-  return null;
-};
+    return null;
+  };
 
 // endregion
 
@@ -386,12 +390,15 @@ export const byOwnText =
 export const powerKey: Target = barKey("nonrecipe");
 
 /** The overview's block for a resource's spare (forced) flow, with its places and their share bars. */
-export const spareBlock = (name: string): Target => textOf(".rail-spare", new RegExp(escapeRe(name)), () => railRoot());
+export const spareBlock = (name: string): Target =>
+  textOf(".rail-spare", new RegExp(escapeRe(name)), () => railRoot());
 
 /** The nth place's share bar of a spare block. */
 export const spareBar =
   (name: string, index: number): Target =>
   () => {
-    const bars = [...(spareBlock(name)()?.querySelectorAll(".rail-spare-bar") ?? [])].filter(visible);
+    const bars = [...(spareBlock(name)()?.querySelectorAll(".rail-spare-bar") ?? [])].filter(
+      visible,
+    );
     return bars[index] ?? null;
   };

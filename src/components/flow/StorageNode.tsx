@@ -894,6 +894,7 @@ export function TargetLine({
   inlinePencil?: boolean;
   input?: boolean;
 }) {
+  const t = useT();
   const setStorageTarget = useFactoryStore((state) => state.setStorageTarget);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -996,7 +997,7 @@ export function TargetLine({
             if (event.button === 1) event.preventDefault();
           }}
           onAuxClick={clearRate}
-          aria-label="Required amount"
+          aria-label={t("Required amount")}
           style={rateStyle}
           className="nodrag group/target relative z-40 flex cursor-pointer justify-center hover:brightness-125"
         >
@@ -1025,7 +1026,7 @@ export function TargetLine({
                   askBlink ? "animate-pulse" : "opacity-60",
                 ].join(" ")}
               >
-                rate?
+                {t("rate?")}
               </div>
             )}
             <Pencil
@@ -1069,8 +1070,8 @@ export function TargetLine({
         onTouchStart={(event) => event.stopPropagation()}
         onClick={(event) => event.stopPropagation()}
         inputMode={signed ? "text" : "decimal"}
-        placeholder="rate"
-        aria-label="Required amount"
+        placeholder={t("rate")}
+        aria-label={t("Required amount")}
         className={[
           "nodrag h-4 w-[60px] border px-[3px] text-center text-[9px] font-bold tabular-nums outline-none",
           "bg-[#14171d] shadow-[inset_1px_1px_0_rgba(255,255,255,0.08),inset_-1px_-1px_0_rgba(0,0,0,0.5)]",
@@ -1085,12 +1086,13 @@ export function TargetLine({
 
 /** The ratio editor's pencil, a key in the title bar beside the mode key. */
 function RatioSplitButton({ storageId }: { storageId: string }) {
+  const t = useT();
   return (
     <button
       type="button"
       data-tooltip-stop
-      aria-label="Edit drawer ratios"
-      title="Edit split"
+      aria-label={t("Edit drawer ratios")}
+      title={t("Edit split")}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => {
         event.stopPropagation();

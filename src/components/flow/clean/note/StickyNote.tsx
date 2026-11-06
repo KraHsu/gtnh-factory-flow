@@ -1,7 +1,16 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useReactFlow, useStore, type Node, type NodeProps } from "@xyflow/react";
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { snapToGrid } from "@/lib/board-grid";
 import type { FactoryAnnotation } from "@/lib/model/types";
 import { useFactoryStore } from "@/store/factory-store";
@@ -70,6 +79,7 @@ function caretOffsetAt(display: HTMLElement | null, x: number, y: number): numbe
 }
 
 function StickyNoteComponent({ data, selected, width, height }: NodeProps<StickyNoteFlowNode>) {
+  const t = useT();
   const { annotation } = data;
   useFontEpoch();
   const updateAnnotation = useFactoryStore((state) => state.updateAnnotation);
@@ -137,7 +147,15 @@ function StickyNoteComponent({ data, selected, width, height }: NodeProps<Sticky
       text: draft,
       size: { width: annotation.size.width, height: Math.max(annotation.size.height, needed) },
     });
-  }, [annotation.id, annotation.size.height, annotation.size.width, draft, font, text, updateAnnotation]);
+  }, [
+    annotation.id,
+    annotation.size.height,
+    annotation.size.width,
+    draft,
+    font,
+    text,
+    updateAnnotation,
+  ]);
 
   const stepFont = useCallback(
     (steps: number) => {
@@ -149,7 +167,14 @@ function StickyNoteComponent({ data, selected, width, height }: NodeProps<Sticky
 
   // Pointer: what is under it (for the cursor, the title and the lit key), a click's slop, and resizing.
   const press = useRef<{ x: number; y: number; part: NotePart } | null>(null);
-  const resize = useRef<{ sx: number; sy: number; w: number; h: number; ax: boolean; ay: boolean } | null>(null);
+  const resize = useRef<{
+    sx: number;
+    sy: number;
+    w: number;
+    h: number;
+    ax: boolean;
+    ay: boolean;
+  } | null>(null);
 
   const localPoint = (clientX: number, clientY: number) => {
     const rect = rootRef.current!.getBoundingClientRect();
@@ -236,7 +261,11 @@ function StickyNoteComponent({ data, selected, width, height }: NodeProps<Sticky
       } else if (was.part === "bigger") {
         stepFont(1);
       } else if (!up.shiftKey && !editing) {
-        startEditing(target.closest(".sn-text") ? caretOffsetAt(displayRef.current, up.clientX, up.clientY) : undefined);
+        startEditing(
+          target.closest(".sn-text")
+            ? caretOffsetAt(displayRef.current, up.clientX, up.clientY)
+            : undefined,
+        );
       }
     };
     window.addEventListener("pointerup", onUp);
@@ -325,7 +354,7 @@ function StickyNoteComponent({ data, selected, width, height }: NodeProps<Sticky
           />
         ) : (
           <div ref={displayRef} className="sn-text" data-empty={noText ? "" : undefined}>
-            {noText ? "Double-click to write" : text}
+            {noText ? t("Double-click to write") : text}
           </div>
         )}
         {fits ? (

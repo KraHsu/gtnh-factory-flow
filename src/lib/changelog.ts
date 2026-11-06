@@ -40,6 +40,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.8.1",
+    date: "2026-11-05",
+    headline: "Localized tour and help",
+    notes: [
+      "Read the entire guided tour, controls and board help in Simplified Chinese.",
+      "The tour finds controls in either language and skips the unavailable community shelf in the public planner.",
+      "More card hints, crop explanations and library controls follow your language choice.",
+    ],
+  },
+  {
     version: "4.8.0",
     date: "2026-11-05",
     headline: "Chinese interface and KraHsu themes",

@@ -331,11 +331,11 @@ export function CleanDrawer({
                 : undefined,
           }
         : {
-            "data-text": view.boxText,
+            "data-text": t(view.boxText),
             "data-empty": "",
             "data-prompt": view.prompt ? "" : undefined,
           };
-  const boxTextProps = view.kind === "trash" ? { "data-text": view.boxText } : {};
+  const boxTextProps = view.kind === "trash" ? { "data-text": t(view.boxText) } : {};
 
   const commit = () => {
     const had = rule.draft.trim() !== "";
@@ -413,7 +413,7 @@ export function CleanDrawer({
           tabIndex={0}
           className="cd-del"
           {...tipAttrs(view.tips.del)}
-          aria-label="Delete drawer"
+          aria-label={t("Delete drawer")}
           onPointerDownCapture={pressed}
           onClick={(event) => {
             event.stopPropagation();
@@ -625,13 +625,14 @@ export function CleanDrawer({
 
 /** The rate box while it is typed into: a number, `2.5k`, `1M` or `1/3` in the board's unit. */
 function RateField({ rule, onCommit }: { rule: RateRule; onCommit: () => void }) {
+  const t = useT();
   return (
     <input
       autoFocus
       value={rule.draft}
       inputMode="text"
-      aria-label="Your rate"
-      placeholder="rate"
+      aria-label={t("Your rate")}
+      placeholder={t("rate")}
       className="nodrag"
       onChange={(event) => rule.setDraft(event.target.value)}
       onBlur={onCommit}

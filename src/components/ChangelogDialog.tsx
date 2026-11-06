@@ -67,7 +67,7 @@ export function ChangelogDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="What's new in GTNH Planner"
+        aria-label={t("What's new in GTNH Planner")}
         className="flex max-h-[calc(88*var(--ui-vh))] w-full max-w-4xl flex-col overflow-hidden rounded-lg border border-line-strong bg-surface shadow-2xl compact:max-h-[calc(92*var(--ui-vh))]"
         onClick={(event) => event.stopPropagation()}
       >
@@ -160,7 +160,7 @@ function Masthead({
 
       <p className="relative mt-2 text-sm text-fg-muted">
         {missedCount === 1
-          ? "One release since your last visit."
+          ? t("One release since your last visit.")
           : missedCount > 1
             ? // Counted and dated, because "some updates" is not a reason to
               // read anything.
@@ -168,7 +168,7 @@ function Masthead({
                 oldestMissed ? ` (v${oldestMissed} onwards)` : ""
               }. Here they are.`
             : // Not "you are up to date": the sheet still shows the recent notes.
-              "Everything that has changed, newest first."}
+              t("Everything that has changed, newest first.")}
       </p>
     </div>
   );

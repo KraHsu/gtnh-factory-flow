@@ -125,7 +125,7 @@ export function IconPicker({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close icon picker"
+            aria-label={t("Close icon picker")}
             className="rounded p-1 text-neutral-400 hover:text-neutral-100"
           >
             <X className="h-4 w-4" />
@@ -137,7 +137,7 @@ export function IconPicker({
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search item or fluid..."
+            placeholder={t("Search item or fluid...")}
             className="min-w-0 flex-1 bg-transparent outline-none"
           />
         </label>
@@ -145,7 +145,7 @@ export function IconPicker({
         {suggestions && suggestions.length > 0 ? (
           <div className="mt-2 shrink-0">
             <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-neutral-500">
-              From this build
+              {t("From this build")}
             </p>
             <div className="flex flex-wrap gap-1">
               {suggestions.map((suggestion) => (
@@ -183,7 +183,7 @@ export function IconPicker({
             </p>
           ) : resources.length === 0 ? (
             <p className="pt-1 text-[11px] text-neutral-500">
-              {result ? t("Nothing matches.") : "Searching…"}
+              {result ? t("Nothing matches.") : t("Searching…")}
             </p>
           ) : (
             <div className="grid grid-cols-8 gap-1">
@@ -295,7 +295,7 @@ export function EntryIconSlot({
     <button
       type="button"
       onClick={onEdit}
-      aria-label={icon ? "Change the icon" : t("Pick an icon")}
+      aria-label={icon ? t("Change the icon") : t("Pick an icon")}
       className={[
         "flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[4px] border",
         icon

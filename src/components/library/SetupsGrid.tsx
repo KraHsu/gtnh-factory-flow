@@ -578,12 +578,12 @@ export function SetupsGrid({
             ) : plans.length === 0 && !error ? (
               <p className="text-[12px] leading-relaxed text-[var(--mc-ink-muted)]">
                 {search
-                  ? "No setups match."
+                  ? t("No setups match.")
                   : scope === "mine"
-                    ? "Nothing posted yet. Share a design with the Share button in the header."
+                    ? t("Nothing posted yet. Share a design with the Share button in the header.")
                     : scope === "saved"
-                      ? "Nothing saved yet. Click the ribbon on a public setup to keep it here."
-                      : "Nothing shared yet."}
+                      ? t("Nothing saved yet. Click the ribbon on a public setup to keep it here.")
+                      : t("Nothing shared yet.")}
               </p>
             ) : (
               <>

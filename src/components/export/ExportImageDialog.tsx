@@ -396,7 +396,7 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Screenshot editor"
+      aria-label={t("Screenshot editor")}
       className="fixed inset-0 z-[100] grid place-items-center bg-neutral-950/50 p-4"
     >
       <div className="flex max-h-[calc(94*var(--ui-vh))] w-full max-w-5xl flex-col overflow-y-auto rounded border border-line-strong bg-surface p-4 shadow-xl">
@@ -568,8 +568,8 @@ export function ExportImageDialog({ onClose }: { onClose: () => void }) {
             ))}
             <button
               type="button"
-              title="Transparent"
-              aria-label="Transparent background"
+              title={t("Transparent")}
+              aria-label={t("Transparent background")}
               aria-pressed={background === "transparent"}
               onClick={() => setBackground("transparent")}
               className={[

@@ -49,7 +49,8 @@ export function RecipeAddChips() {
         >
           {entry.error ? (
             <span className="text-rose-300">
-              {t("Could not add")} {entry.label}. Try again.
+              {t("Could not add")} {entry.label}
+              {t(". Try again.")}
             </span>
           ) : (
             <>

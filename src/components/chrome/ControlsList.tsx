@@ -67,9 +67,9 @@ export function ControlsList({ onClose }: { onClose: () => void }) {
       <div className="mc-controls-grid">
         {CONTROLS.map(([gesture, effect]) => (
           <div key={gesture} className="mc-controls-row">
-            <span className="mc-controls-key">{gesture}</span>
+            <span className="mc-controls-key">{t(gesture)}</span>
             <span className="mc-controls-effect">
-              {effect === WHEEL_ROW && !scrollChangesValues ? t("Zoom") : effect}
+              {t(effect === WHEEL_ROW && !scrollChangesValues ? "Zoom" : effect)}
             </span>
           </div>
         ))}

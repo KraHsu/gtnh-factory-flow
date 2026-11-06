@@ -1,6 +1,8 @@
 "use client";
 
 import { useFactoryStore } from "@/store/factory-store";
+import { getLocale, translate } from "@/lib/i18n";
+import zhCN from "@/lib/i18n/zh-CN.json";
 import { glanceLeaveZoom } from "../../node-detail";
 import { boardZoomScale } from "@/lib/ui-scale";
 import { draws } from "./cursor";
@@ -36,13 +38,56 @@ export function css(selector: string, root?: ParentNode): Target {
   };
 }
 
-/** Whether the element's aria-label or its text (each on its own) matches. */
+// Several English labels share a Chinese translation. Keep every source label
+// so the tour can resolve the same control after a language switch.
+const sourceLabels = new Map<string, string[]>();
+for (const [source, localized] of Object.entries(zhCN)) {
+  const labels = sourceLabels.get(localized) ?? [];
+  labels.push(source);
+  sourceLabels.set(localized, labels);
+}
+
+/** A UI label matches in either language; recipe names remain dataset names. */
+export function matchesLabel(text: string, re: RegExp): boolean {
+  const label = text.trim();
+  return [label, ...(sourceLabels.get(label) ?? [])].some((candidate) => {
+    re.lastIndex = 0;
+    return re.test(candidate);
+  });
+}
+
+/** Whether the element's source label, accessible name or visible label matches. */
 export function matches(el: Element, re: RegExp): boolean {
-  return re.test(el.getAttribute("aria-label") ?? "") || re.test((el.textContent ?? "").trim());
+  return [
+    el.getAttribute("data-tour-label"),
+    el.getAttribute("aria-label"),
+    el.getAttribute("title"),
+    el.textContent,
+    el.querySelector(".mm-label, .cm-name, .rail-sec-title")?.textContent,
+  ].some((text) => Boolean(text && matchesLabel(text, re)));
+}
+
+/** Resolve accessible labels at action time, since the player can change language. */
+export function named(
+  selector: string,
+  label: string,
+  root: () => ParentNode | null = () => document,
+): Target {
+  return () => {
+    const names = new Set([label, translate(getLocale(), label)]);
+    for (const el of root()?.querySelectorAll(selector) ?? []) {
+      if (visible(el) && names.has(el.getAttribute("aria-label") ?? "")) return el;
+    }
+    return null;
+  };
 }
 
 /** The first visible element matching the selector whose text or aria-label matches. */
-export function textOf(selector: string, re: RegExp, root: () => ParentNode | null = () => document): Target {
+export function textOf(
+  selector: string,
+  re: RegExp,
+  root: () => ParentNode | null = () => document,
+): Target {
   return () => {
     const scope = root();
     if (!scope) return null;
@@ -108,7 +153,8 @@ export const portRow =
     const re = typeof name === "string" ? new RegExp(`^${side}: ${escapeRe(name)}\\.`) : name;
     for (const handle of root.querySelectorAll(".react-flow__handle[aria-label]")) {
       const label = handle.getAttribute("aria-label") ?? "";
-      if (label.startsWith(`${side}: `) && re.test(label)) return handle.closest(".cc-row") ?? handle;
+      if (label.startsWith(`${side}: `) && re.test(label))
+        return handle.closest(".cc-row") ?? handle;
     }
     return null;
   };
@@ -122,7 +168,11 @@ export const inRow = (row: Target, selector: string): Target => within(row, sele
 // endregion
 
 /** Waits until the target shows (visible), polling each frame. */
-export async function waitFor(target: Target, timeoutMs = 3500, aborted: () => boolean = () => false): Promise<Element | null> {
+export async function waitFor(
+  target: Target,
+  timeoutMs = 3500,
+  aborted: () => boolean = () => false,
+): Promise<Element | null> {
   const t0 = performance.now();
   for (;;) {
     const el = target();
@@ -204,23 +254,36 @@ export function clippedByScroller(el: Element): boolean {
   for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
     const o = getComputedStyle(p);
     const pr = p.getBoundingClientRect();
-    if (/(auto|scroll|hidden)/.test(o.overflowY) && (r.bottom > pr.bottom + 1 || r.top < pr.top - 1)) return true;
+    if (
+      /(auto|scroll|hidden)/.test(o.overflowY) &&
+      (r.bottom > pr.bottom + 1 || r.top < pr.top - 1)
+    )
+      return true;
     // A narrow window clips a wide row sideways (a recipe's add key past the search box's right edge).
-    if (/(auto|scroll|hidden)/.test(o.overflowX) && (r.right > pr.right + 1 || r.left < pr.left - 1)) return true;
+    if (
+      /(auto|scroll|hidden)/.test(o.overflowX) &&
+      (r.right > pr.right + 1 || r.left < pr.left - 1)
+    )
+      return true;
   }
   return r.bottom > window.innerHeight || r.top < 0 || r.right > window.innerWidth || r.left < 0;
 }
 
 /** Scrolls a list so the element shows (the recipe search, the items column, a menu). */
 export async function scrollToShow(el: Element): Promise<void> {
-  if (el.closest('.react-flow') || !clippedByScroller(el)) return;
-  (el as HTMLElement).scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' as ScrollBehavior });
+  if (el.closest(".react-flow") || !clippedByScroller(el)) return;
+  (el as HTMLElement).scrollIntoView({
+    block: "center",
+    inline: "center",
+    behavior: "instant" as ScrollBehavior,
+  });
   await draws(2);
 }
 
 function scrollerOf(el: Element): HTMLElement | null {
   for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
-    if (/(auto|scroll)/.test(getComputedStyle(p).overflowY) && p.scrollHeight > p.clientHeight) return p;
+    if (/(auto|scroll)/.test(getComputedStyle(p).overflowY) && p.scrollHeight > p.clientHeight)
+      return p;
   }
   return null;
 }
@@ -241,7 +304,10 @@ export async function ensureHittable(el: Element): Promise<void> {
   if (!scroller) return;
   const pr = scroller.getBoundingClientRect();
   const r = el.getBoundingClientRect();
-  scroller.scrollBy({ top: r.top + r.height / 2 - (pr.top + pr.height * 0.6), behavior: 'instant' as ScrollBehavior });
+  scroller.scrollBy({
+    top: r.top + r.height / 2 - (pr.top + pr.height * 0.6),
+    behavior: "instant" as ScrollBehavior,
+  });
   await draws(2);
   if (free()) return;
   const home = scroller.scrollTop;

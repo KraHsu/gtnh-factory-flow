@@ -145,8 +145,8 @@ export function MinecraftSelect({
                     setOpen(false);
                   }
                 }}
-                placeholder="Filter..."
-                aria-label={ariaLabel ? `Filter ${ariaLabel}` : "Filter options"}
+                placeholder={t("Filter...")}
+                aria-label={ariaLabel ? `Filter ${ariaLabel}` : t("Filter options")}
                 className="h-6 w-full border border-[var(--mc-33)] bg-[var(--mc-93)] pl-6 pr-1.5 text-[12px] text-[var(--mc-ink)] placeholder:text-[var(--mc-ink)]/50 outline-none focus:border-cyan-700"
               />
             </label>

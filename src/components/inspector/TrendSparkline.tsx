@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useId, useRef, useState } from "react";
 import { formatCompact } from "@/lib/model";
@@ -31,6 +32,7 @@ export function TrendSparkline({
   /** Applied to the readout only; the shape is scale-free. */
   multiplier: number;
 }) {
+  const t = useT();
   const gradientId = useId();
   const hostRef = useRef<HTMLDivElement>(null);
   const [hoverIndex, setHoverIndex] = useState<number>();
@@ -75,7 +77,7 @@ export function TrendSparkline({
         style={{ height }}
         className="flex items-center justify-center text-[10px] text-fg-muted"
       >
-        Edit the board to start the chart
+        {t("Edit the board to start the chart")}
       </div>
     );
   }
@@ -180,7 +182,7 @@ export function TrendSparkline({
       */}
       {hoverIndex === undefined ? (
         <span className="pointer-events-none absolute left-0 top-0 text-[10px] tabular-nums text-fg-muted">
-          {series.length} edits
+          {series.length} {t("edits")}
         </span>
       ) : (
         <span

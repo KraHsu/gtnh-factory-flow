@@ -192,6 +192,7 @@ function MenuRow({ entry, onClose }: { entry: MenuEntry; onClose: () => void }):
       {entry.ruleAbove ? <div className="mm-rule" /> : null}
       <div
         role="menuitem"
+        data-tour-label={entry.label}
         className="mm-row"
         tabIndex={-1}
         onKeyDown={activateOnKey}

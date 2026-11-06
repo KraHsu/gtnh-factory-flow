@@ -795,7 +795,7 @@ function HelpSheet({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close help"
+          aria-label={t("Close help")}
           className="flex h-9 w-9 items-center justify-center border text-[16px] text-[#aebccd]"
           style={{ borderColor: GLANCE_LINE }}
         >
@@ -975,7 +975,7 @@ export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean
           className={HELP_BUTTON_CLASS}
           style={{ zoom: BOARD_TOOL_SCALE }}
           title={t("Board help")}
-          aria-label="Show board help"
+          aria-label={t("Show board help")}
         >
           ?
         </button>
@@ -1013,7 +1013,7 @@ export const BoardHelp = memo(function BoardHelp({ compact }: { compact: boolean
         className={HELP_BUTTON_CLASS}
         style={{ zoom: BOARD_TOOL_SCALE }}
         title={t("Board help")}
-        aria-label="Show board help"
+        aria-label={t("Show board help")}
       >
         ?
       </button>

@@ -544,7 +544,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
                   : "border-[var(--mc-47)]",
               ].join(" ")}
               style={{ backgroundColor: ownPaper.base, backgroundImage: ownPaper.texture }}
-              title="Its own colour"
+              title={t("Its own colour")}
               aria-label={`Clear the paper on board ${pocket.name}`}
             >
               <X className="h-3.5 w-3.5" />
@@ -609,7 +609,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
                     className="text-[9px] uppercase"
                     style={{ color: chrome.inkMuted }}
                   >
-                    off
+                    {t("off")}
                   </span>
                 ) : null}
               </button>
@@ -666,7 +666,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
               }}
               className="nodrag flex h-6 w-6 shrink-0 items-center justify-center border-2 hover:!bg-red-700 hover:!text-white"
               style={buttonStyle}
-              title="Delete board"
+              title={t("Delete board")}
               aria-label={`Delete board ${pocket.name}`}
             >
               {/* Drawn rather than a "-" glyph: at this size Monocraft's
@@ -685,7 +685,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
               }}
               className="nodrag flex h-6 w-6 shrink-0 items-center justify-center border-2 hover:brightness-125"
               style={buttonStyle}
-              title="Clone board"
+              title={t("Clone board")}
               aria-label={`Clone board ${pocket.name}`}
             >
               <Copy aria-hidden className="h-3.5 w-3.5" />
@@ -711,7 +711,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
           >
             <span className="min-w-0 truncate">✦ {pocket.name}</span>
             <span className="ml-auto shrink-0 pl-2 text-[11px]" style={{ color: chrome.inkMuted }}>
-              {memberCount} {memberCount === 1 ? "card" : t("cards")}
+              {memberCount} {memberCount === 1 ? t("card") : t("cards")}
             </span>
           </div>
         ) : (
@@ -770,7 +770,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
               }}
               className="nodrag flex h-6 w-6 shrink-0 items-center justify-center border-2 hover:brightness-125"
               style={buttonStyle}
-              title="Remove board, keep its cards"
+              title={t("Remove board, keep its cards")}
               aria-label={`Remove board ${pocket.name}, keep its cards`}
             >
               <PackageOpen aria-hidden className="h-3.5 w-3.5" />
@@ -784,7 +784,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
               }}
               className="nodrag flex h-6 w-6 shrink-0 items-center justify-center border-2 hover:brightness-125"
               style={buttonStyle}
-              title="Fold board"
+              title={t("Fold board")}
               aria-label={`Fold board ${pocket.name} into a pocket card`}
             >
               <Minimize2 aria-hidden className="h-3.5 w-3.5" />
@@ -802,7 +802,7 @@ function BoardNodeComponent({ data, width, height, selected }: NodeProps<BoardWi
           onPointerDown={(event) => beginResize(grip.side, event)}
           className={`nodrag absolute ${grip.cursor}`}
           style={{ ...grip.hitBox, pointerEvents: "all" }}
-          title="Resize board"
+          title={t("Resize board")}
           aria-label={`Resize board ${pocket.name}`}
         />
       ))}

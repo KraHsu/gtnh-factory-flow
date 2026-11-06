@@ -314,7 +314,7 @@ export function LibraryTile({
           ) : null}
           {marks.open ? (
             <span
-              title="Open as a tab"
+              title={t("Open as a tab")}
               className="bg-[var(--mc-61)] px-1 text-[9px] font-black uppercase tracking-wide text-neutral-300"
             >
               {t("open")}
@@ -323,8 +323,8 @@ export function LibraryTile({
           {marks.privatePost ? (
             <span
               className="text-[var(--mc-ink-muted)]"
-              aria-label="Private: only you can see it"
-              title="Private: only you can see it"
+              aria-label={t("Private: only you can see it")}
+              title={t("Private: only you can see it")}
             >
               <EyeOff className="h-3 w-3" aria-hidden />
             </span>
@@ -359,7 +359,7 @@ export function LibraryTile({
                 </span>
               ) : null}
               {social.downloads !== undefined ? (
-                <span className="flex items-center gap-0.5" aria-label="Downloads">
+                <span className="flex items-center gap-0.5" aria-label={t("Downloads")}>
                   <Download className="h-3 w-3" aria-hidden />
                   {social.downloads}
                 </span>
@@ -399,8 +399,8 @@ function PostGlyph({
   if (marks.fromNetwork) {
     return (
       <span
-        aria-label="Opened from a shared setup"
-        title="Opened from a shared setup"
+        aria-label={t("Opened from a shared setup")}
+        title={t("Opened from a shared setup")}
         className="text-[var(--mc-ink-muted)]"
       >
         <Download className="h-3 w-3" aria-hidden />
@@ -434,8 +434,8 @@ function PostGlyph({
   if (marks.linked) {
     return (
       <span
-        aria-label="Linked to a post"
-        title="Linked to a post"
+        aria-label={t("Linked to a post")}
+        title={t("Linked to a post")}
         className="text-[var(--mc-ink-muted)]"
       >
         <Link2 className="h-3 w-3" aria-hidden />
@@ -447,8 +447,8 @@ function PostGlyph({
       <button
         type="button"
         onClick={onPost}
-        aria-label="Post to Community"
-        title="Post to Community"
+        aria-label={t("Post to Community")}
+        title={t("Post to Community")}
         className="p-0.5 text-[var(--mc-ink-muted)] opacity-70 hover:bg-[var(--mc-61)] hover:text-emerald-300"
       >
         <Globe className="h-3 w-3" aria-hidden />

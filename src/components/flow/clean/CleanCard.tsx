@@ -199,7 +199,7 @@ export function CleanPortRow({
       >
         {port.resource ? <PortIcon resource={port.resource} iconProps={iconProps} /> : null}
         <span className="cc-num" data-small="" data-unit="">
-          {controller ? "in controller" : bee ? "Not used" : "free"}
+          {controller ? t("in controller") : bee ? t("Not used") : t("free")}
         </span>
         <span
           className="cc-pname"
@@ -372,6 +372,7 @@ function PortIcon({
 
 /** Icon, figure, name: the three things a row says. */
 function Words({ p, iconProps }: { p: CleanPortView; iconProps: Record<string, unknown> }) {
+  const t = useT();
   const { port } = p;
   return (
     <>
@@ -394,7 +395,7 @@ function Words({ p, iconProps }: { p: CleanPortView; iconProps: Record<string, u
         data-small={p.nameSmall || undefined}
         data-clip={p.nameClipped || undefined}
       >
-        {p.name}
+        {port.kind === "power" ? t(p.name) : p.name}
       </span>
     </>
   );
@@ -424,6 +425,7 @@ export function CountBox({
   onRule: (rule: PinRule) => void;
   wasClick: (event: MouseEvent) => boolean;
 }) {
+  const t = useT();
   const [draft, setDraft] = useState<string>();
   const [ruleMenu, setRuleMenu] = useState<MenuAnchor>();
   const [block, setBlock] = useState<HTMLDivElement | null>(null);
@@ -497,7 +499,7 @@ export function CountBox({
       data-rule={view.rule}
       data-run={view.text}
       data-unit={view.unit}
-      data-set={view.box}
+      data-set={t(view.box)}
       data-pinned={view.pinned ? "" : undefined}
       data-zero={view.zero ? "" : undefined}
       data-prompt={view.prompt ? "" : undefined}
@@ -549,14 +551,14 @@ export function CountBox({
           setRuleMenu(ruleMenu ? undefined : anchorOf(event.currentTarget));
         }}
       >
-        {view.ruleWord}
+        {t(view.ruleWord)}
       </div>
       {editing ? (
         <input
           autoFocus
           value={draft}
           inputMode="decimal"
-          aria-label="Machine count"
+          aria-label={t("Machine count")}
           size={1}
           className="nodrag"
           // As wide as the number it replaces, a few characters, growing with what is typed.
@@ -637,11 +639,12 @@ export function CardFoot({
   foot: CleanFootView;
   gridRow?: number;
 }) {
+  const t = useT();
   return (
     <div
       className="cc-foot"
       data-tone={foot.tone}
-      data-word={foot.word || undefined}
+      data-word={foot.word ? t(foot.word) : undefined}
       data-frac={foot.frac || undefined}
       data-ghost={foot.ghost ? "" : undefined}
       {...tipAttrs(footTip(nodeId, foot))}
@@ -655,7 +658,7 @@ export function CardFoot({
         } as CSSProperties
       }
     >
-      {foot.say}
+      {t(foot.say)}
     </div>
   );
 }
@@ -1086,9 +1089,9 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
           >
             <span className="cc-bolt" />
             <span className="cc-num" data-unit={view.power.unit}>
-              {view.power.number}
+              {t(view.power.number)}
             </span>
-            <span className="cc-pname">{view.power.name}</span>
+            <span className="cc-pname">{t(view.power.name)}</span>
           </div>
         ) : null}
       </div>

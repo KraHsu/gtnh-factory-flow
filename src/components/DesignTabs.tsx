@@ -522,7 +522,7 @@ export function DesignTabs() {
         <button
           type="button"
           onClick={() => openLibrary()}
-          aria-label="Open Plans"
+          aria-label={t("Open Plans")}
           aria-pressed={shelf.active}
           data-help-anchor="library"
           className={[
@@ -560,7 +560,7 @@ export function DesignTabs() {
             <button
               type="button"
               onClick={closeWelcomeTab}
-              aria-label="Close the Welcome tab"
+              aria-label={t("Close the Welcome tab")}
               className="ml-1 rounded px-1 text-xs text-fg-muted opacity-0 hover:bg-surface hover:text-fg focus:opacity-100 group-hover:opacity-100"
             >
               ✕
@@ -585,7 +585,7 @@ export function DesignTabs() {
               style={
                 closingLayout ? { width: closingLayout.trackWidth, maxWidth: "none" } : undefined
               }
-              aria-label="Designs"
+              aria-label={t("Designs")}
               className="design-tabs-track flex w-max max-w-full select-none items-center gap-1"
             >
               {publicViews.map((view) => {
@@ -796,9 +796,9 @@ export function DesignTabs() {
             : libraryError
               ? libraryError
               : saveState === "saving"
-                ? "Saving…"
+                ? t("Saving…")
                 : saveState === "error"
-                  ? "Save failed"
+                  ? t("Save failed")
                   : accountSave.text}
         </span>
       </div>
@@ -931,7 +931,7 @@ function DesignMenu({
           <button
             type="button"
             role="menuitem"
-            aria-label="Close this tab"
+            aria-label={t("Close this tab")}
             onClick={onCloseTab}
             className="rounded border border-line px-1 py-1 hover:bg-surface-sunken"
           >
@@ -954,7 +954,7 @@ function DesignMenu({
               onClick={() => (armed === action ? onCloseMany([...ids]) : onArm(action))}
               className={`rounded border px-1 py-1 hover:bg-surface-sunken disabled:opacity-30 disabled:hover:bg-transparent ${armed === action ? "border-red-400/50 text-red-300" : "border-line"}`}
             >
-              {armed === action ? "Sure?" : label}
+              {armed === action ? t("Sure?") : label}
             </button>
           ))}
         </div>
@@ -1021,6 +1021,7 @@ function RenameInput({
   onCommit: (name: string) => void;
   onCancel: () => void;
 }) {
+  const t = useT();
   const [value, setValue] = useState(initialName);
 
   return (
@@ -1039,7 +1040,7 @@ function RenameInput({
           onCancel();
         }
       }}
-      aria-label="Design name"
+      aria-label={t("Design name")}
       className="w-[140px] rounded border border-cyan-500 bg-surface px-1 text-xs text-fg outline-none"
     />
   );

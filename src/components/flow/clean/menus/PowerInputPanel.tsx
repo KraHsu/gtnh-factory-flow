@@ -77,7 +77,7 @@ function Scale({ facts }: { facts: PowerFacts }) {
         0A
       </span>
       <span className="pw-mark" style={{ right: 0, top: 0 }}>
-        {amps(next)} next
+        {amps(next)} {t("next")}
       </span>
       <span className="pw-mark" style={{ ...slide(ps), top: 15 }}>
         {amps(supplied)} {t("supplied")}
@@ -95,7 +95,7 @@ function Scale({ facts }: { facts: PowerFacts }) {
         <i className="pw-tick" style={{ left: "calc(100% - 2px)", top: -4, height: 17 }} />
       </div>
       <span className="pw-mark" style={{ ...slide(pd), top: 44 }}>
-        {amps(draw)} draw
+        {amps(draw)} {t("draw")}
       </span>
     </div>
   );
@@ -124,8 +124,11 @@ export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
         <span>
           {compact(hatches)}
           <Tag tier={facts.tier} />
-          {facts.amps <= hatchAmps ? "hatch" : t("hatches")}
-          <span className="pw-subtle">({hatchAmps}A each)</span>
+          {facts.amps <= hatchAmps ? t("hatch") : t("hatches")}
+          <span className="pw-subtle">
+            ({hatchAmps}
+            {t("A each)")}
+          </span>
         </span>
       </div>
       <div className="pw-rule" />
@@ -167,7 +170,7 @@ export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
       ) : (
         <div className="pw-line">
           <span>{t("Next improvement")}</span>
-          <span className="pw-subtle">none: more amps buy nothing</span>
+          <span className="pw-subtle">{t("none: more amps buy nothing")}</span>
         </div>
       )}
       <div className="pw-rule" />
@@ -177,7 +180,7 @@ export function PowerFactsPanel({ facts }: { facts: PowerFacts }) {
       </div>
       <div className="pw-subtle">
         {facts.shared
-          ? "All recipes, across the required machines."
+          ? t("All recipes, across the required machines.")
           : t("Across the required machines.")}
       </div>
     </div>

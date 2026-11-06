@@ -78,6 +78,7 @@ export function MenuRow({
   return (
     <div
       role={checked === undefined ? "menuitem" : "menuitemradio"}
+      data-tour-label={label}
       tabIndex={disabled ? -1 : 0}
       aria-disabled={disabled ? true : undefined}
       aria-checked={checked === undefined ? undefined : checked}

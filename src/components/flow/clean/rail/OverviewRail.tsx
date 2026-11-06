@@ -525,6 +525,7 @@ function SectionBar({
   return (
     <div
       className="rail-sec"
+      data-tour-label={item.id}
       style={{ "--ink": INK[item.id] } as CSSProperties}
       data-folded={item.folded ? "" : undefined}
       role="button"

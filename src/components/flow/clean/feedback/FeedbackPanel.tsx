@@ -161,7 +161,8 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
             <Face mood={0} picked hot={false} size={50} />
             <div className="fb-sent-line">{t("Thanks! It's sent.")}</div>
             <div className="fb-sent-sub">
-              Issue #{sent.number} {t("on GitHub")}
+              {t("Issue #")}
+              {sent.number} {t("on GitHub")}
             </div>
             <div className="fb-keys">
               <div
@@ -264,14 +265,14 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
               disabled={sending}
               maxLength={8000}
               onChange={(e) => setText(e.target.value)}
-              aria-label="Your feedback"
+              aria-label={t("Your feedback")}
             />
             <div className="fb-sends">
               {sendsLine(hasPlan ? planName || "Plan" : undefined, pictureAvailable)}
             </div>
             <div className="fb-foot">
               <span className="fb-where" data-error={error ? "" : undefined}>
-                {error ?? "It becomes a public issue on GitHub."}
+                {error ?? t("It becomes a public issue on GitHub.")}
               </span>
               <div
                 role="button"
@@ -282,7 +283,7 @@ export function FeedbackPanel({ onClose }: { onClose: () => void }) {
                 data-sending={sending ? "" : undefined}
                 onClick={() => !sending && void send()}
               >
-                {sending ? "Sending..." : "Send"}
+                {sending ? t("Sending...") : t("Send")}
               </div>
             </div>
           </div>

@@ -47,7 +47,7 @@ export function HeaderLinks() {
       <button
         type="button"
         aria-expanded={open}
-        aria-label="Help and links"
+        aria-label={t("Help and links")}
         onClick={() => setOpen(!open)}
         className="inline-flex h-6 items-center gap-1 rounded px-1.5 text-fg-muted hover:bg-surface-raised hover:text-fg"
       >
@@ -71,7 +71,7 @@ export function SupportButton() {
       target="_blank"
       rel="noreferrer noopener"
       title={t("Support on Ko-fi")}
-      aria-label="Support GTNH Planner on Ko-fi"
+      aria-label={t("Support GTNH Planner on Ko-fi")}
       data-umami-event="support-kofi"
       data-umami-event-source="header"
       className="inline-flex h-5 shrink-0 items-center gap-1.5 rounded border border-pink-800 bg-pink-950 px-2 text-xs font-semibold text-pink-300 hover:border-pink-600 hover:bg-pink-900 hover:text-pink-200 snug:w-5 snug:justify-center snug:px-0"

@@ -1,12 +1,18 @@
 "use client";
 
 import { createNewProject } from "@/examples";
+import { getLocale, translate } from "@/lib/i18n";
 import type { FactoryProject } from "@/lib/model/types";
 import { leaveLibrary } from "@/lib/library/library-tab";
 import { leaveWelcomeTab } from "@/lib/welcome/welcome-tab";
 import { useDesignStore } from "@/store/design-store";
 import { useFactoryStore } from "@/store/factory-store";
-import { getMinimap, setMinimap, snapshotMinimap, type MinimapSettings } from "../minimap/minimap-settings";
+import {
+  getMinimap,
+  setMinimap,
+  snapshotMinimap,
+  type MinimapSettings,
+} from "../minimap/minimap-settings";
 
 /**
  * The tour's own plan, kept apart from the player's: the player's design is saved first and put aside, the tour
@@ -36,7 +42,15 @@ export function sandboxActive(): boolean {
 
 /** A fresh plan for the tour: the new-design project in the merged mode, named for the tour. */
 export function tourProject(): FactoryProject {
-  return { ...structuredClone(createNewProject()), name: TOUR_PLAN_NAME, planMode: true };
+  return {
+    ...structuredClone(createNewProject()),
+    name: translate(getLocale(), TOUR_PLAN_NAME),
+    planMode: true,
+  };
+}
+
+export function tourDesignId(): string | undefined {
+  return saved?.tourDesignId;
 }
 
 export async function enterSandbox(): Promise<void> {
@@ -53,7 +67,8 @@ export async function enterSandbox(): Promise<void> {
   if (prior) await designs.saveActiveProject(prior, factory.project);
   leaveWelcomeTab();
   leaveLibrary();
-  await designs.importProjectAsDesign(tourProject(), TOUR_PLAN_NAME);
+  const project = tourProject();
+  await designs.importProjectAsDesign(project, project.name);
   saved.tourDesignId = useDesignStore.getState().activeDesignId;
   saved.known = new Set(useDesignStore.getState().designs.map((d) => d.id));
   // The tour shows its own board: the map on.

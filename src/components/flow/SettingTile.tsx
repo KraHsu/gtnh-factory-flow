@@ -335,8 +335,8 @@ export function SettingListMenu({
                 onPick(shown[0].key);
               }
             }}
-            placeholder="Filter..."
-            aria-label="Filter options"
+            placeholder={t("Filter...")}
+            aria-label={t("Filter options")}
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[var(--mc-ink-muted)]"
           />
         </label>

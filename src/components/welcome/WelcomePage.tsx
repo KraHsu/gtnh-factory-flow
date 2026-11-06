@@ -327,7 +327,7 @@ function CommunityShelf() {
                   </span>
                   <span className="flex items-center gap-2 truncate text-[11px] text-fg-muted">
                     <span className="truncate">
-                      {plan.authorName ? plan.authorName : "anonymous"}
+                      {plan.authorName ? plan.authorName : t("anonymous")}
                       {plan.highestTier ? ` · ${plan.highestTier}` : ""}
                     </span>
                     <span className="inline-flex shrink-0 items-center gap-0.5">

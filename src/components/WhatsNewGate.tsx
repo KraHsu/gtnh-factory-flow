@@ -22,7 +22,9 @@ export function WhatsNewGate() {
 
   return (
     <div className="pointer-events-auto fixed bottom-3 left-1/2 z-[130] flex -translate-x-1/2 items-center gap-3 rounded border border-cyan-500/60 bg-surface px-3 py-2 text-sm shadow-xl">
-      <span className="text-fg-subtle">v{deployed} is out. Reload to pick it up.</span>
+      <span className="text-fg-subtle">
+        v{deployed} {t("is out. Reload to pick it up.")}
+      </span>
       <button
         type="button"
         onClick={() => window.location.reload()}

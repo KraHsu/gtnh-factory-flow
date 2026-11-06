@@ -205,7 +205,7 @@ export function SetupsFilterBar({
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                aria-label="Clear search"
+                aria-label={t("Clear search")}
                 className="text-[var(--mc-ink-muted)] hover:text-[var(--mc-ink)]"
               >
                 <X className="h-3.5 w-3.5" />
@@ -271,7 +271,9 @@ export function SetupsFilterBar({
             {/* Unfolded on a phone, the boxes take a row of their own. */}
             <div className="hidden basis-full compact:block" />
             <label
-              title="Leave out anything that draws more than this. Shorthand works: 512, 14.3k, 2M, 1.5G"
+              title={t(
+                "Leave out anything that draws more than this. Shorthand works: 512, 14.3k, 2M, 1.5G",
+              )}
               className={[
                 `flex h-7 w-[118px] shrink-0 items-center gap-1 px-2 text-xs compact:w-auto compact:min-w-0 compact:flex-1 ${INSET}`,
                 maxEuText && maxEuT === undefined ? "!text-red-300" : "",
@@ -282,8 +284,8 @@ export function SetupsFilterBar({
                 value={maxEuText}
                 onChange={(event) => setMaxEuText(event.target.value)}
                 onBlur={() => playBoardSound("shelfTick")}
-                placeholder="any"
-                aria-label="Highest EU/t to show"
+                placeholder={t("any")}
+                aria-label={t("Highest EU/t to show")}
                 className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[var(--mc-ink-muted)]"
               />
             </label>
@@ -293,7 +295,7 @@ export function SetupsFilterBar({
                 playBoardSound("shelfTick");
                 setMaxTier(event.target.value);
               }}
-              aria-label="Highest power tier"
+              aria-label={t("Highest power tier")}
               className={`h-7 shrink-0 px-1 text-xs outline-none compact:min-w-0 compact:flex-1 ${INSET}`}
             >
               <option value="">{t("Any tier")}</option>

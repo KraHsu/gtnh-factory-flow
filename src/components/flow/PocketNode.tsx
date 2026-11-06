@@ -227,7 +227,7 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
                   }}
                   className="nodrag flex h-6 w-6 items-center justify-center border-2 hover:bg-red-700"
                   style={buttonStyle(chrome)}
-                  title="Delete board"
+                  title={t("Delete board")}
                   aria-label={`Delete board ${pocket.name}`}
                 >
                   {/* Drawn rather than a "-" glyph: at this size Monocraft's
@@ -242,7 +242,7 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
                   }}
                   className="nodrag flex h-6 w-6 items-center justify-center border-2 hover:brightness-125"
                   style={buttonStyle(chrome)}
-                  title="Clone board"
+                  title={t("Clone board")}
                   aria-label={`Clone board ${pocket.name}`}
                 >
                   <Copy aria-hidden className="h-3.5 w-3.5" />
@@ -304,7 +304,7 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
                   }}
                   className="nodrag flex h-6 w-6 items-center justify-center border-2 hover:brightness-125"
                   style={buttonStyle(chrome)}
-                  title="Remove board, keep its cards"
+                  title={t("Remove board, keep its cards")}
                   aria-label={`Remove board ${pocket.name}, keep its cards`}
                 >
                   <PackageOpen aria-hidden className="h-3.5 w-3.5" />
@@ -318,7 +318,7 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
                   }}
                   className="nodrag flex h-6 w-6 items-center justify-center border-2 hover:brightness-125"
                   style={buttonStyle(chrome)}
-                  title="Open board"
+                  title={t("Open board")}
                   aria-label={`Open board ${pocket.name}`}
                 >
                   <Maximize2 aria-hidden className="h-3.5 w-3.5" />
@@ -389,7 +389,7 @@ function PocketNodeComponent({ data, selected }: NodeProps<PocketFlowNode>) {
                   ]
                     .filter(Boolean)
                     .join(" · ")
-                : "minimized board"}
+                : t("minimized board")}
             </span>
           </div>
         </div>

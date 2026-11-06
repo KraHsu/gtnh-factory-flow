@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { NodeResizer, useReactFlow, useStore, type NodeProps } from "@xyflow/react";
 import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
@@ -74,7 +75,9 @@ function CleanDrawingComponent({ data, selected, width, height }: NodeProps<Anno
         />
       ) : null}
       {kind === "box" ? <Box look={look} /> : null}
-      {kind === "zone" ? <Zone id={annotation.id} points={annotation.points ?? []} w={w} h={h} look={look} /> : null}
+      {kind === "zone" ? (
+        <Zone id={annotation.id} points={annotation.points ?? []} w={w} h={h} look={look} />
+      ) : null}
       {kind === "arrow" ? <Arrow annotation={annotation} color={look.borderColor} /> : null}
     </div>
   );
@@ -94,7 +97,10 @@ function Box({ look }: { look: DrawingLook }) {
         }}
       />
       {look.marks !== "none" ? (
-        <div className="dw-box" style={{ ...marksCss(look.marks, look.fillColor), border: "none" }} />
+        <div
+          className="dw-box"
+          style={{ ...marksCss(look.marks, look.fillColor), border: "none" }}
+        />
       ) : null}
       <div className={`${HANDLE} dw-strip dw-top`} />
       <div className={`${HANDLE} dw-strip dw-bottom`} />
@@ -122,7 +128,11 @@ function Zone({
   const fill = surfaceFill(look);
   const clip = `dw-clip-${id}`;
   return (
-    <svg className="dw-svg" viewBox={`0 0 ${Math.max(w, 1)} ${Math.max(h, 1)}`} preserveAspectRatio="none">
+    <svg
+      className="dw-svg"
+      viewBox={`0 0 ${Math.max(w, 1)} ${Math.max(h, 1)}`}
+      preserveAspectRatio="none"
+    >
       <clipPath id={clip}>
         <path d={outline} />
       </clipPath>
@@ -138,11 +148,19 @@ function Zone({
           fill="none"
           stroke={look.borderColor}
           strokeWidth={DRAWING.line}
-          strokeDasharray={look.border === "dashed" ? `${DRAWING.dashOn} ${DRAWING.dashOff}` : undefined}
+          strokeDasharray={
+            look.border === "dashed" ? `${DRAWING.dashOn} ${DRAWING.dashOff}` : undefined
+          }
           strokeLinejoin="miter"
         />
       ) : null}
-      <path d={outline} className={`${HANDLE} dw-hit`} fill="none" stroke="transparent" strokeWidth={24} />
+      <path
+        d={outline}
+        className={`${HANDLE} dw-hit`}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={24}
+      />
     </svg>
   );
 }
@@ -150,6 +168,7 @@ function Zone({
 type Pt = { x: number; y: number };
 
 function Arrow({ annotation, color }: { annotation: FactoryAnnotation; color: string }) {
+  const t = useT();
   const flow = useReactFlow();
   const updateAnnotation = useFactoryStore((state) => state.updateAnnotation);
   const { width: w, height: h } = annotation.size;
@@ -180,7 +199,10 @@ function Arrow({ annotation, color }: { annotation: FactoryAnnotation; color: st
     dragging.current = true;
     const move = (ev: PointerEvent) => {
       const now = flow.screenToFlowPosition({ x: ev.clientX, y: ev.clientY });
-      const moved = snap({ x: base[which].x + now.x - origin.x, y: base[which].y + now.y - origin.y });
+      const moved = snap({
+        x: base[which].x + now.x - origin.x,
+        y: base[which].y + now.y - origin.y,
+      });
       latest = { ...base, [which]: moved };
       setDrag(latest);
     };
@@ -209,17 +231,23 @@ function Arrow({ annotation, color }: { annotation: FactoryAnnotation; color: st
         <path d={line} stroke={color} strokeWidth={style.width} strokeLinecap="butt" fill="none" />
         <polygon points={front.map((p) => `${p.x},${p.y}`).join(" ")} fill={color} />
         {back ? <polygon points={back.map((p) => `${p.x},${p.y}`).join(" ")} fill={color} /> : null}
-        <path d={line} className={`${HANDLE} dw-hit`} stroke="transparent" strokeWidth={24} fill="none" />
+        <path
+          d={line}
+          className={`${HANDLE} dw-hit`}
+          stroke="transparent"
+          strokeWidth={24}
+          fill="none"
+        />
       </svg>
       <div
         className="dw-end nodrag nopan"
-        aria-label="Arrow tail"
+        aria-label={t("Arrow tail")}
         style={{ left: from.x, top: from.y }}
         onPointerDown={grab("from")}
       />
       <div
         className="dw-end nodrag nopan"
-        aria-label="Arrow head"
+        aria-label={t("Arrow head")}
         style={{ left: to.x, top: to.y }}
         onPointerDown={grab("to")}
       />

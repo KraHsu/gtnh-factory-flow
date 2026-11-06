@@ -134,7 +134,7 @@ export function PlanIdentityDrawer() {
           type="button"
           onClick={toggleOpen}
           aria-expanded={isOpen}
-          aria-label="Edit plan details"
+          aria-label={t("Edit plan details")}
           className="plan-summary-name group flex h-6 min-w-0 max-w-[35%] shrink items-center gap-1.5 rounded px-1 text-left font-semibold text-fg hover:bg-surface-raised"
         >
           <span className="truncate">{nameDraft ?? project.name}</span>
@@ -154,7 +154,7 @@ export function PlanIdentityDrawer() {
             className="block w-full overflow-hidden whitespace-nowrap text-xs"
             style={{ maskImage: "linear-gradient(to right, black calc(100% - 12px), transparent)" }}
           >
-            {(descriptionDraft ?? project.description)?.trim() || "Add description…"}
+            {(descriptionDraft ?? project.description)?.trim() || t("Add description…")}
           </span>
         </button>
         {live ? (
@@ -236,8 +236,10 @@ export function PlanIdentityDrawer() {
               onBlur={(event) => commitDescription(event.target.value)}
               maxLength={2000}
               rows={2}
-              placeholder="What does it make? Any setup notes? Sharing posts this with the plan."
-              aria-label="Plan description"
+              placeholder={t(
+                "What does it make? Any setup notes? Sharing posts this with the plan.",
+              )}
+              aria-label={t("Plan description")}
               className="w-full resize-y rounded border border-line-strong bg-surface-sunken px-2 py-1.5 text-xs"
             />
           </label>
@@ -398,8 +400,8 @@ function LinkedPostStrip({ planId }: { planId: string }) {
         <button
           type="button"
           onClick={clearProjectCommunityLink}
-          title="Detach from the post"
-          aria-label="Detach this plan from its deleted post"
+          title={t("Detach from the post")}
+          aria-label={t("Detach this plan from its deleted post")}
           className={BAR_BUTTON}
         >
           <Unlink className="h-3.5 w-3.5" />
@@ -453,7 +455,7 @@ function LinkedPostStrip({ planId }: { planId: string }) {
         type="button"
         onClick={() => void copyLink()}
         title={t("Copy link")}
-        aria-label="Copy the link to this post"
+        aria-label={t("Copy the link to this post")}
         className={BAR_BUTTON}
       >
         {isLinkCopied ? (

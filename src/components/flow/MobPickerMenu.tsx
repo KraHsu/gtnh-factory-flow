@@ -36,7 +36,10 @@ function MobHover({ mob }: { mob: RecipeSummary }) {
       <p className="text-[14px] font-bold leading-4 text-white">
         {recipeChoiceName(mob.name)}
         {eec ? (
-          <span className="text-[11px] font-normal text-slate-400"> · {eec.maxHealth} health</span>
+          <span className="text-[11px] font-normal text-slate-400">
+            {" "}
+            · {eec.maxHealth} {t("health")}
+          </span>
         ) : null}
       </p>
       {eec?.alwaysInfernal ? (

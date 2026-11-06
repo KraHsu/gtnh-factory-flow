@@ -1146,7 +1146,7 @@ export function RecipeSearchOverlay({
               <button
                 type="button"
                 className="nei-btn"
-                aria-label="Previous machine"
+                aria-label={t("Previous machine")}
                 onClick={() => stepTab(-1)}
               >
                 &lt;
@@ -1212,7 +1212,7 @@ export function RecipeSearchOverlay({
                         onQueryChange("");
                       }
                     }}
-                    placeholder="Filter by name..."
+                    placeholder={t("Filter by name...")}
                     aria-label={t("Filter recipes by name")}
                   />
                 </label>
@@ -1241,7 +1241,7 @@ export function RecipeSearchOverlay({
             {!sheet ? (
               <div
                 className="nrw-machines recipe-search-scroll"
-                aria-label="Machines that run these recipes"
+                aria-label={t("Machines that run these recipes")}
               >
                 {catalysts.map((resource, index) => (
                   <button
@@ -1300,7 +1300,7 @@ export function RecipeSearchOverlay({
                   className="nrw-grid"
                   style={gridStyle}
                   role="status"
-                  aria-label="Loading recipes"
+                  aria-label={t("Loading recipes")}
                 >
                   {Array.from({ length: Math.min(perPage, 12) }, (_, index) => (
                     <LookupSkeletonCard key={index} delay={index * 110} />
@@ -1367,7 +1367,7 @@ export function RecipeSearchOverlay({
               className="nei-btn"
               onClick={onBack}
               disabled={!canGoBack}
-              aria-label="Back to the previous search"
+              aria-label={t("Back to the previous search")}
             >
               <ChevronLeft className="h-3.5 w-3.5" aria-hidden />
             </button>
@@ -1376,11 +1376,16 @@ export function RecipeSearchOverlay({
               className="nei-btn"
               onClick={onForward}
               disabled={!canGoForward}
-              aria-label="Forward to the next search"
+              aria-label={t("Forward to the next search")}
             >
               <ChevronRight className="h-3.5 w-3.5" aria-hidden />
             </button>
-            <div ref={ratePillsRef} className="nrw-seg" role="group" aria-label="How amounts read">
+            <div
+              ref={ratePillsRef}
+              className="nrw-seg"
+              role="group"
+              aria-label={t("How amounts read")}
+            >
               {RATE_VIEW_CHOICES.map((choice) => (
                 <button
                   key={choice.view}
@@ -1444,7 +1449,7 @@ export function RecipeSearchOverlay({
                         onClearPin();
                       }}
                       aria-label={`Unpin the ${machinePin.label}`}
-                      title="Unpin: every machine's recipes show and a pick makes a new card"
+                      title={t("Unpin: every machine's recipes show and a pick makes a new card")}
                     >
                       <X className="h-3 w-3" aria-hidden />
                     </button>
@@ -1485,7 +1490,7 @@ export function RecipeSearchOverlay({
                   playBoardSound("tick");
                   onSwapSides();
                 }}
-                aria-label="Swap the takes and makes sides"
+                aria-label={t("Swap the takes and makes sides")}
                 className="nrw-swap compact:!w-9"
               >
                 <ProgressArrow className="nrw-swap-rest" />
@@ -1558,7 +1563,7 @@ export function RecipeSearchOverlay({
                   setCardMenu(undefined);
                 }}
               >
-                {machinePin ? "Add to the card" : t("Add to board")}
+                {machinePin ? t("Add to the card") : t("Add to board")}
               </button>
             ) : (
               <div className="nrw-menu-head">{t("Open a copy to add recipes")}</div>
@@ -1656,7 +1661,7 @@ export function RecipeSearchOverlay({
               ...(tipTab.count !== undefined
                 ? [
                     {
-                      text: `${tipTab.count.toLocaleString()} ${tipTab.count === 1 ? "recipe" : "recipes"}`,
+                      text: `${tipTab.count.toLocaleString()} ${t(tipTab.count === 1 ? "recipe" : "recipes")}`,
                     },
                   ]
                 : []),

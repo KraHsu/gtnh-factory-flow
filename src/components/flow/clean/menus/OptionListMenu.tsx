@@ -31,7 +31,7 @@ export function OptionListMenu({
       <input
         autoFocus
         className="cm-filter nodrag"
-        placeholder="Filter..."
+        placeholder={t("Filter...")}
         value={query}
         aria-label={`Filter ${control.label}`}
         onChange={(event) => setQuery(event.target.value)}

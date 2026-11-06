@@ -23,8 +23,11 @@ export function TabConflictNotice() {
     >
       <CopyCheck aria-hidden className="h-3.5 w-3.5 shrink-0" />
       <p className="min-w-0 flex-1">
-        Another browser tab saved a newer version of &ldquo;{conflict.name}&rdquo;, so your edits
-        from this tab were kept as &ldquo;{conflict.copyName}&rdquo;. Nothing was lost.
+        {t("Another browser tab saved a newer version of “")}
+        {conflict.name}
+        {t("”, so your edits from this tab were kept as “")}
+        {conflict.copyName}
+        {t("”. Nothing was lost.")}
       </p>
       <button
         type="button"

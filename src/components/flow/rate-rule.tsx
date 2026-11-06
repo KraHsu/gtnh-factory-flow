@@ -495,6 +495,7 @@ export function RuleButton({
 /** Your rate in its sunken box: click to type, scroll to step, middle click
  * to clear. */
 export function RateBox({ rule }: { rule: RateRule }) {
+  const t = useT();
   const [box, setBox] = useState<HTMLButtonElement | null>(null);
   const { storage, result, kind, any, target, input, signed, ask, locked, editing } = rule;
   // Native and non-passive, so Ctrl-scroll steps the rate instead of
@@ -530,9 +531,11 @@ export function RateBox({ rule }: { rule: RateRule }) {
         onAuxClick={rule.clear}
         inputMode={signed ? "text" : "decimal"}
         placeholder={
-          rule.flowing > 0 ? `${signed && input ? "-" : ""}${draftFor(rule.flowing, kind)}` : "rate"
+          rule.flowing > 0
+            ? `${signed && input ? "-" : ""}${draftFor(rule.flowing, kind)}`
+            : t("rate")
         }
-        aria-label="Your rate"
+        aria-label={t("Your rate")}
         className="storage-rate-field storage-rate-field--editing nodrag"
       />
     );
@@ -574,7 +577,7 @@ export function RateBox({ rule }: { rule: RateRule }) {
             : `Your rate: ${shown} ${unit}. Click to change it.`
         }
       >
-        <span className="storage-rate-field-number">{any ? "rate?" : shown}</span>
+        <span className="storage-rate-field-number">{any ? t("rate?") : shown}</span>
         {any ? null : <span className="storage-rate-field-unit">{unit}</span>}
       </button>
     </MinecraftTooltip>

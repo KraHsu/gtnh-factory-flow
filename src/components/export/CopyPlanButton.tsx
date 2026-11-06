@@ -45,7 +45,7 @@ export function CopyPlanButton() {
       onClick={() => void copy()}
       disabled={isEmpty || state === "working"}
       title={title}
-      aria-label="Copy plan to clipboard"
+      aria-label={t("Copy plan to clipboard")}
       className="plan-summary-action inline-flex h-6 shrink-0 items-center justify-center gap-1.5 rounded border border-line-strong bg-surface px-2 text-fg-subtle hover:bg-surface-raised hover:text-fg disabled:opacity-40"
     >
       {state === "working" ? (
@@ -55,7 +55,9 @@ export function CopyPlanButton() {
       ) : (
         <ClipboardCopy aria-hidden className="h-3 w-3" />
       )}
-      <span>{state === "copied" ? t("Copied") : state === "failed" ? "Failed" : "Copy plan"}</span>
+      <span>
+        {state === "copied" ? t("Copied") : state === "failed" ? t("Failed") : t("Copy plan")}
+      </span>
     </button>
   );
 }

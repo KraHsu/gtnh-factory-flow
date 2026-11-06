@@ -31,8 +31,16 @@ language selection, cross-tab updates, English fallback and named interpolation.
 `zh-CN.json` uses the English UI text as its keys. Use `useT()` in presentation
 components; translate model labels where they are displayed, never where they are
 used as identifiers. Missing strings fall back to English. Dataset item/machine
-names, mod tooltips, older release notes and developer diagnostics retain the
+names, mod tooltips, some generated solver explanations, older release notes and
+developer diagnostics retain the
 upstream language; item searches currently use the upstream English names/IDs.
+
+The guided tour translates its notes, markup, controls and generated sample text.
+Tour targets resolve translated labels or stable control identifiers rather than
+English-only selectors. Public mode omits the unavailable community shelf and
+explains browser saving and GitHub feedback. `tour/localization.test.tsx` checks
+all conditional note variants, markup preservation, live language switching and
+translated controls, alongside controls-list and board-help copy.
 
 Language and theme preferences use separate localStorage keys, not the project
 schema, history or solve settings. Switching either does not reload the page.

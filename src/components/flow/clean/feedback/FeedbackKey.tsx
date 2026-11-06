@@ -14,7 +14,7 @@ export function FeedbackKey({ className = "" }: { className?: string }) {
     <button
       type="button"
       aria-label={t("Send feedback")}
-      title="Send feedback: a bug, an idea, or a question"
+      title={t("Send feedback: a bug, an idea, or a question")}
       className={`fb-topkey ${className}`}
       onClick={openFeedback}
     >

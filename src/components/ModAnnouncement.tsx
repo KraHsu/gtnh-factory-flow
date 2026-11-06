@@ -149,6 +149,7 @@ const ACTION =
  * player's to spend.
  */
 function TrailerPlayer() {
+  const t = useT();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);
   return (
@@ -167,7 +168,7 @@ function TrailerPlayer() {
       {started ? null : (
         <button
           type="button"
-          aria-label="Play the trailer"
+          aria-label={t("Play the trailer")}
           onClick={() => {
             setStarted(true);
             void videoRef.current?.play();

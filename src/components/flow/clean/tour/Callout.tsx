@@ -71,7 +71,7 @@ export function Callout({
   const t = useT();
   const boxRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<HTMLDivElement | null>(null);
-  const lines: Line[] = useMemo(() => parseLines(note.text), [note.text]);
+  const lines: Line[] = useMemo(() => parseLines(t(note.text)), [note.text, t]);
   const withGlyphs = lines.some((l) => l.glyph);
 
   // Placed every frame from where the thing is now (cards move, the board pans); written straight to the DOM.
@@ -193,8 +193,8 @@ export function Callout({
         <div className="tour-keys">
           <div
             role="button"
-            aria-label="Leave the tour"
-            title="Leave the tour (Esc)"
+            aria-label={t("Leave the tour")}
+            title={t("Leave the tour (Esc)")}
             className="tour-key tour-key-x"
             onClick={onLeave}
           />
@@ -202,15 +202,15 @@ export function Callout({
           <div
             role="button"
             aria-label={t("Back")}
-            title="Back (left arrow)"
+            title={t("Back (left arrow)")}
             className="tour-key tour-key-back"
             data-off={canBack ? undefined : ""}
             onClick={canBack ? onBack : undefined}
           />
           <div
             role="button"
-            aria-label={last ? "Finish" : t("Next")}
-            title={last ? "Finish (Enter)" : "Next (right arrow, Space or Enter)"}
+            aria-label={t(last ? "Finish" : "Next")}
+            title={t(last ? "Finish (Enter)" : "Next (right arrow, Space or Enter)")}
             className="tour-key tour-key-next"
             data-done={done ? "" : undefined}
             data-last={last ? "" : undefined}

@@ -304,7 +304,10 @@ export function PowerReadout({
               maximumFractionDigits: 1,
             })}{" "}
             <TierBadge tier={report.tier} /> {t("hatches")}
-            <span className="ml-1 text-fg-muted">({ampsPerHatch}A per hatch)</span>
+            <span className="ml-1 text-fg-muted">
+              ({ampsPerHatch}
+              {t("A per hatch)")}
+            </span>
           </span>
         </div>
       ) : null}
@@ -345,7 +348,7 @@ export function PowerReadout({
         <section className="min-h-0 flex-1">
           <div className="flex h-5 items-center justify-between gap-2">
             <h3 className="text-[15px] font-semibold text-fg">
-              {next ? targetLabel : "No further improvement"}
+              {next ? targetLabel : t("No further improvement")}
             </h3>
             <span className="flex items-center gap-1 font-medium text-fg">
               {next ? (
@@ -392,7 +395,7 @@ export function PowerReadout({
             </span>
             <div
               role="progressbar"
-              aria-label="Supplied power on the upcoming improvement scale"
+              aria-label={t("Supplied power on the upcoming improvement scale")}
               aria-valuemin={0}
               aria-valuemax={scaleEuT}
               aria-valuenow={Math.min(report.poolEuT, scaleEuT)}
@@ -471,7 +474,7 @@ export function PowerReadout({
               </div>
               <p className="text-fg-muted">
                 {shared
-                  ? "All recipes, across the required machines."
+                  ? t("All recipes, across the required machines.")
                   : t("Across the required machines.")}
               </p>
             </>
@@ -491,7 +494,7 @@ export function PowerReadout({
           <>
             <div
               className="grid grid-cols-[auto_minmax(24px,1fr)_auto_minmax(24px,1fr)_auto_minmax(24px,1fr)_auto] items-center gap-x-1 tabular-nums"
-              aria-label="Average power consumption per machine"
+              aria-label={t("Average power consumption per machine")}
             >
               <div className="min-w-0">
                 <div className="text-fg-muted">{t("Supplied")}</div>
@@ -514,7 +517,7 @@ export function PowerReadout({
                 strokeWidth={2.5}
               />
               <div className="min-w-0">
-                <div className="text-fg-muted">{shared ? "Recipe mix" : t("Actual draw")}</div>
+                <div className="text-fg-muted">{shared ? t("Recipe mix") : t("Actual draw")}</div>
                 <div className="whitespace-nowrap font-medium text-fg">
                   {displayPower(runningDraw)}
                 </div>

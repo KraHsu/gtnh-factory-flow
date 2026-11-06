@@ -95,8 +95,8 @@ export function PowerSourceOverlay() {
   const closeButton = (
     <button
       type="button"
-      title="Close (Esc)"
-      aria-label="Close power sources"
+      title={t("Close (Esc)")}
+      aria-label={t("Close power sources")}
       onClick={closePowerMenu}
       className={[
         "flex shrink-0 cursor-pointer items-center justify-center border-2 border-[var(--mc-33)] bg-[var(--mc-61)] hover:bg-[var(--mc-85)]",
@@ -172,8 +172,8 @@ export function PowerSourceOverlay() {
               <select
                 value={groupFilter}
                 onChange={(event) => setGroupFilter(event.target.value as PowerGroupId | "all")}
-                title="Power type"
-                aria-label="Power type"
+                title={t("Power type")}
+                aria-label={t("Power type")}
                 className={[
                   "h-9 shrink-0 border-2 border-[var(--mc-33)] bg-[#17191d] px-1.5 text-sm text-neutral-100 shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607] outline-none",
                   compact ? "w-28" : "w-36",
@@ -189,8 +189,8 @@ export function PowerSourceOverlay() {
               <select
                 value={tierFilter}
                 onChange={(event) => setTierFilter(event.target.value)}
-                title="Unlock tier"
-                aria-label="Unlock tier"
+                title={t("Unlock tier")}
+                aria-label={t("Unlock tier")}
                 className={[
                   "h-9 shrink-0 border-2 border-[var(--mc-33)] bg-[#17191d] px-1.5 text-sm text-neutral-100 shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607] outline-none",
                   compact ? "w-20" : "w-24",

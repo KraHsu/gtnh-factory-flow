@@ -190,8 +190,8 @@ function TrashNodeComponent({ data, selected }: NodeProps<TrashFlowNode>) {
               deleteNode(projectNode.id);
             }}
             className="board-edit-chrome nodrag flex h-4 w-4 shrink-0 items-center justify-center border-2 border-[var(--mc-15)] bg-[var(--mc-49)] text-white shadow-[inset_1px_1px_0_var(--mc-85),inset_-1px_-1px_0_var(--mc-25)] hover:bg-red-700"
-            title="Delete trash can"
-            aria-label="Delete trash can"
+            title={t("Delete trash can")}
+            aria-label={t("Delete trash can")}
           >
             -
           </button>
@@ -202,8 +202,8 @@ function TrashNodeComponent({ data, selected }: NodeProps<TrashFlowNode>) {
               duplicateNode(projectNode.id);
             }}
             className="board-edit-chrome nodrag flex h-4 w-4 shrink-0 items-center justify-center border-2 border-[var(--mc-15)] bg-[var(--mc-49)] text-white shadow-[inset_1px_1px_0_var(--mc-85),inset_-1px_-1px_0_var(--mc-25)] hover:bg-[var(--mc-61)]"
-            title="Clone trash can"
-            aria-label="Clone trash can"
+            title={t("Clone trash can")}
+            aria-label={t("Clone trash can")}
           >
             <Copy aria-hidden className="h-2.5 w-2.5" />
           </button>

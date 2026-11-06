@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { Fragment, useId } from "react";
 import type { LucideIcon } from "lucide-react";
@@ -64,7 +65,12 @@ const DRAWER_SHAPE_TINTS: Record<GlanceDrawerShape, string> = {
  */
 export function DrawerShapeGlyph({ shape }: { shape: GlanceDrawerShape }) {
   const tint = DRAWER_SHAPE_TINTS[shape];
-  const common = { fill: `color-mix(in srgb, ${tint} 24%, transparent)`, stroke: tint, strokeWidth: 1.5, strokeLinejoin: "round" as const };
+  const common = {
+    fill: `color-mix(in srgb, ${tint} 24%, transparent)`,
+    stroke: tint,
+    strokeWidth: 1.5,
+    strokeLinejoin: "round" as const,
+  };
   return (
     <svg viewBox="0 0 24 18" className="h-4 w-[21px] shrink-0" aria-hidden>
       {shape === "source" ? (
@@ -110,8 +116,7 @@ export const GLANCE_TONES: Record<GlanceTone, string> = {
   pool: "#6f9cff",
 };
 
-export const GLANCE_CARD_CLASS =
-  "bg-[#151a21] text-[#dbe3ec] shadow-[8px_8px_0_rgba(0,0,0,0.55)]";
+export const GLANCE_CARD_CLASS = "bg-[#151a21] text-[#dbe3ec] shadow-[8px_8px_0_rgba(0,0,0,0.55)]";
 
 /** Split a row's text on its asterisks. Odd pieces are the lit ones. */
 export function splitEmphasis(text: string): string[] {
@@ -187,23 +192,14 @@ export function GlanceRows({
   );
 }
 
-function GlanceRowLine({
-  row,
-  accent,
-  dense,
-}: {
-  row: GlanceRow;
-  accent: string;
-  dense: boolean;
-}) {
+function GlanceRowLine({ row, accent, dense }: { row: GlanceRow; accent: string; dense: boolean }) {
   const Icon = row.icon;
+  const t = useT();
   const chipColor = row.tone ? GLANCE_TONES[row.tone] : accent;
 
   return (
     <li className="contents">
-      <span
-        className={["flex items-center justify-end", dense ? "h-4" : "h-[19px]"].join(" ")}
-      >
+      <span className={["flex items-center justify-end", dense ? "h-4" : "h-[19px]"].join(" ")}>
         {row.mouse ? (
           <MouseGlyph kind={row.mouse} color={accent} />
         ) : row.shape ? (
@@ -215,7 +211,7 @@ function GlanceRowLine({
             className="whitespace-nowrap border px-1 py-px text-[10px] font-black leading-[13px]"
             style={{ borderColor: chipColor, color: chipColor, backgroundColor: `${chipColor}1f` }}
           >
-            {row.chip}
+            {t(row.chip)}
           </span>
         ) : (
           <span className="text-[11px] leading-none" style={{ color: "#4a5a6b" }}>
@@ -229,7 +225,7 @@ function GlanceRowLine({
           dense ? "text-[11px] leading-[1.35]" : "text-[13px] leading-[1.45]",
         ].join(" ")}
       >
-        {splitEmphasis(row.text).map((piece, index) =>
+        {splitEmphasis(t(row.text)).map((piece, index) =>
           index % 2 === 1 ? (
             <strong key={index} className="font-bold" style={{ color: "#e8f6fb" }}>
               {piece}
@@ -245,14 +241,14 @@ function GlanceRowLine({
 
 /** A card's headline: the one big white sentence at the top of it. */
 export function GlanceTitle({ children, dense = false }: { children: string; dense?: boolean }) {
+  const t = useT();
   return (
     <p
-      className={[
-        "font-bold leading-tight text-white",
-        dense ? "text-[13px]" : "text-[18px]",
-      ].join(" ")}
+      className={["font-bold leading-tight text-white", dense ? "text-[13px]" : "text-[18px]"].join(
+        " ",
+      )}
     >
-      {children}
+      {t(children)}
     </p>
   );
 }

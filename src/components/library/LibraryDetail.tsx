@@ -196,8 +196,8 @@ export function LibraryDetail({
           <div className="flex h-full w-full items-center justify-center gap-2 text-[12px] text-[var(--mc-ink-muted)] compact:h-16">
             <ImageIcon className="h-4 w-4 opacity-50" aria-hidden />
             {entry.previewUrl
-              ? "No picture of this board yet."
-              : "No picture yet. One is taken when the design is posted."}
+              ? t("No picture of this board yet.")
+              : t("No picture yet. One is taken when the design is posted.")}
           </div>
         )}
         <button
@@ -219,7 +219,7 @@ export function LibraryDetail({
               <button
                 type="button"
                 onClick={entry.onPickIcon}
-                aria-label="Change the icon"
+                aria-label={t("Change the icon")}
                 className="ring-cyan-400 hover:ring-2"
               >
                 <Face icon={entry.icon} size={48} />
@@ -241,7 +241,7 @@ export function LibraryDetail({
                   value={editing.description}
                   onChange={(event) => setEditing({ ...editing, description: event.target.value })}
                   rows={2}
-                  placeholder="Describe it"
+                  placeholder={t("Describe it")}
                   aria-label={t("Description")}
                   className="resize-none border-2 border-[var(--mc-33)] bg-[#17191d] px-2 py-1 text-[12px] text-neutral-100 outline-none shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607] placeholder:text-[var(--mc-ink-muted)]"
                 />
@@ -251,8 +251,8 @@ export function LibraryDetail({
                     onChange={(event) =>
                       setEditing({ ...editing, tags: event.target.value.split(",") })
                     }
-                    placeholder="Tags, separated by commas"
-                    aria-label="Tags"
+                    placeholder={t("Tags, separated by commas")}
+                    aria-label={t("Tags")}
                     className="h-7 border-2 border-[var(--mc-33)] bg-[#17191d] px-2 text-[12px] text-neutral-100 outline-none shadow-[inset_2px_2px_0_#30343b,inset_-2px_-2px_0_#050607] placeholder:text-[var(--mc-ink-muted)]"
                   />
                 ) : null}
@@ -330,7 +330,7 @@ export function LibraryDetail({
                   {marks.posted ? (
                     <span className="flex items-center gap-1 text-emerald-400">
                       <Globe className="h-3 w-3" aria-hidden />
-                      {marks.privatePost ? "posted, private" : t("posted")}
+                      {marks.privatePost ? t("posted, private") : t("posted")}
                     </span>
                   ) : null}
                 </div>

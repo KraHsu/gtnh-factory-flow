@@ -593,8 +593,8 @@ function FlowIOPanel() {
         <button
           type="button"
           onClick={() => writeWorkspaceView({ rightPanelOpen: false })}
-          title="Hide"
-          aria-label="Hide the resources column"
+          title={t("Hide")}
+          aria-label={t("Hide the resources column")}
           className={[
             "ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-100",
           ].join(" ")}
@@ -617,15 +617,15 @@ function FlowIOPanel() {
           <input
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
-            placeholder="Filter resources…"
-            aria-label="Filter flow resources"
+            placeholder={t("Filter resources…")}
+            aria-label={t("Filter flow resources")}
             className="h-7 w-full rounded-[4px] border border-neutral-700 bg-[#17191d] pl-2 pr-14 text-base shadow-[inset_1px_1px_0_rgba(255,255,255,0.08)] text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-300"
           />
           {filter ? (
             <button
               type="button"
               onClick={() => setFilter("")}
-              aria-label="Clear filter"
+              aria-label={t("Clear filter")}
               className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 hover:bg-[#1b1d21] hover:text-neutral-100"
             >
               {matchCount} ✕
@@ -1371,7 +1371,7 @@ function FlowSectionHeader({
         <span
           className="inspector-rate-selector ml-auto flex shrink-0 justify-end gap-0.5"
           role="group"
-          aria-label="Resource rate display"
+          aria-label={t("Resource rate display")}
         >
           {(["raw", "net"] as const).map((value) => (
             <button

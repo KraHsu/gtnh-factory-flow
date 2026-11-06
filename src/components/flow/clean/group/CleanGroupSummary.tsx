@@ -112,7 +112,7 @@ function CleanGroupSummaryComponent({ data, selected }: NodeProps<PocketFlowNode
         <GroupName pocketId={pocket.id} name={pocket.name} wasClick={slop.wasClick} />
         <div
           role="button"
-          aria-label="Expand"
+          aria-label={t("Expand")}
           className="cg-key"
           data-plus=""
           data-group-key="expand"

@@ -1,4 +1,5 @@
 "use client";
+import { useT } from "@/lib/i18n";
 
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { parseRateInput } from "./rail-math";
@@ -149,6 +150,7 @@ export function RateBox({
   label: string;
   width?: number;
 }) {
+  const t = useT();
   const style = width ? { width } : undefined;
   if (editing) {
     return (
@@ -197,7 +199,7 @@ export function RateBox({
         onMiddle();
       }}
     >
-      <span>{gold ? text : placeholder}</span>
+      <span>{t(gold ? text : placeholder)}</span>
     </div>
   );
 }

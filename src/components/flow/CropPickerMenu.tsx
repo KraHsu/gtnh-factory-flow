@@ -37,7 +37,10 @@ function CropHover({ crop }: { crop: RecipeSummary }) {
       <p className="text-[14px] font-bold leading-4 text-white">
         {cropDisplayName(crop.name)}
         {tier ? (
-          <span className="text-[11px] font-normal text-slate-400"> · Tier {tier}</span>
+          <span className="text-[11px] font-normal text-slate-400">
+            {" "}
+            {t("· Tier")} {tier}
+          </span>
         ) : null}
       </p>
       <div className="mt-1.5 space-y-1">

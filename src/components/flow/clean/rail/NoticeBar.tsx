@@ -113,9 +113,9 @@ export function NoticeRow({
       data-alarm={alarm ? (notice.loop ?? "") : undefined}
       role={alarm ? "alert" : "status"}
     >
-      {notice.tag ? <span className="rail-notice-tag">{notice.tag}</span> : null}
+      {notice.tag ? <span className="rail-notice-tag">{t(notice.tag)}</span> : null}
       <span ref={text} className="rail-notice-text">
-        {notice.text}
+        {t(notice.text)}
       </span>
       {notice.focus.length > 0 ? (
         <span

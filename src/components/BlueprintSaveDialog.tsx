@@ -110,7 +110,7 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
         <div className="mb-3 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Save className="h-4 w-4" />
-            {isOverwrite ? "Overwrite this pocket" : "Save this pocket"}
+            {isOverwrite ? t("Overwrite this pocket") : t("Save this pocket")}
           </h2>
           <button
             type="button"
@@ -124,8 +124,9 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
 
         {isOverwrite ? (
           <p className="mb-3 text-xs leading-relaxed text-amber-300">
-            The picked pocket replaces this one&apos;s contents. Its votes, downloads and standing
-            stay.
+            {t(
+              "The picked pocket replaces this one's contents. Its votes, downloads and standing stay.",
+            )}
           </p>
         ) : null}
 
@@ -146,7 +147,7 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
                 void commit();
               }
             }}
-            placeholder="Pocket name"
+            placeholder={t("Pocket name")}
             className="h-10 min-w-0 flex-1 rounded-[4px] border border-neutral-700 bg-[#17191d] px-2.5 text-sm outline-none focus:border-cyan-600"
           />
         </div>
@@ -215,8 +216,8 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
             <span className="block leading-tight">{t("Publish to everyone")}</span>
             <span className="block text-[11px] leading-tight text-neutral-500">
               {isOverwrite
-                ? "Off keeps it private. It stays on your shelf either way."
-                : "On the Public shelf the moment it saves. You can flip this any time."}
+                ? t("Off keeps it private. It stays on your shelf either way.")
+                : t("On the Public shelf the moment it saves. You can flip this any time.")}
             </span>
           </span>
         </label>
@@ -238,7 +239,7 @@ function SaveDialogBody({ request }: { request: BlueprintSaveRequest }) {
             className="flex h-9 items-center gap-1.5 rounded-[4px] border border-cyan-700 bg-cyan-600 px-4 text-sm font-medium text-white enabled:hover:bg-cyan-500 disabled:opacity-50"
           >
             {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {isOverwrite ? "Overwrite" : "Save to my shelf"}
+            {isOverwrite ? t("Overwrite") : t("Save to my shelf")}
           </button>
         </div>
       </div>

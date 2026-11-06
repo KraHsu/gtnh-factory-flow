@@ -60,6 +60,7 @@ export function BarKey({
       role="button"
       tabIndex={off ? -1 : 0}
       aria-label={t(ariaLabel ?? label ?? id)}
+      data-tour-label={ariaLabel ?? label ?? id}
       aria-haspopup={menuAnchor ? "menu" : undefined}
       aria-expanded={menuAnchor ? Boolean(open) : undefined}
       onKeyDown={activateOnKey}

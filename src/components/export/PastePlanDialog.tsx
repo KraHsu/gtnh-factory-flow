@@ -71,7 +71,7 @@ export function PastePlanDialog({ onClose }: { onClose: () => void }) {
             }}
             rows={5}
             spellCheck={false}
-            placeholder="gtnh1.… or a plan link"
+            placeholder={t("gtnh1.… or a plan link")}
             className="pn-field"
             style={{ wordBreak: "break-all" }}
           />
