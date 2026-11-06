@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { Bug } from "lucide-react";
 import { openFeedback } from "./feedback-store";

@@ -1,4 +1,5 @@
 "use client";
+import { useDisplayT } from "@/lib/i18n/game";
 
 import { useMemo } from "react";
 import type { FactoryNode, Recipe } from "@/lib/model/types";
@@ -111,7 +112,9 @@ export interface SpecialActions extends CleanCardActions {
 export interface SpecialContext extends CleanCardContext {
   readings: Array<{ label: string; value: string }>;
   /** The gear's sheet: the machine's own settings (shared machines, crops), or rows of the card's own. */
-  sheet: { kind: "machine"; numbers?: NumberSetting[] } | { kind: "rows"; rows: SheetRow[]; foot?: string };
+  sheet:
+    | { kind: "machine"; numbers?: NumberSetting[] }
+    | { kind: "rows"; rows: SheetRow[]; foot?: string };
 }
 
 export interface SpecialModel {
@@ -183,6 +186,7 @@ function section0(base: { view: CleanCardView }): SpecialSection {
  * its own solve node (`card#rN`), its ports wearing the section's prefix, and the wires that land on them follow.
  */
 export function useSharedCardModel(data: RecipeNodeData, selected: boolean): SpecialModel {
+  const t = useDisplayT();
   const base = useCleanCardModel(data, selected);
   const { projectNode, recipe, result } = data;
   const averageDraw = useWorkspaceView().averageMachineDraw;
@@ -250,10 +254,10 @@ export function useSharedCardModel(data: RecipeNodeData, selected: boolean): Spe
     sections.push({
       section: entry.section,
       inputs: rails.inputs.map((port) =>
-        buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt),
+        buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt, t),
       ),
       outputs: rails.outputs.map((port) =>
-        buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt),
+        buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt, t),
       ),
     });
   }
@@ -334,6 +338,7 @@ export function useSharedCardModel(data: RecipeNodeData, selected: boolean): Spe
     },
     (id) => cardNameIn(liveProject, id),
     base.view.loop,
+    t,
   );
   const handlers = useMemo(
     () =>
@@ -417,6 +422,7 @@ function sectionPower(recipe: Recipe, node: FactoryNode) {
 // ---------------------------------------------------------------- generator
 
 export function usePowerCardModel(data: RecipeNodeData, selected: boolean): SpecialModel {
+  const t = useDisplayT();
   const base = useCleanCardModel(data, selected);
   const { projectNode, recipe } = data;
   const info = recipe.power!;
@@ -477,8 +483,8 @@ export function usePowerCardModel(data: RecipeNodeData, selected: boolean): Spec
           label: tier.label,
           fixed: tier.fixed,
           title: tier.fixed
-            ? `Unlocks at ${tier.label}`
-            : `Tier ${tier.label}. Click up, right click down.`,
+            ? t("Unlocks at {p0}", { p0: tier.label })
+            : t("Tier {p0}. Click up, right click down.", { p0: tier.label }),
         }
       : undefined,
     sections: [section0(base)],
@@ -572,6 +578,7 @@ export function usePowerCardModel(data: RecipeNodeData, selected: boolean): Spec
  * the head (a dashed box in place of the rails until it has one).
  */
 export function useCropCardModel(data: RecipeNodeData, selected: boolean): SpecialModel {
+  const t = useDisplayT();
   const base = useCleanCardModel(data, selected);
   const { projectNode, recipe, result } = data;
   const averageDraw = useWorkspaceView().averageMachineDraw;
@@ -601,7 +608,8 @@ export function useCropCardModel(data: RecipeNodeData, selected: boolean): Speci
     noTimes: true,
     unit: crops === 1 ? "seed" : "seeds",
   });
-  if (!count.pinned) count.title = "How many seeds the plan plants. Machines follow from the seeds.";
+  if (!count.pinned)
+    count.title = "How many seeds the plan plants. Machines follow from the seeds.";
 
   const stats = getCropsNhStats(effective);
   const setup =
@@ -643,16 +651,27 @@ export function useCropCardModel(data: RecipeNodeData, selected: boolean): Speci
     const side = Math.round(Math.sqrt(cropsNhSquarePerTier(setup.tierIndex)));
     return [
       setup.id === CROP_HARVESTER_INDUSTRIAL_FARM_ID
-        ? `One ${tier} seed bed holds ${capacity.toLocaleString()} seeds.`
-        : `One ${tier} Crop Manager reaches ${side} x ${side}, ${cropsNhManagerLayers(setup.subSoil)} layers deep: ` +
-          `${capacity.toLocaleString()} crop sticks with every block planted.`,
+        ? t("One {p0} seed bed holds {p1} seeds.", { p0: tier, p1: capacity.toLocaleString() })
+        : t("One {p0} Crop Manager reaches {p1} x {p2}, {p3} layers deep: ", {
+            p0: tier,
+            p1: side,
+            p2: side,
+            p3: cropsNhManagerLayers(setup.subSoil),
+          }) + t("{p0} crop sticks with every block planted.", { p0: capacity.toLocaleString() }),
       "Set a number to plant that many full machines.",
     ];
   })();
-  const machinesPinned = machines !== undefined && (pins === undefined ? machines.pinDefault : pins.includes(machines.id));
+  const machinesPinned =
+    machines !== undefined &&
+    (pins === undefined ? machines.pinDefault : pins.includes(machines.id));
   const strip = machinesPinned
     ? layoutStrip([
-        { id: machines!.id, label: machines!.label, value: machines!.value, title: machines!.label },
+        {
+          id: machines!.id,
+          label: machines!.label,
+          value: machines!.value,
+          title: machines!.label,
+        },
         ...base.view.chips,
       ])
     : { chips: base.view.chips, height: base.view.stripHeight };
@@ -770,6 +789,7 @@ export function useHolderCardModel(
   selected: boolean,
   kind: "custom-rate" | "tank",
 ): SpecialModel {
+  const t = useDisplayT();
   const base = useCleanCardModel(data, selected);
   const { projectNode, recipe } = data;
   const setCustomRateConfig = useFactoryStore((state) => state.setCustomRateConfig);
@@ -818,7 +838,7 @@ export function useHolderCardModel(
       },
       {
         id: "rate",
-        label: `Rate (${rateSuffixForKind(factKind).trim() || "/s"})`,
+        label: t("Rate ({p0})", { p0: rateSuffixForKind(factKind).trim() || "/s" }),
         value: shown,
         title: "The rate it holds.",
       },

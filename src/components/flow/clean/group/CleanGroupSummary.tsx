@@ -1,5 +1,7 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT } from "@/lib/i18n/game";
+
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "../clean.css";
 import "./group.css";
@@ -32,13 +34,17 @@ function rateText(flow: GroupFlow): string {
 }
 
 function Cell({ flow, side }: { flow: GroupFlow; side: "in" | "out" }) {
+  const t = useDisplayT();
   return (
     <div
       className={`cg-cell cg-${side}`}
       {...tipAttrs({
         id: `group|${side}|${flow.key}`,
         title: flow.resource.displayName ?? flow.resourceId,
-        sub: side === "in" ? `Goes in: ${rateText(flow)}` : `Comes out: ${rateText(flow)}`,
+        sub:
+          side === "in"
+            ? t("Goes in: {p0}", { p0: rateText(flow) })
+            : t("Comes out: {p0}", { p0: rateText(flow) }),
       })}
     >
       <ResourceGlyph line={{ resource: flow.resource, energy: false }} />

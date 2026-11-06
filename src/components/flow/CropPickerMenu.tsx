@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { listRecipeDatasetCrops } from "@/lib/datasets/browser-loader";
 import type { RecipeSummary } from "@/lib/datasets/types";

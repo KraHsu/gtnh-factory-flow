@@ -13,6 +13,7 @@ import {
   portRow,
   rectOf,
   textOf,
+  sourceText,
   visible,
   within,
   type Target,
@@ -37,7 +38,7 @@ export const itemsSearch: Target = named("input", "Search items and fluids");
 export const itemTile =
   (name: string): Target =>
   () =>
-    q(`[role="option"][aria-label="${name.replace(/"/g, '\\"')}"]`);
+    q(`[role="option"][data-resource-name="${name.replace(/"/g, '\\"')}"]`);
 
 export const recipeOverlay: Target = closestOf(named("button", "Close recipe search"), ".fixed");
 
@@ -47,7 +48,11 @@ export const machineTab = (re: RegExp): Target => textOf("[data-machine-tab]", r
 /** Whether the recipe search shows this machine's tab open. */
 export function machineTabOpen(re: RegExp): boolean {
   const title = recipeOverlay()?.querySelector("[data-recipe-tab-title]");
-  return title !== null && title !== undefined && re.test(title.textContent ?? "");
+  return (
+    title !== null &&
+    title !== undefined &&
+    re.test(title.getAttribute("data-recipe-tab-name") ?? title.textContent ?? "")
+  );
 }
 
 /** One of the recipe search's own keys by its name (Next machines, Next page). */
@@ -79,7 +84,7 @@ export const addRecipe =
       if (!visible(key)) continue;
       if (!has) return key;
       const recipe = key.closest("[data-recipe]");
-      if (recipe && has.test(recipe.textContent ?? "")) return key;
+      if (recipe && has.test(sourceText(recipe))) return key;
     }
     return null;
   };
@@ -268,7 +273,7 @@ export const drawerOf =
   (name: string): Target =>
   () => {
     for (const el of document.querySelectorAll("[data-storage-node-id]")) {
-      if (visible(el) && new RegExp(escapeRe(name), "i").test(el.textContent ?? "")) {
+      if (visible(el) && new RegExp(escapeRe(name), "i").test(sourceText(el))) {
         return el.closest(".react-flow__node") ?? el;
       }
     }

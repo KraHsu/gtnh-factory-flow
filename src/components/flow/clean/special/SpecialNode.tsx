@@ -1,4 +1,5 @@
 "use client";
+import { useDisplayT } from "@/lib/i18n/game";
 
 import { memo } from "react";
 import type { RecipeNodeData } from "../../RecipeNode";
@@ -20,22 +21,27 @@ function Drawn({ model, data }: { model: SpecialModel; data: RecipeNodeData }) {
 }
 
 function SharedNode({ data, selected }: { data: RecipeNodeData; selected: boolean }) {
+  const t = useDisplayT();
   return <Drawn model={useSharedCardModel(data, selected)} data={data} />;
 }
 
 function PowerNode({ data, selected }: { data: RecipeNodeData; selected: boolean }) {
+  const t = useDisplayT();
   return <Drawn model={usePowerCardModel(data, selected)} data={data} />;
 }
 
 function CustomRateNode({ data, selected }: { data: RecipeNodeData; selected: boolean }) {
+  const t = useDisplayT();
   return <Drawn model={useHolderCardModel(data, selected, "custom-rate")} data={data} />;
 }
 
 function CropNode({ data, selected }: { data: RecipeNodeData; selected: boolean }) {
+  const t = useDisplayT();
   return <Drawn model={useCropCardModel(data, selected)} data={data} />;
 }
 
 function TankNode({ data, selected }: { data: RecipeNodeData; selected: boolean }) {
+  const t = useDisplayT();
   return <Drawn model={useHolderCardModel(data, selected, "tank")} data={data} />;
 }
 

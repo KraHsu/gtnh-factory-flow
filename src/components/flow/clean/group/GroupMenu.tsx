@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useState } from "react";
 import type { FactoryPocket } from "@/lib/model/types";

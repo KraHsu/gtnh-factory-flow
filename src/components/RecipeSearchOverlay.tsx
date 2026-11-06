@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 import { wheelChangesValues } from "@/lib/device-settings";
@@ -1094,8 +1094,9 @@ export function RecipeSearchOverlay({
                 role="tab"
                 className="nrw-tab"
                 aria-selected={tab.id === activeTabId}
-                aria-label={tab.label}
+                aria-label={t(tab.label)}
                 data-machine-tab=""
+                data-tour-label={tab.label}
                 onClick={() => selectTab(tab.id)}
                 onMouseEnter={() => {
                   if (!tab.generators && !tab.pinned) onRecipeMapHover(tab.id);
@@ -1153,7 +1154,11 @@ export function RecipeSearchOverlay({
               </button>
             ) : null}
             <div className="nrw-band">
-              <span className="nrw-text nrw-title" data-recipe-tab-title="">
+              <span
+                className="nrw-text nrw-title"
+                data-recipe-tab-title=""
+                data-recipe-tab-name={active?.label ?? machinePin?.label}
+              >
                 {t(active?.label ?? machinePin?.label ?? (isLoading ? "" : "No recipes"))}
               </span>
             </div>
@@ -1816,14 +1821,14 @@ function StencilSide({
             >
               <ConditionSlot clause={clause} />
               <span className="nrw-text nrw-cond-name compact:whitespace-normal compact:text-[12px] compact:leading-tight">
-                {clause.displayName ?? clause.id}
+                {t(clause.displayName ?? clause.id)}
               </span>
               <button
                 type="button"
                 className="nei-btn"
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => onRemove(index)}
-                aria-label={`Remove ${clause.displayName ?? clause.id} from the search`}
+                aria-label={`Remove ${t(clause.displayName ?? clause.id)} from the search`}
               >
                 <X className="h-3 w-3" aria-hidden />
               </button>

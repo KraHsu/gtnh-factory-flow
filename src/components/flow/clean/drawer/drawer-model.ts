@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import type { FactoryStorage, StorageThroughputResult } from "@/lib/model/types";
 import { formatCompact, formatPowerValue } from "@/lib/model";
 import type { StorageRole } from "@/lib/model/storage-role";
@@ -138,25 +139,34 @@ const KIND_NAME: Record<DrawerKind, string> = {
 };
 
 /** What a buffer passes: what its makers put in, which is what its users take out. */
-export function bufferThroughput(result: Pick<StorageThroughputResult, "producedPerSecond"> | undefined): number {
+export function bufferThroughput(
+  result: Pick<StorageThroughputResult, "producedPerSecond"> | undefined,
+): number {
   return Math.abs(result?.producedPerSecond ?? 0);
 }
 
-function ruleMeaning(kind: DrawerKind, rule: TargetMode): string {
+function ruleMeaning(
+  kind: DrawerKind,
+  rule: TargetMode,
+  t: MessageTranslator = englishMessage,
+): string {
   const flow = kind === "source" ? "draws from it" : "puts in it";
   switch (rule) {
     case "ignore":
-      return `No target: the plan ${flow} whatever it needs.`;
+      return t("No target: the plan {p0} whatever it needs.", { p0: flow });
     case "at-least":
-      return `The plan ${flow} at least the rate.`;
+      return t("The plan {p0} at least the rate.", { p0: flow });
     case "exact":
-      return `The plan ${flow} exactly the rate.`;
+      return t("The plan {p0} exactly the rate.", { p0: flow });
     case "at-most":
-      return `The plan ${flow} no more than the rate.`;
+      return t("The plan {p0} no more than the rate.", { p0: flow });
   }
 }
 
-export function buildDrawerView(input: DrawerViewInput): CleanDrawerView {
+export function buildDrawerView(
+  input: DrawerViewInput,
+  t: MessageTranslator = englishMessage,
+): CleanDrawerView {
   const { storage, role, label, result, unanchored, unmet, linked, spill } = input;
   const kind = drawerKindFor(role, storage);
   const resourceKind = storage.kind;
@@ -212,7 +222,7 @@ export function buildDrawerView(input: DrawerViewInput): CleanDrawerView {
           id: `${storage.id}|rule`,
           title: "Rule",
           sub: RULE_NAME[rule],
-          notes: [{ text: ruleMeaning(kind, rule), tone: "muted" }],
+          notes: [{ text: ruleMeaning(kind, rule, t), tone: "muted" }],
           actions: [
             { input: "left", label: "Pick" },
             { input: "wheel", label: "Next" },
@@ -220,7 +230,8 @@ export function buildDrawerView(input: DrawerViewInput): CleanDrawerView {
           ],
         };
   const rateRows: NonNullable<TipSpec["rows"]> = [];
-  if (hasTarget) rateRows.push({ label: RULE_NAME[rule], value: `${targetParts!.number} ${unitLabel}` });
+  if (hasTarget)
+    rateRows.push({ label: RULE_NAME[rule], value: `${targetParts!.number} ${unitLabel}` });
   if (isUnmet) rateRows.push({ label: "Reaches", value: reaches!, tone: "red" });
   const rateTip: TipSpec = {
     id: `${storage.id}|rate`,
@@ -237,11 +248,16 @@ export function buildDrawerView(input: DrawerViewInput): CleanDrawerView {
   const spilling = kind === "buffer" && spill !== undefined && spill > 0.000005;
   const spillText = spilling ? formatRateField(spill!, resourceKind) : undefined;
   const bodyNotes: NonNullable<TipSpec["notes"]> = [];
-  if (kind === "buffer") bodyNotes.push({ text: "Its makers put in what its users take out.", tone: "muted" });
+  if (kind === "buffer")
+    bodyNotes.push({ text: "Its makers put in what its users take out.", tone: "muted" });
   if (!linked) bodyNotes.push({ text: "Unconnected", tone: "warn" });
   if (isUnmet && hasTarget) {
     bodyNotes.push({
-      text: `Reaches only ${reaches} of its ${targetParts!.number} ${unitLabel} target`,
+      text: t("Reaches only {p0} of its {p1} {p2} target", {
+        p0: reaches ?? "0",
+        p1: targetParts!.number,
+        p2: unitLabel ?? "",
+      }),
       tone: "red",
     });
   }
@@ -267,7 +283,8 @@ export function buildDrawerView(input: DrawerViewInput): CleanDrawerView {
     numberSmall: measureRowFigure(number, unit) > (spilling ? SPILL_WORDS : WORDS),
     // The mod's rule, as the card's (CardPaint.words).
     nameSmall: mcTextWidth(label) > 71,
-    nameClipped: measureRowName(label, mcTextWidth(label) > 71) > (spilling ? SPILL_WORDS : NAME_BOX),
+    nameClipped:
+      measureRowName(label, mcTextWidth(label) > 71) > (spilling ? SPILL_WORDS : NAME_BOX),
     hasRule,
     rule,
     ruleMark: kind === "trash" ? "×" : RULE_MARK[rule],
@@ -301,7 +318,10 @@ export function buildDrawerView(input: DrawerViewInput): CleanDrawerView {
               rows: [{ label: "At its makers", value: `${spillText} ${unitLabel}` }],
               notes: [
                 {
-                  text: `Its makers make ${spillText} ${unitLabel} more than its users take. They force it out themselves; this adds it up.`,
+                  text: t(
+                    "Its makers make {p0} {p1} more than its users take. They force it out themselves; this adds it up.",
+                    { p0: spillText ?? "0", p1: unitLabel ?? "" },
+                  ),
                   tone: "muted",
                 },
               ],

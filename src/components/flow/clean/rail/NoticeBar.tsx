@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "./rail.css";
 
@@ -59,6 +59,7 @@ function subscribe(listener: () => void) {
 
 /** The notices on the board right now, flash first. */
 export function useBoardNotices(): BoardNotice[] {
+  const t = useT();
   const project = useFactoryStore((state) => state.project);
   const result = useFactoryStore((state) => state.lastResult);
   const conversion = useFactoryStore((state) => state.planNotice);
@@ -68,7 +69,7 @@ export function useBoardNotices(): BoardNotice[] {
     () => flashSnapshot,
     () => undefined,
   );
-  const solved = useMemo(() => buildNotices(project, result), [project, result]);
+  const solved = useMemo(() => buildNotices(project, result, t), [project, result, t]);
   return useMemo(() => {
     // What a conversion did to an older plan, on one line, until it is dismissed.
     const converted: BoardNotice[] = conversion

@@ -63,7 +63,7 @@ export function translate(
   key: string,
   values?: Record<string, string | number>,
 ): string {
-  const text = locale === "zh-CN" ? (messages[key] ?? key) : key;
+  const text = locale === "zh-CN" && Object.hasOwn(messages, key) ? messages[key] : key;
   return values
     ? text.replace(/\{(\w+)\}/g, (token, name: string) => String(values[name] ?? token))
     : text;

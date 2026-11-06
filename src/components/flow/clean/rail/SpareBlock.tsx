@@ -1,5 +1,7 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
+
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import {
   useRef,
@@ -45,9 +47,14 @@ function inkOf(spare: SpareView): string {
 }
 
 /** Whether two places share a name (then the machine says which). */
-function labelOf(spare: SpareView, b: SpareBearerView, here: string | undefined): string {
+function labelOf(
+  spare: SpareView,
+  b: SpareBearerView,
+  here: string | undefined,
+  t: MessageTranslator = englishMessage,
+): string {
   const same = spare.bearers.filter((o) => o.name === b.name).length;
-  return `${same > 1 ? b.machine : b.name}${b.key === here ? " (here)" : ""}`;
+  return t(same > 1 ? b.machine : b.name) + (b.key === here ? t(" (here)") : "");
 }
 
 function amountOf(b: SpareBearerView, share: number): string {
@@ -69,11 +76,17 @@ export function setScopeOfPlace(b: SpareBearerView | undefined): void {
   store.setHoveredFlowScope({ edges: {}, ports, nodes });
 }
 
-function placeTip(spare: SpareView, b: SpareBearerView, share: number, bar: boolean): TipContent {
+function placeTip(
+  spare: SpareView,
+  b: SpareBearerView,
+  share: number,
+  bar: boolean,
+  t: MessageTranslator = englishMessage,
+): TipContent {
   const choice = spare.bearers.length > 1;
   const unit = rateSuffixForKind(b.resource.kind).trim();
   return {
-    title: `${b.name} at ${b.machine}`,
+    title: t("{p0} at {p1}", { p0: b.name, p1: b.machine }),
     sub: spare.importing ? "Forced input" : "Forced output",
     rows: [
       [spare.importing ? "Comes in here" : "Ships out here", `${amountOf(b, share)} ${unit}`],
@@ -105,7 +118,7 @@ function placeTip(spare: SpareView, b: SpareBearerView, share: number, bar: bool
   };
 }
 
-function headTip(spare: SpareView): TipContent {
+function headTip(spare: SpareView, t: MessageTranslator = englishMessage): TipContent {
   const n = spare.bearers.length;
   const name = spare.bearers[0]?.name ?? "";
   return {
@@ -114,8 +127,8 @@ function headTip(spare: SpareView): TipContent {
     notes: [
       {
         text: spare.importing
-          ? `The plan has to bring ${name} in, and ${n} places could take it.`
-          : `The plan has ${name} to send out, and ${n} places could ship it.`,
+          ? t("The plan has to bring {p0} in, and {p1} places could take it.", { p0: name, p1: n })
+          : t("The plan has {p0} to send out, and {p1} places could ship it.", { p0: name, p1: n }),
         tone: "muted",
       },
       {
@@ -189,7 +202,7 @@ export function SpareBlock({
       <div className="rail-spare-head">
         <span
           className="rail-spare-title"
-          {...tipProps(`spare-head|${spare.key}`, () => headTip(spare))}
+          {...tipProps(`spare-head|${spare.key}`, () => headTip(spare, t))}
         >
           {t("Forced")}
         </span>
@@ -226,7 +239,7 @@ export function SpareBlock({
             className="rail-spare-row"
             data-hot={hot === i ? "" : undefined}
             data-off={on ? undefined : ""}
-            {...tipProps(`spare|${spare.key}|${b.key}`, () => placeTip(spare, b, share, false), {
+            {...tipProps(`spare|${spare.key}|${b.key}`, () => placeTip(spare, b, share, false, t), {
               enter: () => hover(i),
               leave: () => hover(null),
             })}
@@ -251,7 +264,9 @@ export function SpareBlock({
                 className="!h-full !w-full"
               />
             </span>
-            <span className="rail-spare-name">{labelOf(spare, b, here)}</span>
+            <span className="rail-spare-name" data-resource-name={b.name}>
+              {labelOf(spare, b, here, t)}
+            </span>
             {on ? (
               <span className="rail-spare-amount">
                 {spare.importing ? "-" : "+"}
@@ -263,7 +278,7 @@ export function SpareBlock({
               className="rail-spare-bar"
               data-unit={unit}
               {...tipProps(`spare-bar|${spare.key}|${b.key}`, () =>
-                placeTip(spare, b, share, true),
+                placeTip(spare, b, share, true, t),
               )}
               onPointerDown={(event) => {
                 if (event.button !== 0) return;

@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import { formatCompact } from "@/lib/model/resources";
 import { getStorageRoles } from "@/lib/model/storage-role";
 import type { FactoryProject, ResourceKind, ThroughputResult } from "@/lib/model/types";
@@ -88,6 +89,7 @@ const RULE_BY_NOTE: Record<string, "at-least" | "exact" | "at-most" | "ignore"> 
 export function buildNotices(
   project: FactoryProject,
   result: ThroughputResult | undefined,
+  t: MessageTranslator = englishMessage,
 ): BoardNotice[] {
   const extras = result?.plan;
   if (!extras) return [];
@@ -117,12 +119,12 @@ export function buildNotices(
         out.push({
           id: "no-pin",
           severity: "info",
-          text: "Nothing to calculate yet: set a rate on a drawer, or pin a machine count",
+          text: t("Nothing to calculate yet: set a rate on a drawer, or pin a machine count"),
           focus: [],
         });
       }
     } else if (failure.message !== "EMPTY_GRAPH") {
-      out.push(failureNotice(failure, idsIn));
+      out.push(failureNotice(failure, idsIn, t));
     }
   }
 
@@ -142,7 +144,7 @@ export function buildNotices(
       severity: "error",
       tag: loopTag(loop),
       loop: loopTone(loop),
-      text: loopSentence(loop, cards.length),
+      text: loopSentence(loop, cards.length, t),
       focus: cards,
     });
   }
@@ -154,15 +156,23 @@ export function buildNotices(
       const node = project.nodes.find((n) => n.id === id);
       const reason = extras.upTo?.[id]?.reason;
       const name = cardName(id);
-      if (node && pinRuleOf(node) === "exact") parts.push(`The ${name} is set exactly.`);
+      if (node && pinRuleOf(node) === "exact")
+        parts.push(t("The {machine} is set exactly.", { machine: name }));
       else if (reason && reason !== "FULL" && reason !== "BOTTLENECK")
-        parts.push(`The ${name} is ${UP_TO_WORD[reason].toLowerCase()}.`);
-      else parts.push(`The ${name} is full.`);
+        parts.push(
+          t("The {machine} is {reason}.", {
+            machine: name,
+            reason: t(UP_TO_WORD[reason]).toLowerCase(),
+          }),
+        );
+      else parts.push(t("The {machine} is full.", { machine: name }));
     }
     for (const id of s.limitingDrawers) {
       const other = storages.find((o) => o.id === id);
       parts.push(
-        `The ${other?.displayName ?? other?.resourceId ?? "other"} drawer's rate holds it back.`,
+        t("The {resource} drawer's rate holds it back.", {
+          resource: other?.displayName ?? other?.resourceId ?? t("other"),
+        }),
       );
     }
     return parts.length > 0 ? ` ${parts.join(" ")}` : "";
@@ -186,7 +196,9 @@ export function buildNotices(
       unmet.find((s) => s.resourceId === label);
     const supply = storage ? roles.get(storage.id) === "source" : false;
     const kind: ResourceKind = storage?.kind ?? "item";
-    const who = `The ${label} ${supply ? "supply" : "drawer"}`;
+    const who = supply
+      ? t("The {resource} supply", { resource: label })
+      : t("The {resource} drawer", { resource: label });
     const target = rate(asked, kind);
     const reach = rate(reached, kind);
     const shortfall = storage
@@ -194,10 +206,22 @@ export function buildNotices(
       : undefined;
     const holders = shortfall ? holdersOf(shortfall) : "";
     const sentence = shortfall
-      ? `The ${label} ${supply ? "supply" : "drawer"} gets ${reach} of ${target}.${holders}`
+      ? t("{who} gets {reached} of {target}.{holders}", { who, reached: reach, target, holders })
       : reached > asked
-        ? `${who} allows at most ${target}, but the plan ${supply ? "needs" : "makes"} ${reach}`
-        : `${who} ${supply ? "should give" : "wants"} ${rule === "exact" ? "exactly " : ""}${target}, but the plan can only ${supply ? "use" : "make"} ${reach}`;
+        ? t("{who} allows at most {target}, but the plan {action} {reached}", {
+            who,
+            target,
+            action: t(supply ? "needs" : "makes"),
+            reached: reach,
+          })
+        : t("{who} {action} {exact}{target}, but the plan can only {verb} {reached}", {
+            who,
+            action: t(supply ? "should give" : "wants"),
+            exact: rule === "exact" ? t("exactly ") : "",
+            target,
+            verb: t(supply ? "use" : "make"),
+            reached: reach,
+          });
     out.push({
       id: `unmet:${storage?.id ?? label}`,
       severity: "warn",
@@ -213,21 +237,33 @@ export function buildNotices(
       out.push({
         id: `overshoot:${text(note.args[4])}:${text(note.args[1])}`,
         severity: "warn",
-        text: `The ${machine} makes ${rate(num(note.args[2]), kind)} of ${text(note.args[1])}, more than its ${rate(num(note.args[3]), kind)} target, because another of its outputs needs more`,
+        text: t(
+          "The {machine} makes {reached} of {resource}, more than its {target} target, because another of its outputs needs more",
+          {
+            machine,
+            reached: rate(num(note.args[2]), kind),
+            resource: text(note.args[1]),
+            target: rate(num(note.args[3]), kind),
+          },
+        ),
         focus: idsIn(note),
       });
     } else if (note.message === "DRAWER_NOT_CONNECTED") {
       out.push({
         id: `unwired:${text(note.args[1])}`,
         severity: "warn",
-        text: `The ${text(note.args[0])} drawer has a rate, but nothing is wired to it`,
+        text: t("The {resource} drawer has a rate, but nothing is wired to it", {
+          resource: text(note.args[0]),
+        }),
         focus: idsIn(note),
       });
     } else if (note.message === "DRAWER_WIRED_IGNORED") {
       out.push({
         id: `ignored:${text(note.args[1])}`,
         severity: "warn",
-        text: `The ${text(note.args[0])} drawer's rate does nothing: the ports it's on are wired`,
+        text: t("The {resource} drawer's rate does nothing: the ports it's on are wired", {
+          resource: text(note.args[0]),
+        }),
         focus: idsIn(note),
       });
     } else if (
@@ -237,7 +273,7 @@ export function buildNotices(
       out.push({
         id: "choice",
         severity: "warn",
-        text: "Your saved choice no longer fits this plan, so the planner's own answer is shown",
+        text: t("Your saved choice no longer fits this plan, so the planner's own answer is shown"),
         focus: [],
       });
     }
@@ -251,7 +287,11 @@ function dedupe(list: BoardNotice[]): BoardNotice[] {
 }
 
 /** A solve that found no answer, as what the player can do about it. */
-function failureNotice(note: Note, idsIn: (note: Note) => string[]): BoardNotice {
+function failureNotice(
+  note: Note,
+  idsIn: (note: Note) => string[],
+  t: MessageTranslator,
+): BoardNotice {
   const clashing: Note[] = [];
   collect(note, "PIN_DROPPED", clashing);
   if (clashing.length > 0) {
@@ -265,7 +305,9 @@ function failureNotice(note: Note, idsIn: (note: Note) => string[]): BoardNotice
     return {
       id: "pin-conflict",
       severity: "error",
-      text: `The pinned counts on ${names.join(" and ")} can't all be met at once: unpin one`,
+      text: t("The pinned counts on {machines} can't all be met at once: unpin one", {
+        machines: names.map((name) => t(name)).join(t(" and ")),
+      }),
       focus: [...new Set(ids)],
     };
   }
@@ -273,7 +315,7 @@ function failureNotice(note: Note, idsIn: (note: Note) => string[]): BoardNotice
     return {
       id: "cannot-run",
       severity: "error",
-      text: "Some machines can't run with these rates and pinned counts",
+      text: t("Some machines can't run with these rates and pinned counts"),
       focus: [],
     };
   }
@@ -283,14 +325,16 @@ function failureNotice(note: Note, idsIn: (note: Note) => string[]): BoardNotice
     return {
       id: "no-way",
       severity: "error",
-      text: "There's no way to meet all these rates and pinned counts: change a rate or unpin a count",
+      text: t(
+        "There's no way to meet all these rates and pinned counts: change a rate or unpin a count",
+      ),
       focus: [],
     };
   }
   return {
     id: "failed",
     severity: "error",
-    text: "The planner couldn't solve this plan: please report it with Feedback in the top bar",
+    text: t("The planner couldn't solve this plan: please report it with Feedback in the top bar"),
     focus: [],
   };
 }

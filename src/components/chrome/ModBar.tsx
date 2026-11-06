@@ -415,6 +415,7 @@ function helpEntries({
           },
         ]),
     { label: "Controls and shortcuts", onSelect: openControls },
+    { label: "Game translation sources", onSelect: () => HelpLinks.open("/i18n/gtnh/NOTICE.txt") },
     { label: "Welcome", ruleAbove: true, onSelect: () => HelpLinks.openWelcome() },
     {
       label: unreadNotes ? "What's new *" : "What's new",

@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useReactFlow, useStore, useStoreApi } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";

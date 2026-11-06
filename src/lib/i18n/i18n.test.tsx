@@ -28,6 +28,7 @@ describe("interface language", () => {
   it("falls back to source text, interpolates named values and preserves missing values", () => {
     expect(translate("zh-CN", "New design")).toBe("新建方案");
     expect(translate("en", "New design")).toBe("New design");
+    expect(translate("zh-CN", "constructor")).toBe("constructor");
     expect(translate("zh-CN", "Unknown {count}: {missing}", { count: 3 })).toBe(
       "Unknown 3: {missing}",
     );

@@ -2,6 +2,11 @@
 
 import type { MachineTier, Recipe, ResourceAmount } from "@/lib/model/types";
 import type { RecipeContentRef } from "@/lib/import-export/recipe-ref-match";
+import {
+  loadGameLanguage,
+  localizedGameQuery,
+  supportsGameLanguage,
+} from "@/lib/i18n/game-catalog";
 import { APP_VERSION } from "@/lib/version";
 import {
   serializeRecipeQueryClause,
@@ -197,7 +202,15 @@ export async function queryRecipeDatasetRecipes(
     `/api/datasets/${encodeURIComponent(version.id)}/recipes`,
     window.location.origin,
   );
-  url.searchParams.set("query", query.query);
+  if (
+    /\p{Script=Han}/u.test(query.query) &&
+    !supportsGameLanguage(version.id, version.checksumSha256)
+  )
+    await loadGameLanguage(version);
+  url.searchParams.set(
+    "query",
+    localizedGameQuery(query.query, version.id, version.checksumSha256),
+  );
   url.searchParams.set("mode", query.mode);
   url.searchParams.set("maxTier", query.maxTier);
   url.searchParams.set("offset", String(query.offset));
@@ -265,8 +278,11 @@ export async function queryRecipeDatasetResources(
   query: RecipeDatasetResourceQuery,
   options: { signal?: AbortSignal } = {},
 ): Promise<RecipeDatasetResourceQueryResult> {
+  const localized = /\p{Script=Han}/u.test(query.query);
   const url = new URL(
-    `/api/datasets/${encodeURIComponent(version.id)}/resources`,
+    localized
+      ? `/api/i18n/${encodeURIComponent(version.id)}/resources`
+      : `/api/datasets/${encodeURIComponent(version.id)}/resources`,
     window.location.origin,
   );
   url.searchParams.set("query", query.query);

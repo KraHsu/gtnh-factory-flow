@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import type { FactoryNode, MachineHandler, NodeThroughputResult, Recipe } from "@/lib/model/types";
 import {
   applyMachineHandlerToRecipe,
@@ -32,6 +33,7 @@ export function buildMachineTooltip(
   result?: NodeThroughputResult,
   title?: string,
   upTo?: PlanUpTo,
+  t: MessageTranslator = englishMessage,
 ): RecipeTooltipView {
   const selectedNode = { ...node, machineHandlerId: handler.id };
   const effective = applyMachineHandlerToRecipe(recipe, selectedNode);
@@ -68,7 +70,12 @@ export function buildMachineTooltip(
     ...(steam
       ? [{ label: "Steam per machine", value: `${formatCompact(steam.drawSteamPerTick * 20)} L/s` }]
       : power
-        ? [{ label: "Draw per machine", value: `${formatCompact(power.drawEuT)} EU/t` }]
+        ? [
+            {
+              label: "Draw per machine",
+              value: t("{p0} EU/t", { p0: formatCompact(power.drawEuT) }),
+            },
+          ]
         : []),
     ...(parallels > 1 ? [{ label: "Parallel operations", value: number(parallels) }] : []),
   ];
@@ -87,6 +94,7 @@ export function buildConfigTooltip(
   recipe: Recipe,
   node: FactoryNode,
   control: MachineConfigTierControl,
+  t: MessageTranslator = englishMessage,
 ): RecipeTooltipView {
   const effective = applyMachineHandlerToRecipe(recipe, node);
   const stats = getOverclockedRecipeStats(recipe, node);
@@ -114,8 +122,8 @@ export function buildConfigTooltip(
               label: "Range",
               value:
                 control.numeric.max === undefined
-                  ? `${control.numeric.min} or more`
-                  : `${control.numeric.min} to ${control.numeric.max}`,
+                  ? t("{p0} or more", { p0: control.numeric.min })
+                  : t("{p0} to {p1}", { p0: control.numeric.min, p1: control.numeric.max }),
             },
           ]
         : []),
@@ -131,7 +139,12 @@ export function buildConfigTooltip(
             },
           ]
         : power
-          ? [{ label: "Draw per machine", value: `${formatCompact(power.drawEuT)} EU/t` }]
+          ? [
+              {
+                label: "Draw per machine",
+                value: t("{p0} EU/t", { p0: formatCompact(power.drawEuT) }),
+              },
+            ]
           : []),
       {
         label: "Parallel operations",

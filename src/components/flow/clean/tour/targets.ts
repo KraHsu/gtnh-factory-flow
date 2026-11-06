@@ -60,9 +60,11 @@ export function matchesLabel(text: string, re: RegExp): boolean {
 export function matches(el: Element, re: RegExp): boolean {
   return [
     el.getAttribute("data-tour-label"),
+    el.getAttribute("data-resource-name"),
     el.getAttribute("aria-label"),
     el.getAttribute("title"),
     el.textContent,
+    sourceText(el),
     el.querySelector(".mm-label, .cm-name, .rail-sec-title")?.textContent,
   ].some((text) => Boolean(text && matchesLabel(text, re)));
 }
@@ -317,4 +319,15 @@ export async function ensureHittable(el: Element): Promise<void> {
     if (free()) return;
   }
   scroller.scrollTop = home;
+}
+
+/** Tour recipes use canonical names while the visible labels follow the language. */
+export function sourceText(node: Node): string {
+  if (node instanceof Element) {
+    const source = node.getAttribute("data-resource-name");
+    if (source !== null) return source;
+  }
+  return node.nodeType === Node.TEXT_NODE
+    ? (node.textContent ?? "")
+    : [...node.childNodes].map(sourceText).join("");
 }

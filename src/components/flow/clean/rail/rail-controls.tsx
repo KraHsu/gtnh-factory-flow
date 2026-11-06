@@ -1,5 +1,7 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT } from "@/lib/i18n/game";
+
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { parseRateInput } from "./rail-math";
@@ -226,6 +228,7 @@ function RateEditor({
   style?: { width: number };
   label: string;
 }) {
+  const t = useDisplayT();
   const [value, setValue] = useState(initial);
   const input = useRef<HTMLInputElement>(null);
   const done = useRef(false);
@@ -290,7 +293,7 @@ function RateEditor({
       ref={input}
       className="rail-box rail-box-edit"
       style={style}
-      aria-label={`${label} (type a number: 2.5k, 1M, 1/3)`}
+      aria-label={t("{p0} (type a number: 2.5k, 1M, 1/3)", { p0: label })}
       value={value}
       inputMode="decimal"
       spellCheck={false}

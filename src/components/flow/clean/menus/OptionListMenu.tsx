@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useState } from "react";
 import { ArtBox } from "./ArtBox";
@@ -33,7 +33,7 @@ export function OptionListMenu({
         className="cm-filter nodrag"
         placeholder={t("Filter...")}
         value={query}
-        aria-label={`Filter ${control.label}`}
+        aria-label={t("Filter {p0}", { p0: control.label })}
         onChange={(event) => setQuery(event.target.value)}
         onKeyDown={(event) => {
           event.stopPropagation();

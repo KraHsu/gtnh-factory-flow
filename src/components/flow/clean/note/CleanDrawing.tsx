@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { NodeResizer, useReactFlow, useStore, type NodeProps } from "@xyflow/react";
 import { memo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";

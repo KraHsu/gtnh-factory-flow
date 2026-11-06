@@ -1,4 +1,7 @@
 "use client";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
+import { useDisplayT } from "@/lib/i18n/game";
+
 import { useT } from "@/lib/i18n";
 
 import { stripBeeFrameSlotInputs } from "@/lib/model/bee-display";
@@ -3161,8 +3164,9 @@ function UsageStat({
  * where it lands once today's wall is gone.
  */
 function VerdictHoverContent({ verdict }: { verdict: NodeVerdict; isCustomRate: boolean }) {
+  const t = useDisplayT();
   const mode = useFactoryStore((state) => tooltipMode(state.project));
-  return <RecipeTooltip view={buildStatusTooltip(verdict, mode)} />;
+  return <RecipeTooltip view={buildStatusTooltip(verdict, mode, t)} />;
 }
 
 /**
@@ -3978,6 +3982,7 @@ const PLUG_GLOW_STYLE: CSSProperties = {
  * gets/asks rates, the ×N short multiplier, the fix — lives in the hover.
  */
 function PlugBlock({ nodeId, port }: { nodeId: string; port: RailPort }) {
+  const t = useDisplayT();
   const plug = port.plug!;
   const isFlowScopeLit = useFactoryStore((state) =>
     Boolean(state.hoveredFlowScope?.ports[`${nodeId}|${port.handleId}`]),
@@ -3986,7 +3991,7 @@ function PlugBlock({ nodeId, port }: { nodeId: string; port: RailPort }) {
   return (
     <MinecraftTooltip
       label={`${port.displayName}: who takes it`}
-      content={() => renderPlugHoverContent(port, nodeId)}
+      content={() => renderPlugHoverContent(port, nodeId, t)}
     >
       <span
         className={["flow-plug nodrag", `flow-plug--${plug.state}`].join(" ")}
@@ -4305,7 +4310,7 @@ export function PortChip({
       </span>
       <MinecraftTooltip
         label={port.resource?.tooltip ?? port.displayName}
-        content={() => renderPortHoverContent(port, nodeId)}
+        content={() => renderPortHoverContent(port, nodeId, t)}
       >
         <Handle
           id={port.handleId}
@@ -4534,14 +4539,22 @@ function CustomRatePanel({
   );
 }
 
-function renderPortHoverContent(port: RailPort, nodeId: string) {
+function renderPortHoverContent(
+  port: RailPort,
+  nodeId: string,
+  t: MessageTranslator = englishMessage,
+) {
   const { project, lastResult } = useFactoryStore.getState();
   const verdict = deriveNodeVerdict(project, lastResult, nodeId);
-  return <RecipeTooltip view={buildPortTooltip(project, lastResult, nodeId, port, verdict)} />;
+  return <RecipeTooltip view={buildPortTooltip(project, lastResult, nodeId, port, verdict, t)} />;
 }
 
-function renderPlugHoverContent(port: RailPort, _nodeId: string) {
-  return <RecipeTooltip view={buildDemandTooltip(port)} />;
+function renderPlugHoverContent(
+  port: RailPort,
+  _nodeId: string,
+  t: MessageTranslator = englishMessage,
+) {
+  return <RecipeTooltip view={buildDemandTooltip(port, t)} />;
 }
 
 function recipeContainsSearchResource(recipe: Recipe, query: string) {
@@ -4728,6 +4741,7 @@ function MachineConfigControlPanel({
   onSelect: (controlId: string, nextTier: string) => void;
   compact?: boolean;
 }) {
+  const t = useDisplayT();
   if (controls.length === 0 && facts.length === 0) {
     return null;
   }
@@ -4757,7 +4771,7 @@ function MachineConfigControlPanel({
           key={control.id}
           control={control}
           onSelect={(key) => onSelect(control.id, key)}
-          help={() => <RecipeTooltip view={buildConfigTooltip(recipe, node, control)} />}
+          help={() => <RecipeTooltip view={buildConfigTooltip(recipe, node, control, t)} />}
         />
       ))}
       {facts.map((fact) => (

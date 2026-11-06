@@ -40,6 +40,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.9.0",
+    date: "2026-11-05",
+    headline: "Chinese game names and bilingual search",
+    notes: [
+      "Search for items and fluids in Chinese or English.",
+      "Confirmed game translations appear on recipe cards, item tips and the overview; missing names stay in English.",
+      "More rate, capacity and shortage explanations follow your chosen language.",
+      "Switching language keeps your saved plan and recipe identities unchanged.",
+    ],
+  },
+  {
     version: "4.8.1",
     date: "2026-11-05",
     headline: "Localized tour and help",

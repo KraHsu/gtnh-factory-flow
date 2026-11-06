@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import {
   memo,
@@ -1360,7 +1360,7 @@ function FlowSectionHeader({
         <span className={["text-[11px] leading-none", collapsed ? "" : "rotate-90"].join(" ")}>
           ▶
         </span>
-        <span className="text-sm font-bold uppercase tracking-wider">{section.label}</span>
+        <span className="text-sm font-bold uppercase tracking-wider">{t(section.label)}</span>
         <span
           className={["rounded px-1.5 py-0.5 text-xs font-bold tabular-nums", tone.badge].join(" ")}
         >
@@ -1551,7 +1551,7 @@ const FlowResourceRow = memo(function FlowResourceRow({
             full, which is the point, but a name longer than even that has to
             end in an ellipsis rather than run under the rate. */}
         <span className="inspector-resource-name ml-2 flex min-w-0 items-center gap-1.5">
-          <span className="min-w-0 truncate text-base font-medium text-neutral-100">{name}</span>
+          <span className="min-w-0 truncate text-base font-medium text-neutral-100">{t(name)}</span>
         </span>
 
         {rateColumn === "raw" && (

@@ -1,5 +1,6 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 
 import { Zap } from "lucide-react";
 import {
@@ -462,13 +463,19 @@ function resourceFilterSource(filter: ResourceFilterMode): "plants" | "bees" | u
  * tooltip lines and the recipe count in grey, the mod's name last in blue
  * italics.
  */
-function resourceTooltipLines(resource: IndexedResource): McTipLine[] {
+function resourceTooltipLines(
+  resource: IndexedResource,
+  t: MessageTranslator = englishMessage,
+): McTipLine[] {
   const power = resource.id === POWER_EU_CLAUSE_ID;
   return itemTipLines({
     name: power ? "Power (EU/t)" : resourceLabel(resource),
     id: power ? "" : resource.id,
     tooltip: resource.tooltip,
-    extra: resource.recipeCount > 0 ? [`${resource.recipeCount} recipes`] : undefined,
+    extra:
+      resource.recipeCount > 0
+        ? [t("{count} recipes", { count: resource.recipeCount })]
+        : undefined,
   });
 }
 
@@ -637,6 +644,7 @@ function useBoardResourceResults(
   },
 ) {
   const resources = useBoardResources(enabled);
+  const t = useT();
 
   return useMemo(() => {
     if (!enabled) {
@@ -644,12 +652,18 @@ function useBoardResourceResults(
     }
 
     const fields = resources.map((resource) => ({
-      nameText: (resource.displayName ?? resource.id).toLowerCase(),
-      name: splitSearchTokens(resource.displayName ?? ""),
+      nameText: (
+        (resource.displayName ?? resource.id) +
+        " " +
+        t(resource.displayName ?? resource.id)
+      ).toLowerCase(),
+      name: splitSearchTokens((resource.displayName ?? "") + " " + t(resource.displayName ?? "")),
       id: splitSearchTokens(resource.id),
     }));
     const vocabulary = buildSearchVocabulary(
-      resources.map((resource) => resource.displayName ?? ""),
+      resources.map(
+        (resource) => (resource.displayName ?? "") + " " + t(resource.displayName ?? ""),
+      ),
     );
     const modCounts = new Map<string, number>();
 
@@ -705,7 +719,16 @@ function useBoardResourceResults(
           ? EXACT_SEARCH
           : { phase: resolved.phase, corrections: resolved.query.corrections },
     };
-  }, [enabled, request.limit, request.mod, request.offset, request.query, request.sort, resources]);
+  }, [
+    enabled,
+    request.limit,
+    request.mod,
+    request.offset,
+    request.query,
+    request.sort,
+    resources,
+    t,
+  ]);
 }
 
 interface ResourceQueryCacheEntry {
@@ -1167,10 +1190,10 @@ function NeiSlots({
   };
   const tipLines = useMemo(() => {
     if (!hovered) return undefined;
-    const lines = resourceTooltipLines(hovered);
+    const lines = resourceTooltipLines(hovered, t);
     if (hint) lines.splice(1, 0, { text: hint, tone: "hint" });
     return lines;
-  }, [hovered, hint]);
+  }, [hovered, hint, t]);
 
   return (
     <>
@@ -1211,8 +1234,9 @@ function NeiSlots({
               dragging.current = false;
             }}
             aria-label={
-              resource.id === POWER_EU_CLAUSE_ID ? t("Power (EU/t)") : resourceLabel(resource)
+              resource.id === POWER_EU_CLAUSE_ID ? t("Power (EU/t)") : t(resourceLabel(resource))
             }
+            data-resource-name={resourceLabel(resource)}
             role="option"
             aria-selected={active}
           >

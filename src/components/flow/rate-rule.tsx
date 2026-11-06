@@ -550,6 +550,7 @@ export function RateBox({ rule }: { rule: RateRule }) {
             input,
             rule.flowing,
             any ? undefined : rule.mode,
+            t,
           )}
         />
       )}

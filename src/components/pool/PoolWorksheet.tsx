@@ -1,4 +1,6 @@
 "use client";
+import { useDisplayT } from "@/lib/i18n/game";
+
 import { useT } from "@/lib/i18n";
 
 import { targetStatus } from "./target-status";
@@ -1077,14 +1079,15 @@ function ColumnHeadings() {
 }
 
 function Status({ section }: { section: WorksheetSection }) {
+  const t = useDisplayT();
   const label = section.result?.powerStalled
     ? "Power stalled"
-    : buildStatusTooltip(section.verdict, "pool").title;
+    : buildStatusTooltip(section.verdict, "pool", t).title;
   return (
     <MinecraftTooltip
       openOnFocus
       placement="below"
-      content={() => <RecipeTooltip view={buildStatusTooltip(section.verdict, "pool")} />}
+      content={() => <RecipeTooltip view={buildStatusTooltip(section.verdict, "pool", t)} />}
     >
       <span
         className={`pool-status pool-status--${section.result?.powerStalled ? "power-stalled" : section.verdict.kind}`}
@@ -1109,6 +1112,7 @@ function PortList({
   section: WorksheetSection;
   nonConsumed?: ResourceAmount[];
 }) {
+  const t = useDisplayT();
   if (!ports.length && !nonConsumed.length) return <span className="pool-sheet-muted">—</span>;
   return (
     <div className="pool-port-list" role="group" aria-label="Recipe items">
@@ -1125,6 +1129,7 @@ function PortList({
                     section.node.id,
                     port,
                     section.verdict,
+                    t,
                   )}
                 />
               );

@@ -1,4 +1,6 @@
 "use client";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
+
 import { useT } from "@/lib/i18n";
 
 import { isInputRate, storageTargetMode } from "@/lib/model/storage-target";
@@ -539,7 +541,7 @@ function StorageNodeComponent({ data, selected }: NodeProps<StorageFlowNode>) {
         {/* The hover tooltip covers the WHOLE card: it is the drawer's one
             explanation, and it should not matter which pixel of a small tile
             the pointer found. The rule row carries its own. */}
-        <MinecraftTooltip content={() => renderStorageHoverContent(storage, role)}>
+        <MinecraftTooltip content={() => renderStorageHoverContent(storage, role, t)}>
           <div
             data-storage-shape={role}
             className="storage-shape-content relative z-10 flex min-h-0 flex-1 flex-col"
@@ -1395,9 +1397,13 @@ function RuleBar({
  * it, and the three rates. Feeders and drainers are not listed: those wires
  * are on the board.
  */
-function renderStorageHoverContent(storage: FactoryStorage, role: StorageRole): ReactNode {
+function renderStorageHoverContent(
+  storage: FactoryStorage,
+  role: StorageRole,
+  t: MessageTranslator = englishMessage,
+): ReactNode {
   const { project, lastResult } = useFactoryStore.getState();
-  return <RecipeTooltip view={buildStorageTooltip(project, lastResult, storage, role)} />;
+  return <RecipeTooltip view={buildStorageTooltip(project, lastResult, storage, role, t)} />;
 }
 
 function storageMatchesSearch(storage: FactoryStorage, query: string) {

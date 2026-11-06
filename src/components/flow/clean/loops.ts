@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 /**
  * Old Build's dead loops and clog locks on a plan board (`PlanSolveExtras.loops`, docs/up-to.md): which cards are in a
  * ring, which wires join them along the ring's rows, and what the notice says. Pure.
@@ -65,8 +66,21 @@ export function loopTag(loop: Pick<PlanUpToLoop, "kind">): string {
  * other in a downward spiral, each holding the next back. Which cards is for Show me, their pulsing outlines and the
  * lit wires to say; `cards` is how many.
  */
-export function loopSentence(loop: Pick<PlanUpToLoop, "kind">, cards: number): string {
+export function loopSentence(
+  loop: Pick<PlanUpToLoop, "kind">,
+  cards: number,
+  t: MessageTranslator = englishMessage,
+): string {
   const dead = loop.kind === "DEAD_LOOP";
-  if (cards === 1) return `This machine ${dead ? "starves" : "clogs"} itself in a downward spiral.`;
-  return `These machines ${dead ? "starve" : "clog"} each other in a downward spiral.`;
+  if (cards === 1)
+    return t(
+      dead
+        ? "This machine starves itself in a downward spiral."
+        : "This machine clogs itself in a downward spiral.",
+    );
+  return t(
+    dead
+      ? "These machines starve each other in a downward spiral."
+      : "These machines clog each other in a downward spiral.",
+  );
 }

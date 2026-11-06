@@ -1,5 +1,7 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT } from "@/lib/i18n/game";
+
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "./clean.css";
 import { fluidSwatchStyle } from "./fluid-swatch";
@@ -170,8 +172,8 @@ export function CleanPortRow({
           controller
             ? undefined
             : bee
-              ? `${p.name}: stays in the housing, not used up`
-              : `${p.name}: free input, no supply needed`
+              ? t("{p0}: stays in the housing, not used up", { p0: p.name })
+              : t("{p0}: free input, no supply needed", { p0: p.name })
         }
         style={{ opacity: controller || bee ? 0.85 : 0.6 }}
         {...(controller
@@ -230,7 +232,7 @@ export function CleanPortRow({
       data-resource-edge-anchor="true"
       data-resource-node-id={p.nodeId}
       data-resource-handle-id={p.handleId}
-      {...tipAttrs(portTip(p))}
+      {...tipAttrs(portTip(p, t))}
       onPointerEnter={() => {
         rowBrowse.handlers.onPointerEnter();
         if (!isWiringConnection() && !checklistLocked()) {
@@ -284,7 +286,7 @@ export function CleanPortRow({
           className="cc-forced"
           data-kind={isInput ? "in" : "out"}
           data-lit={spillLit ? "" : undefined}
-          {...tipAttrs(forcedTip(p))}
+          {...tipAttrs(forcedTip(p, t))}
           onClick={(event) => {
             // A leftover with somewhere else to go opens its split (rail/SparePopup.tsx).
             if (
@@ -392,10 +394,11 @@ function Words({ p, iconProps }: { p: CleanPortView; iconProps: Record<string, u
       </span>
       <span
         className="cc-pname"
+        data-resource-name={p.name}
         data-small={p.nameSmall || undefined}
         data-clip={p.nameClipped || undefined}
       >
-        {port.kind === "power" ? t(p.name) : p.name}
+        {t(p.name)}
       </span>
     </>
   );
@@ -495,7 +498,12 @@ export function CountBox({
       tabIndex={0}
       className="cc-count nowheel"
       data-wheel-value=""
-      aria-label={`${view.text}${view.unit ? ` ${view.unit}` : ""} running, ${view.ruleWord.toLowerCase()}${view.pinned ? ` ${view.setText}` : ""}`}
+      aria-label={t("{p0}{p1} running, {p2}{p3}", {
+        p0: view.text,
+        p1: view.unit ? ` ${view.unit}` : "",
+        p2: view.ruleWord.toLowerCase(),
+        p3: view.pinned ? ` ${view.setText}` : "",
+      })}
       data-rule={view.rule}
       data-run={view.text}
       data-unit={view.unit}
@@ -603,12 +611,16 @@ export function CircuitBadge({
   nodeId: string;
   circuit: NonNullable<CleanCardView["circuit"]>;
 }) {
+  const t = useDisplayT();
   const number = circuitNumber(circuit);
   if (!circuit.resource) return null;
   return (
     <span
       className="cc-circuit"
-      {...tipAttrs({ id: `${nodeId}|circuit`, title: number ? `Circuit ${number}` : "Circuit" })}
+      {...tipAttrs({
+        id: `${nodeId}|circuit`,
+        title: number ? t("Circuit {p0}", { p0: number }) : "Circuit",
+      })}
     >
       {circuit.resource ? (
         <ResourceIcon
@@ -647,7 +659,7 @@ export function CardFoot({
       data-word={foot.word ? t(foot.word) : undefined}
       data-frac={foot.frac || undefined}
       data-ghost={foot.ghost ? "" : undefined}
-      {...tipAttrs(footTip(nodeId, foot))}
+      {...tipAttrs(footTip(nodeId, foot, t))}
       style={
         {
           gridRow,
@@ -678,6 +690,7 @@ export function TierChip({
   wasClick: (event: MouseEvent) => boolean;
   extraData?: Record<string, string>;
 }) {
+  const t = useDisplayT();
   const colors = tierChipColors(label);
   const style = colors
     ? ({
@@ -696,7 +709,7 @@ export function TierChip({
       data-wheel-value=""
       style={style}
       {...tipAttrs(tip)}
-      aria-label={`Tier ${label}`}
+      aria-label={t("Tier {p0}", { p0: label })}
       data-hatch-menu-anchor=""
       data-fixed={fixed ? "" : undefined}
       data-underline={colors?.underline ? "" : undefined}
@@ -1013,7 +1026,7 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
           data-wheel-steps={view.hasPicker ? "" : undefined}
           data-wheel-value={view.hasPicker ? "" : undefined}
           data-menu-anchor=""
-          {...tipAttrs(machineNameTip(view, tipFacts))}
+          {...tipAttrs(machineNameTip(view, tipFacts, t))}
           onClick={
             view.hasPicker
               ? (event) => {
@@ -1040,7 +1053,7 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
               : undefined
           }
         >
-          {view.name}
+          {t(view.name)}
           {listOpen && listAnchor ? (
             <MachineListMenu
               anchor={listAnchor}
@@ -1067,7 +1080,7 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
         {view.tier ? (
           <TierChip
             label={view.tier.label}
-            tip={view.amps ? powerPanelTip(view, "tier") : tierChipTip(view, tipFacts)}
+            tip={view.amps ? powerPanelTip(view, "tier") : tierChipTip(view, tipFacts, t)}
             fixed={view.tier.fixed}
             onStep={actions.stepTier}
             wasClick={wasClick}
@@ -1085,7 +1098,7 @@ export function CleanCard({ view, actions, context, recipe, node }: CleanCardPro
             data-power=""
             data-side="input"
             data-stalled={view.power.stalled ? "" : undefined}
-            {...tipAttrs(view.amps ? powerPanelTip(view, "power") : powerRowTip(view, tipFacts))}
+            {...tipAttrs(view.amps ? powerPanelTip(view, "power") : powerRowTip(view, tipFacts, t))}
           >
             <span className="cc-bolt" />
             <span className="cc-num" data-unit={view.power.unit}>

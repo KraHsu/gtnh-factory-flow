@@ -1,5 +1,7 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
+
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "../clean.css";
 import { useDeviceSettings } from "@/lib/device-settings";
@@ -479,7 +481,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
       data-power=""
       data-side="input"
       data-stalled={view.power.stalled ? "" : undefined}
-      {...tipAttrs(view.amps ? powerPanelTip(tipView, "power") : powerRowTip(tipView, tipFacts))}
+      {...tipAttrs(view.amps ? powerPanelTip(tipView, "power") : powerRowTip(tipView, tipFacts, t))}
     >
       <span className="cc-bolt" />
       <span className="cc-num" data-unit={view.power.unit}>
@@ -575,7 +577,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
           data-wheel-steps={view.hasPicker ? "" : undefined}
           data-wheel-value={view.hasPicker ? "" : undefined}
           data-menu-anchor=""
-          {...tipAttrs(specialNameTip(view, tipView, tipFacts))}
+          {...tipAttrs(specialNameTip(view, tipView, tipFacts, t))}
           onClick={
             view.hasPicker
               ? (event) => {
@@ -602,7 +604,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
               : undefined
           }
         >
-          {view.name}
+          {t(view.name)}
           {listOpen && listAnchor ? (
             <MachineListMenu
               anchor={listAnchor}
@@ -634,7 +636,7 @@ export function SpecialCard({ model, recipe, node }: SpecialCardProps) {
                 ? powerPanelTip(tipView, "tier")
                 : view.kind === "power" || view.kind === "crop"
                   ? { id: `${view.nodeId}|tier`, title: "Tier", sub: view.tier.title }
-                  : tierChipTip(tipView, tipFacts)
+                  : tierChipTip(tipView, tipFacts, t)
             }
             fixed={view.tier.fixed}
             onStep={actions.stepTier}
@@ -890,9 +892,14 @@ function Picture({ view, context }: { view: SpecialView; context: SpecialContext
   return null;
 }
 
-function specialNameTip(view: SpecialView, tipView: CleanCardView, facts: CardTipFacts): TipSpec {
+function specialNameTip(
+  view: SpecialView,
+  tipView: CleanCardView,
+  facts: CardTipFacts,
+  t: MessageTranslator = englishMessage,
+): TipSpec {
   if ((view.kind === "shared" || view.kind === "crop") && view.count)
-    return machineNameTip(tipView, facts);
+    return machineNameTip(tipView, facts, t);
   if (view.kind === "crop") {
     return {
       id: `${view.nodeId}|name`,

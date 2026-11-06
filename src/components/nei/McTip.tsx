@@ -1,6 +1,7 @@
 "use client";
 
 import "./nei.css";
+import { useDisplayT } from "@/lib/i18n/game";
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -16,11 +17,16 @@ export interface McTipLine {
 }
 
 export function McTipLines({ lines }: { lines: readonly McTipLine[] }) {
+  const t = useDisplayT();
   return (
     <>
       {lines.map((line, index) => (
-        <div key={index} className="mc-tip-line" data-tone={line.tone && line.tone !== "grey" ? line.tone : undefined}>
-          {line.text}
+        <div
+          key={index}
+          className="mc-tip-line"
+          data-tone={line.tone && line.tone !== "grey" ? line.tone : undefined}
+        >
+          {line.tone === "mod" ? line.text : t(line.text)}
         </div>
       ))}
     </>
@@ -31,7 +37,15 @@ export function McTipLines({ lines }: { lines: readonly McTipLine[] }) {
  * A Minecraft tooltip at the pointer, shown at once as the game shows an item's: 12 px right of and above the
  * pointer, kept on screen. `x` and `y` are real (unzoomed) pixels; the panel is a body portal wearing `.ui-zoom`.
  */
-export function McFloatingTip({ lines, x, y }: { lines: readonly McTipLine[]; x: number; y: number }) {
+export function McFloatingTip({
+  lines,
+  x,
+  y,
+}: {
+  lines: readonly McTipLine[];
+  x: number;
+  y: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 200, h: 40 });
   useLayoutEffect(() => {

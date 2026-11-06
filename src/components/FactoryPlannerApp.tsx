@@ -1,5 +1,6 @@
 "use client";
 import { useT } from "@/lib/i18n";
+import { DatasetLanguage } from "@/lib/i18n/game";
 
 import {
   noteRecipesRefreshed,
@@ -344,6 +345,9 @@ export function FactoryPlannerApp() {
     // and panels carry their own floors.
     <div className="ui-scale-shell flex h-[calc(100*var(--ui-dvh))] flex-col bg-canvas text-fg">
       <SiteHeader />
+      <DatasetLanguage
+        version={datasetManifest?.versions.find((entry) => entry.id === datasetVersionId)}
+      />
       <RecipeBookOpener />
       <PlacementRevealer />
       <SharedAddressSync />

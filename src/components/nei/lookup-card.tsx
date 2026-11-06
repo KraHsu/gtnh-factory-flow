@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "../flow/clean/clean.css";
 import "./nei-recipe.css";
@@ -422,6 +422,7 @@ export function LookupPowerCard({
   onCardMenu: (event: ReactMouseEvent) => void;
   handlers: LookupHandlers;
 }) {
+  const t = useT();
   const headPress = useLongPress(onCardMenu);
   const model = useMemo(() => {
     try {
@@ -448,7 +449,9 @@ export function LookupPowerCard({
           <span className="cc-num" data-unit={amount.unit ?? ""}>
             {amount.text}
           </span>
-          <span className="cc-pname">{flow.name}</span>
+          <span className="cc-pname" data-resource-name={flow.name}>
+            {t(flow.name)}
+          </span>
         </div>
       );
     }
@@ -798,8 +801,9 @@ function LookupRow({
         className="cc-pname"
         data-small={nameSmall || nameWraps || undefined}
         data-wrap={nameWraps || undefined}
+        data-resource-name={name}
       >
-        {name}
+        {t(name)}
       </span>
       {lines && hover ? <McFloatingTip x={hover.x} y={hover.y} lines={lines} /> : null}
     </div>

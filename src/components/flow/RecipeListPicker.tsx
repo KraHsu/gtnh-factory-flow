@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useDropdownDismiss } from "@/lib/hooks/use-dropdown-dismiss";
 import { focusDropdownFilter } from "@/lib/dropdown-focus";

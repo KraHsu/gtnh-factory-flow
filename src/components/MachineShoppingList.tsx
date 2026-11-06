@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { checklistCursorStyle } from "./flow/ChecklistMode";
 
@@ -199,7 +199,7 @@ export function MachineShoppingList() {
               <ListLine
                 key={entry.nodeId}
                 nodeId={entry.nodeId}
-                rowName={entry.label}
+                rowName={t(entry.label)}
                 indent
                 isLast={index === cards.length - 1}
                 label={

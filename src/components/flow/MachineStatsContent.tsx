@@ -1,4 +1,5 @@
 "use client";
+import { useDisplayT } from "@/lib/i18n/game";
 
 import type { FactoryNode, MachineHandler, NodeThroughputResult, Recipe } from "@/lib/model/types";
 import { useFactoryStore } from "@/store/factory-store";
@@ -127,12 +128,15 @@ export function MachineStatsContent({
   /** The machine's real name at the card's tier, when it differs from the family label. */
   title?: string;
 }) {
+  const t = useDisplayT();
   const mode = useFactoryStore((state) => tooltipMode(state.project));
   const upTo = useFactoryStore((state) => state.lastResult.plan?.upTo?.[node.id]);
   if (getCropsNhStats(recipe)) {
     return <CropSourceStatsContent recipe={recipe} handler={handler} node={node} title={title} />;
   }
   return (
-    <RecipeTooltip view={buildMachineTooltip(recipe, handler, node, mode, result, title, upTo)} />
+    <RecipeTooltip
+      view={buildMachineTooltip(recipe, handler, node, mode, result, title, upTo, t)}
+    />
   );
 }

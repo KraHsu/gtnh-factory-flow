@@ -1,5 +1,12 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import { effectiveBufferMode } from "@/lib/model/storage-role";
-import { isInputRate, storageTargetMode, targetModeHelp, TARGET_MODE_LABELS, type TargetMode } from "@/lib/model/storage-target";
+import {
+  isInputRate,
+  storageTargetMode,
+  targetModeHelp,
+  TARGET_MODE_LABELS,
+  type TargetMode,
+} from "@/lib/model/storage-target";
 import type {
   FactoryProject,
   FactoryStorage,
@@ -32,10 +39,16 @@ const ROLE_WORD: Record<StorageRole, string> = {
 };
 
 const EPS = 1e-6;
-const differs = (a: number, b: number) => Math.abs(a - b) > Math.max(EPS, 0.005 * Math.max(Math.abs(a), Math.abs(b)));
+const differs = (a: number, b: number) =>
+  Math.abs(a - b) > Math.max(EPS, 0.005 * Math.max(Math.abs(a), Math.abs(b)));
 
 /** What limits the machines feeding this drawer, when one of them says so. */
-function feederCause(project: FactoryProject, result: ThroughputResult | undefined, storageId: string): string | undefined {
+function feederCause(
+  project: FactoryProject,
+  result: ThroughputResult | undefined,
+  storageId: string,
+  t: MessageTranslator = englishMessage,
+): string | undefined {
   if (!result) return undefined;
   const feeders = new Set<string>();
   for (const edge of project.edges) {
@@ -45,7 +58,7 @@ function feederCause(project: FactoryProject, result: ThroughputResult | undefin
     if (!project.nodes.some((node) => node.id === nodeId)) continue;
     const verdict = deriveNodeVerdict(project, result, nodeId);
     if ((verdict.kind === "starved" || verdict.kind === "blocked") && verdict.binding) {
-      return `${verdict.binding.displayName} supply limits production.`;
+      return t("{p0} supply limits production.", { p0: verdict.binding.displayName });
     }
   }
   return undefined;
@@ -56,25 +69,42 @@ export function buildStorageTooltip(
   result: ThroughputResult | undefined,
   storage: FactoryStorage,
   role: StorageRole,
+  t: MessageTranslator = englishMessage,
 ): RecipeTooltipView {
   const mode = tooltipMode(project);
-  const strict = role === "buffer" && effectiveBufferMode(storage, project.solveMode === true) === "strict";
+  const strict =
+    role === "buffer" && effectiveBufferMode(storage, project.solveMode === true) === "strict";
   const figures: StorageThroughputResult | undefined = result?.storages[storage.id];
   const rate = (value: number) => formatSlotRate(value, storage.kind);
   const view: RecipeTooltipView = {
-    title: resourceLabel(getCategoryPresentation(project.recipes, storage.kind, storage.resourceId)
-      ?? { id: storage.resourceId, displayName: storage.displayName }),
-    subtitle: role === "buffer" && storage.bufferMode === "ratio" ? "Buffer · Ratio" : strict ? "Buffer · Strict" : ROLE_WORD[role],
+    title: resourceLabel(
+      getCategoryPresentation(project.recipes, storage.kind, storage.resourceId) ?? {
+        id: storage.resourceId,
+        displayName: storage.displayName,
+      },
+    ),
+    subtitle:
+      role === "buffer" && storage.bufferMode === "ratio"
+        ? "Buffer · Ratio"
+        : strict
+          ? "Buffer · Strict"
+          : ROLE_WORD[role],
     rows: [],
     // A drawer is a port with no rows to browse: dragging is its one gesture,
     // and in pool mode a drag lands nothing.
     // Its port chip answers like a machine's port row (power has no book).
-    actions: mode === "pool"
-      ? []
-      : [
-          ...(storage.kind === "power" ? [] : ([{ gesture: "left", label: "Recipes" }, { gesture: "right", label: "Uses" }] as const)),
-          { gesture: "drag", label: "Drag to connect" },
-        ],
+    actions:
+      mode === "pool"
+        ? []
+        : [
+            ...(storage.kind === "power"
+              ? []
+              : ([
+                  { gesture: "left", label: "Recipes" },
+                  { gesture: "right", label: "Uses" },
+                ] as const)),
+            { gesture: "drag", label: "Drag to connect" },
+          ],
   };
 
   if (role === "idle") {
@@ -84,7 +114,7 @@ export function buildStorageTooltip(
   }
   if (mode === "pool" && role !== "product" && role !== "source") {
     // Only source/product drawers are live in Pool; other drawers stand inert.
-    return { ...view, subtitle: `${view.subtitle} · Not pooled` };
+    return { ...view, subtitle: t("{p0} · Not pooled", { p0: view.subtitle ?? "Drawer" }) };
   }
   if (!figures) {
     return { ...view, reason: "Calculation unavailable." };
@@ -97,8 +127,13 @@ export function buildStorageTooltip(
       const target = storage.targetPerSecond;
       const rule = storageTargetMode(storage, "source");
       if (mode !== "build" && target !== undefined) {
-        view.rows.push({ label: rule === "ignore" ? "Saved target" : TARGET_MODE_LABELS[rule], value: rate(Math.abs(target)) });
-        if (figures.targetUnreachable) view.reason = "No machine count meets this input rate with the current wires and targets.";
+        view.rows.push({
+          label: rule === "ignore" ? "Saved target" : TARGET_MODE_LABELS[rule],
+          value: rate(Math.abs(target)),
+        });
+        if (figures.targetUnreachable)
+          view.reason =
+            "No machine count meets this input rate with the current wires and targets.";
       }
       view.rows.push({ label: "Supplied", value: rate(outRate) });
       break;
@@ -114,18 +149,29 @@ export function buildStorageTooltip(
       }
       if (mode !== "build" && target !== undefined && target < 0) {
         view.subtitle = "Input goal";
-        view.rows = [{ label: "Consume", value: rate(-target) }, { label: "Consumed", value: rate(outRate) }];
-        if (figures.targetUnreachable) view.reason = "No machine count consumes the requested input amount.";
+        view.rows = [
+          { label: "Consume", value: rate(-target) },
+          { label: "Consumed", value: rate(outRate) },
+        ];
+        if (figures.targetUnreachable)
+          view.reason = "No machine count consumes the requested input amount.";
         break;
       }
-      const hasTarget = mode !== "build" && target !== undefined && (target > 0 || storageTargetMode(storage, role) === "exact");
-      if (hasTarget) view.rows.push({ label: storageTargetMode(storage, role) === "exact" ? "Exactly" : "Required", value: rate(target) });
+      const hasTarget =
+        mode !== "build" &&
+        target !== undefined &&
+        (target > 0 || storageTargetMode(storage, role) === "exact");
+      if (hasTarget)
+        view.rows.push({
+          label: storageTargetMode(storage, role) === "exact" ? "Exactly" : "Required",
+          value: rate(target),
+        });
       view.rows.push({ label: "Produced", value: rate(inRate) });
       if (hasTarget && target > inRate + EPS && differs(target, inRate)) {
         view.rows.push({ label: "Shortfall", value: rate(target - inRate) });
         view.reason = figures.targetUnreachable
           ? "No machine count reaches the required amount."
-          : feederCause(project, result, storage.id);
+          : feederCause(project, result, storage.id, t);
       }
       break;
     }
@@ -142,7 +188,11 @@ export function buildStorageTooltip(
       ];
       const net = inRate - outRate;
       if (differs(inRate, outRate)) {
-        view.rows.push(net > 0 ? { label: "Stored", value: `+${rate(net)}` } : { label: "Drawn", value: `-${rate(-net)}` });
+        view.rows.push(
+          net > 0
+            ? { label: "Stored", value: `+${rate(net)}` }
+            : { label: "Drawn", value: `-${rate(-net)}` },
+        );
       }
       break;
     }
@@ -151,17 +201,53 @@ export function buildStorageTooltip(
 }
 
 /** The required-amount field: the number, and what is reachable when it is not. */
-export function buildTargetTooltip(storage: FactoryStorage, figures: StorageThroughputResult | undefined, poolMode = false, input = isInputRate(storage)): RecipeTooltipView {
+export function buildTargetTooltip(
+  storage: FactoryStorage,
+  figures: StorageThroughputResult | undefined,
+  poolMode = false,
+  input = isInputRate(storage),
+): RecipeTooltipView {
   const target = storage.targetPerSecond;
   const rate = (value: number) => formatSlotRate(value, storage.kind);
   const rule = storageTargetMode(storage, input ? "source" : "product");
   const ignored = rule === "ignore";
   const exact = rule === "exact";
-  const rows = target !== undefined ? [{ label: ignored ? "Saved target" : input ? (rule === "exact" ? "Consume" : TARGET_MODE_LABELS[rule]) : exact ? "Exactly" : "Required", value: rate(ignored ? target : Math.abs(target)) }] : [];
+  const rows =
+    target !== undefined
+      ? [
+          {
+            label: ignored
+              ? "Saved target"
+              : input
+                ? rule === "exact"
+                  ? "Consume"
+                  : TARGET_MODE_LABELS[rule]
+                : exact
+                  ? "Exactly"
+                  : "Required",
+            value: rate(ignored ? target : Math.abs(target)),
+          },
+        ]
+      : [];
   if (figures?.targetUnreachable && figures.producedPerSecond >= 0) {
-    rows.push({ label: "Reachable", value: rate(input ? figures.consumedPerSecond : figures.producedPerSecond) });
+    rows.push({
+      label: "Reachable",
+      value: rate(input ? figures.consumedPerSecond : figures.producedPerSecond),
+    });
   }
-  return { title: ignored ? "Ignored target" : input ? "Input goal" : exact ? "Exact output goal" : "Required amount", reason: targetModeHelp(rule, input), rows, bullets: ["Middle-click to clear the rate."], actions: [{ gesture: "left", label: "Edit amount" }] };
+  return {
+    title: ignored
+      ? "Ignored target"
+      : input
+        ? "Input goal"
+        : exact
+          ? "Exact output goal"
+          : "Required amount",
+    reason: targetModeHelp(rule, input),
+    rows,
+    bullets: ["Middle-click to clear the rate."],
+    actions: [{ gesture: "left", label: "Edit amount" }],
+  };
 }
 
 const ANY_HELP_INPUT = "Supplies whatever the chain needs.";
@@ -178,17 +264,25 @@ export function buildRatePlateTooltip(
   input: boolean,
   net: number,
   rule: TargetMode | undefined,
+  t: MessageTranslator = englishMessage,
 ): RecipeTooltipView {
   const rate = (value: number) => formatSlotRate(Math.abs(value), storage.kind);
   const target = storage.targetPerSecond;
   const rows: Array<{ label: string; value: string }> = [
-    { label: "Your rule", value: rule && target !== undefined ? `${TARGET_MODE_LABELS[rule]} ${rate(target)}` : "Any amount" },
+    {
+      label: "Your rule",
+      value:
+        rule && target !== undefined ? `${TARGET_MODE_LABELS[rule]} ${rate(target)}` : "Any amount",
+    },
     { label: "Real rate", value: rate(net) },
   ];
   if (rule && target !== undefined && Math.abs(target) > 0) {
-    rows.push({ label: "Reached", value: `${Math.round(Math.min(1, Math.abs(net) / Math.abs(target)) * 100)}%` });
+    rows.push({
+      label: "Reached",
+      value: `${Math.round(Math.min(1, Math.abs(net) / Math.abs(target)) * 100)}%`,
+    });
   } else if (!rule && target !== undefined) {
-    rows.push({ label: "Kept", value: `${rate(target)}, not applied` });
+    rows.push({ label: "Kept", value: t("{p0}, not applied", { p0: rate(target) }) });
   }
   return {
     title: rule ? (input ? "Input rule" : "Output rule") : "Any amount",
@@ -204,15 +298,40 @@ export function buildRatePlateTooltip(
   };
 }
 
-const NEXT_ACTION = (next: string): TooltipAction[] => [{ gesture: "left", label: `Switch to ${next}` }];
+const NEXT_ACTION = (next: string, t: MessageTranslator = englishMessage): TooltipAction[] => [
+  { gesture: "left", label: t("Switch to {p0}", { p0: next }) },
+];
 
-export function buildDrainKeyTooltip(role: StorageRole, next: string): RecipeTooltipView {
-  return { title: ROLE_WORD[role], rows: [], actions: NEXT_ACTION(next) };
+export function buildDrainKeyTooltip(
+  role: StorageRole,
+  next: string,
+  t: MessageTranslator = englishMessage,
+): RecipeTooltipView {
+  return { title: ROLE_WORD[role], rows: [], actions: NEXT_ACTION(next, t) };
 }
 
-export function buildBufferKeyTooltip(mode: StorageBufferMode): RecipeTooltipView {
-  if (mode === "ratio") return { title: "Ratio", subtitle: "Incoming, outgoing and setup output", rows: [], actions: NEXT_ACTION("overflow") };
+export function buildBufferKeyTooltip(
+  mode: StorageBufferMode,
+  t: MessageTranslator = englishMessage,
+): RecipeTooltipView {
+  if (mode === "ratio")
+    return {
+      title: "Ratio",
+      subtitle: "Incoming, outgoing and setup output",
+      rows: [],
+      actions: NEXT_ACTION("overflow", t),
+    };
   return mode === "strict"
-    ? { title: "Strict", subtitle: "Surplus clogs the feeder", rows: [], actions: NEXT_ACTION("ratio") }
-    : { title: "Non-strict", subtitle: "Surplus stored", rows: [], actions: NEXT_ACTION("strict") };
+    ? {
+        title: "Strict",
+        subtitle: "Surplus clogs the feeder",
+        rows: [],
+        actions: NEXT_ACTION("ratio", t),
+      }
+    : {
+        title: "Non-strict",
+        subtitle: "Surplus stored",
+        rows: [],
+        actions: NEXT_ACTION("strict", t),
+      };
 }

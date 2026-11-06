@@ -84,8 +84,8 @@ it("previews the full split on hover and keeps every percentage live while scrol
   expect(within(preview).getByRole("img", { name: "Mouse wheel" })).toBeTruthy();
   expect(within(preview).getByText("↑ +1% · ↓ −1%")).toBeTruthy();
   fireEvent.wheel(output, { deltaY: -100 });
-  expect(within(outgoing).getByText("51%")).toBeTruthy();
-  expect(within(outgoing).getByText("49%")).toBeTruthy();
+  expect(await within(outgoing).findByText("51%")).toBeTruthy();
+  expect(await within(outgoing).findByText("49%")).toBeTruthy();
   expect(screen.getByRole("tooltip")).toBe(preview);
   fireEvent.mouseLeave(output.closest("[data-tooltip-root]")!);
   expect(screen.queryByRole("tooltip")).toBeNull();

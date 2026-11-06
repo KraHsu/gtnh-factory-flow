@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import type { CleanCardView, CleanChipView, CleanPortView } from "../clean-model";
 import type { TipSpec } from "./tip-spec";
 
@@ -16,20 +17,25 @@ function rate(number: string, unit: string): string {
   return unit ? `${number} ${unit}` : number;
 }
 
-export function portTip(p: CleanPortView): TipSpec {
+export function portTip(p: CleanPortView, t: MessageTranslator = englishMessage): TipSpec {
   const input = p.side === "input";
   const chance = (p.port.resource as { chance?: number } | undefined)?.chance;
-  const rows: NonNullable<TipSpec["rows"]> = [{ label: input ? "Consumed" : "Produced", value: rate(p.number, p.unit) }];
+  const rows: NonNullable<TipSpec["rows"]> = [
+    { label: input ? "Consumed" : "Produced", value: rate(p.number, p.unit) },
+  ];
   if (chance !== undefined && chance < 1) {
     rows.push({ label: "Chance", value: `${Math.round(chance * 10000) / 100}%` });
   }
   const consumeChance = (p.port.resource as { consumeChance?: number } | undefined)?.consumeChance;
   if (input && consumeChance !== undefined && consumeChance < 1) {
-    rows.push({ label: "Used up", value: `${Math.round(consumeChance * 10000) / 100}% of runs` });
+    rows.push({
+      label: "Used up",
+      value: t("{p0}% of runs", { p0: Math.round(consumeChance * 10000) / 100 }),
+    });
   }
   const notes: NonNullable<TipSpec["notes"]> = [];
   const choices = p.port.resource?.alternatives?.length ?? 0;
-  if (p.choice) notes.push({ text: `Takes any of ${choices} items.`, tone: "muted" });
+  if (p.choice) notes.push({ text: t("Takes any of {p0} items.", { p0: choices }), tone: "muted" });
   return {
     id: `${p.nodeId}|port|${p.handleId}`,
     title: p.name,
@@ -46,7 +52,11 @@ export function portTip(p: CleanPortView): TipSpec {
 }
 
 /** The rule key on an open port: Any or Exactly. */
-export function openKeyTip(p: CleanPortView, pinned: boolean): TipSpec {
+export function openKeyTip(
+  p: CleanPortView,
+  pinned: boolean,
+  t: MessageTranslator = englishMessage,
+): TipSpec {
   const input = p.side === "input";
   return {
     id: `${p.nodeId}|key|${p.handleId}`,
@@ -57,11 +67,13 @@ export function openKeyTip(p: CleanPortView, pinned: boolean): TipSpec {
           ? input
             ? "Set: the machine runs so this input takes exactly its rate."
             : "Set: the machine runs so this output gives exactly its rate."
-          : `The plan decides this ${input ? "input" : "output"}'s rate.`,
+          : t("The plan decides this {p0}'s rate.", { p0: input ? "input" : "output" }),
         tone: "muted",
       },
     ],
-    actions: [{ input: "left", label: pinned ? "Let the plan decide" : "Set it to what it is now" }],
+    actions: [
+      { input: "left", label: pinned ? "Let the plan decide" : "Set it to what it is now" },
+    ],
   };
 }
 
@@ -72,7 +84,9 @@ export function openBoxTip(p: CleanPortView, pinned: boolean): TipSpec {
     title: p.name,
     sub: pinned ? "Rate set" : "Rate: the plan decides",
     rows: [{ label: input ? "Takes" : "Gives", value: rate(p.number, p.unit) }],
-    notes: [{ text: "Set it and the machine runs so this output gives exactly that.", tone: "muted" }],
+    notes: [
+      { text: "Set it and the machine runs so this output gives exactly that.", tone: "muted" },
+    ],
     actions: [
       { input: "left", label: pinned ? "Change its rate" : "Set its rate" },
       { input: "wheel", label: "+1, Ctrl 10, Shift 100" },
@@ -82,21 +96,33 @@ export function openBoxTip(p: CleanPortView, pinned: boolean): TipSpec {
   };
 }
 
-export function forcedTip(p: CleanPortView): TipSpec {
+export function forcedTip(p: CleanPortView, t: MessageTranslator = englishMessage): TipSpec {
   const input = p.side === "input";
   // A spill into a buffer: more than the buffer's users take. Nothing else can take it, so no choice to offer.
   if (p.spillTo !== undefined) {
     return {
       id: `${p.nodeId}|forced|${p.handleId}`,
-      title: `Forced output: ${p.name}`,
-      rows: [{ label: "Ships out here", value: p.forced ? rate(p.forced.number, p.forced.unit) : "" }],
-      notes: [{ text: "The buffer's users take less than this makes. The extra is forced out here.", tone: "muted" }],
+      title: t("Forced output: {p0}", { p0: p.name }),
+      rows: [
+        { label: "Ships out here", value: p.forced ? rate(p.forced.number, p.forced.unit) : "" },
+      ],
+      notes: [
+        {
+          text: "The buffer's users take less than this makes. The extra is forced out here.",
+          tone: "muted",
+        },
+      ],
     };
   }
   return {
     id: `${p.nodeId}|forced|${p.handleId}`,
-    title: `Forced ${input ? "input" : "output"}: ${p.name}`,
-    rows: [{ label: input ? "Comes in here" : "Ships out here", value: p.forced ? rate(p.forced.number, p.forced.unit) : "" }],
+    title: t("Forced {p0}: {p1}", { p0: input ? "input" : "output", p1: p.name }),
+    rows: [
+      {
+        label: input ? "Comes in here" : "Ships out here",
+        value: p.forced ? rate(p.forced.number, p.forced.unit) : "",
+      },
+    ],
     notes: [
       {
         text: input
@@ -118,7 +144,10 @@ export function nameTip(view: CleanCardView): TipSpec {
     title: view.name,
     sub: view.amps ? "Multiblock" : "Machine",
     rows: [
-      { label: view.count.pinned ? "Pinned machines" : "Required machines", value: view.count.text.replace(/^×/, "x") },
+      {
+        label: view.count.pinned ? "Pinned machines" : "Required machines",
+        value: view.count.text.replace(/^×/, "x"),
+      },
       ...(view.tier ? [{ label: "Configured tier", value: view.tier.label }] : []),
     ],
     actions: view.hasPicker
@@ -136,7 +165,9 @@ export function tierTip(view: CleanCardView): TipSpec {
     id: `${view.nodeId}|tier`,
     title: "Voltage tier",
     rows: [{ label: "Configured tier", value: tier.label }],
-    notes: view.power?.stalled ? [{ text: "Below the recipe's tier: it cannot run.", tone: "red" }] : [],
+    notes: view.power?.stalled
+      ? [{ text: "Below the recipe's tier: it cannot run.", tone: "red" }]
+      : [],
     actions: tier.fixed
       ? []
       : [
@@ -149,7 +180,11 @@ export function tierTip(view: CleanCardView): TipSpec {
 
 /** The power input panel of the classic card, on the chips and the power row of a machine with a hatch. */
 export function powerPanelTip(view: CleanCardView, part: "tier" | "amps" | "power"): TipSpec {
-  return { id: `${view.nodeId}|${part}`, title: "Power input", panel: { kind: "power", nodeId: view.nodeId, part } };
+  return {
+    id: `${view.nodeId}|${part}`,
+    title: "Power input",
+    panel: { kind: "power", nodeId: view.nodeId, part },
+  };
 }
 
 export function powerTip(view: CleanCardView): TipSpec {
@@ -158,7 +193,12 @@ export function powerTip(view: CleanCardView): TipSpec {
   return {
     id: `${view.nodeId}|power`,
     title: steam ? "Steam" : "Power",
-    rows: [{ label: steam ? "Steam for this card" : "Demand for this card", value: power.stalled ? power.number : rate(power.number, power.unit) }],
+    rows: [
+      {
+        label: steam ? "Steam for this card" : "Demand for this card",
+        value: power.stalled ? power.number : rate(power.number, power.unit),
+      },
+    ],
     notes: [
       ...(power.stalled ? [{ text: power.title, tone: "red" as const }] : []),
       { text: "Not wired in plans.", tone: "muted" as const },
@@ -173,9 +213,13 @@ export function countTip(view: CleanCardView): TipSpec {
     title: count.pinned ? "Pinned machines" : "Required machines",
     rows: [
       { label: count.pinned ? "Pinned" : "Calculated", value: count.text.replace(/^×/, "x") },
-      ...(!count.pinned && count.value > 0 ? [{ label: "Whole machines", value: String(Math.ceil(count.value - 0.000001)) }] : []),
+      ...(!count.pinned && count.value > 0
+        ? [{ label: "Whole machines", value: String(Math.ceil(count.value - 0.000001)) }]
+        : []),
     ],
-    notes: count.prompt ? [{ text: "No rate or pinned count in the plan needs this machine yet.", tone: "muted" }] : [],
+    notes: count.prompt
+      ? [{ text: "No rate or pinned count in the plan needs this machine yet.", tone: "muted" }]
+      : [],
     actions: [
       { input: "left", label: count.pinned ? "Change or unpin" : "Pin count" },
       { input: "wheel", label: "+1 / -1" },

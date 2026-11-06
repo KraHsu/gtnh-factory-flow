@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 /**
  * How the board says why an Up to card runs less than its count (docs/up-to.md): one short word and a colour, shared
  * by the overview and the tooltips. Pure.
@@ -33,22 +34,25 @@ export function shownReason(upTo: PlanUpTo | undefined): Reason | undefined {
 }
 
 /** A sentence for a tooltip about why the card runs as it does. */
-export function upToSentence(upTo: PlanUpTo | undefined): string | undefined {
+export function upToSentence(
+  upTo: PlanUpTo | undefined,
+  t: MessageTranslator = englishMessage,
+): string | undefined {
   switch (upTo?.reason) {
     case "FULL":
-      return "Every machine runs flat out.";
+      return t("Every machine runs flat out.");
     case "BOTTLENECK":
       return upTo.wants !== undefined
-        ? `The plan would use ${round(upTo.wants)}.`
-        : "The plan would use more.";
+        ? t("The plan would use {p0}.", { p0: round(upTo.wants) })
+        : t("The plan would use more.");
     case "STARVED":
-      return "An input is short.";
+      return t("An input is short.");
     case "CLOGGED":
-      return "An output has nowhere to go.";
+      return t("An output has nowhere to go.");
     case "UNUSED":
-      return "Nothing uses what it makes.";
+      return t("Nothing uses what it makes.");
     case "LIMITED":
-      return "The plan holds it back.";
+      return t("The plan holds it back.");
     default:
       return undefined;
   }

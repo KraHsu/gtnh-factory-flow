@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useEffect, useRef, useState, type MouseEvent, type WheelEvent } from "react";
 import { startPromptClock } from "../../virtual/prompt-phase";
@@ -119,7 +119,7 @@ export function PortRateControls({
         data-side={p.side}
         data-mode={pinned ? "exact" : "any"}
         aria-label={pinned ? "Rate set: exactly" : "Rate: any"}
-        {...tipAttrs(openKeyTip(p, pinned))}
+        {...tipAttrs(openKeyTip(p, pinned, t))}
         onClick={(event) => {
           event.stopPropagation();
           if (wasClick(event)) toggle();
@@ -155,7 +155,7 @@ export function PortRateControls({
           <input
             autoFocus
             value={draft}
-            aria-label={`Rate of ${p.name}`}
+            aria-label={t("Rate of {p0}", { p0: p.name })}
             className="nodrag"
             onChange={(event) => setDraft(event.target.value)}
             onBlur={commit}

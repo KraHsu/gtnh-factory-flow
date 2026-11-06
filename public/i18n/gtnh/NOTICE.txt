@@ -1,0 +1,8 @@
+GTNH Chinese names and tooltips are derived from https://github.com/GTNewHorizons/GTNH-Translations
+Revision: d63737908e87ad44a92457298ed46bf37bd245e5
+Contributors: https://paratranz.cn/projects/4964/members
+Translation terms: https://github.com/GTNewHorizons/GTNH-Translations/blob/d63737908e87ad44a92457298ed46bf37bd245e5/readmes/README_zh_CN.md
+The Chinese translation README declares CC-BY-NC-SA for translation content.
+The upstream repository license is preserved in UPSTREAM-LICENSE.
+Only confirmed matching names and tooltip text are used; recipe identities and calculations are unchanged.
+Rebuild: tools/i18n/build-gtnh-zh.mjs

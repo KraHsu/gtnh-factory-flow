@@ -1,5 +1,12 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import type { FactoryProject, ThroughputResult } from "@/lib/model/types";
-import { formatCompact, formatPowerValue, formatNumberWithThousands, formatRate, makeResourceKey } from "@/lib/model";
+import {
+  formatCompact,
+  formatPowerValue,
+  formatNumberWithThousands,
+  formatRate,
+  makeResourceKey,
+} from "@/lib/model";
 import {
   energyPerUnitDisplaySuffix,
   energyPerUnitDisplayValue,
@@ -268,7 +275,12 @@ export function buildPortBreakdown(
       } else {
         wantedByMachines += wanted;
       }
-      rows.push({ name, ratePerSecond: rate, isStorage: Boolean(storage), wantedPerSecond: wanted });
+      rows.push({
+        name,
+        ratePerSecond: rate,
+        isStorage: Boolean(storage),
+        wantedPerSecond: wanted,
+      });
     }
   }
 
@@ -305,11 +317,12 @@ export function explainPort(
   nodeId: string,
   port: RailPort,
   verdict: NodeVerdict,
+  t: MessageTranslator = englishMessage,
 ): PortStory {
   const breakdown = buildPortBreakdown(project, result, nodeId, port);
   return port.side === "input"
-    ? explainInputPort(port, verdict, breakdown)
-    : explainOutputPort(port, verdict, breakdown);
+    ? explainInputPort(port, verdict, breakdown, t)
+    : explainOutputPort(port, verdict, breakdown, t);
 }
 
 /**
@@ -321,6 +334,7 @@ export function explainPlug(
   result: ThroughputResult | undefined,
   nodeId: string,
   port: RailPort,
+  t: MessageTranslator = englishMessage,
 ): PortStory | undefined {
   const plug = port.plug;
   if (!plug || port.side !== "output") {
@@ -335,29 +349,41 @@ export function explainPlug(
 
   // One sentence per state: what the takers asked for, what arrives, and the
   // one thing about THIS state you could not work out from those two numbers.
-  const short = `Asked ${fmt(plug.askPerSecond)}, gets ${fmt(plug.getPerSecond)}${to}.`;
+  const short = t("Asked {p0}, gets {p1}{p2}.", {
+    p0: fmt(plug.askPerSecond),
+    p1: fmt(plug.getPerSecond),
+    p2: to,
+  });
   let lines: string[];
   switch (plug.state) {
     case "hungry":
       lines = [short];
       break;
     case "blocked":
-      lines = [`${short} The machine is short itself, so the fix is upstream.`];
+      lines = [t("{p0} The machine is short itself, so the fix is upstream.", { p0: short })];
       break;
     case "clogged":
       // Worth its own clause: the obvious reading of a short plug is "add
       // machines here", and that is the one thing that cannot help, because
       // more machines make more of the stuck output too.
-      lines = [`${short} More machines here would not help: another output has nowhere to go.`];
+      lines = [
+        t("{p0} More machines here would not help: another output has nowhere to go.", {
+          p0: short,
+        }),
+      ];
       break;
     case "fed":
-      lines = [`Every taker gets what it asked for${to}.`];
+      lines = [t("Every taker gets what it asked for{p0}.", { p0: to })];
       break;
     case "dump":
       lines =
         plug.dumpKind === "trash"
-          ? [`${fmt(plug.getPerSecond)} goes in and is destroyed.`]
-          : [`${fmt(plug.getPerSecond)} goes in and stays there. Nothing draws from it.`];
+          ? [t("{p0} goes in and is destroyed.", { p0: fmt(plug.getPerSecond) })]
+          : [
+              t("{p0} goes in and stays there. Nothing draws from it.", {
+                p0: fmt(plug.getPerSecond),
+              }),
+            ];
       break;
   }
 
@@ -375,6 +401,7 @@ function explainOutputPort(
   port: RailPort,
   verdict: NodeVerdict,
   breakdown: PortBreakdown | undefined,
+  t: MessageTranslator = englishMessage,
 ): PortStory {
   const current = port.currentPerSecond;
   const nameplate = port.nameplatePerSecond;
@@ -394,7 +421,7 @@ function explainOutputPort(
       stateWord: "LEFTOVER",
       tone: "dim",
 
-      lines: [`${fmt(current)} vanishes: nothing is wired.`],
+      lines: [t("{p0} vanishes: nothing is wired.", { p0: fmt(current) })],
     };
   }
 
@@ -409,7 +436,12 @@ function explainOutputPort(
         stateWord: "SLOWED",
         tone,
 
-        lines: [`At ${formatPct(verdict.pct)}%: ${bindingName} sets that. Nothing is waiting on it.`],
+        lines: [
+          t("At {p0}%: {p1} sets that. Nothing is waiting on it.", {
+            p0: formatPct(verdict.pct),
+            p1: bindingName,
+          }),
+        ],
       };
     }
 
@@ -418,14 +450,26 @@ function explainOutputPort(
         stateWord: "SQUEEZED",
         tone,
 
-        lines: [`At ${formatPct(verdict.pct)}% on ${bindingName}. Plugs want ${fmt(wanted)}, over its ${fmt(nameplate)} max.`],
+        lines: [
+          t("At {p0}% on {p1}. Plugs want {p2}, over its {p3} max.", {
+            p0: formatPct(verdict.pct),
+            p1: bindingName,
+            p2: fmt(wanted),
+            p3: fmt(nameplate),
+          }),
+        ],
       };
     }
     return {
       stateWord: "SLOWED",
       tone,
 
-      lines: [`At ${formatPct(verdict.pct)}%: ${bindingName} runs short, so this does too.`],
+      lines: [
+        t("At {p0}%: {p1} runs short, so this does too.", {
+          p0: formatPct(verdict.pct),
+          p1: bindingName,
+        }),
+      ],
     };
   }
 
@@ -436,9 +480,12 @@ function explainOutputPort(
       tone: "green",
 
       lines: [
-        `Makes ${fmt(current)}, plugs take ${fmt(machineWant)}. The spare ${fmt(spare)} ${
-          storageTake >= spare - EPS ? "goes to the buffer" : "vanishes"
-        }.`,
+        t("Makes {p0}, plugs take {p1}. The spare {p2} {p3}.", {
+          p0: fmt(current),
+          p1: fmt(machineWant),
+          p2: fmt(spare),
+          p3: storageTake >= spare - EPS ? "goes to the buffer" : "vanishes",
+        }),
       ],
     };
   }
@@ -448,7 +495,12 @@ function explainOutputPort(
       stateWord: "CALM",
       tone: "steel",
 
-      lines: [`At ${formatPct(verdict.pct)}%: all that is asked. Could do ${fmt(nameplate)}.`],
+      lines: [
+        t("At {p0}%: all that is asked. Could do {p1}.", {
+          p0: formatPct(verdict.pct),
+          p1: fmt(nameplate),
+        }),
+      ],
     };
   }
 
@@ -458,7 +510,7 @@ function explainOutputPort(
       stateWord: "DONE",
       tone: "green",
 
-      lines: [`Full speed. The plug wants ${times} more: hover it for the fix.`],
+      lines: [t("Full speed. The plug wants {p0} more: hover it for the fix.", { p0: times })],
     };
   }
 
@@ -473,6 +525,7 @@ function explainInputPort(
   port: RailPort,
   verdict: NodeVerdict,
   breakdown: PortBreakdown | undefined,
+  t: MessageTranslator = englishMessage,
 ): PortStory {
   const need = port.nameplatePerSecond;
   const fmt = (value: number) => formatSlotRate(value, port.kind);
@@ -480,13 +533,17 @@ function explainInputPort(
   // five are worth a count, and the wires themselves are on the board.
   const feeders = breakdown?.rows.length ?? 0;
   const from =
-    feeders === 1 ? ` from ${breakdown!.rows[0]!.name}` : feeders > 1 ? ` from ${feeders} lines` : "";
+    feeders === 1
+      ? t(" from {p0}", { p0: breakdown!.rows[0]!.name })
+      : feeders > 1
+        ? t(" from {p0} lines", { p0: feeders })
+        : "";
 
   if (port.unsupplied) {
     return {
       stateWord: "NO SUPPLY",
       tone: "amber",
-      lines: [`Nothing is wired here. It needs ${fmt(need)} to run.`],
+      lines: [t("Nothing is wired here. It needs {p0} to run.", { p0: fmt(need) })],
     };
   }
 
@@ -499,7 +556,12 @@ function explainInputPort(
       stateWord: verdict.kind === "blocked" ? "BLOCKED" : "STARVED",
       tone: verdict.kind === "blocked" ? "amber" : "gold",
       lines: [
-        `Gets ${fmt(verdict.binding.suppliedPerSecond)} of the ${fmt(need)} it wants${from}. This is what holds the machine at ${formatPct(verdict.pct)}%.`,
+        t("Gets {p0} of the {p1} it wants{p2}. This is what holds the machine at {p3}%.", {
+          p0: fmt(verdict.binding.suppliedPerSecond),
+          p1: fmt(need),
+          p2: from,
+          p3: formatPct(verdict.pct),
+        }),
       ],
     };
   }
@@ -512,7 +574,10 @@ function explainInputPort(
       stateWord: "NOT THE LIMIT",
       tone: "steel",
       lines: [
-        `Fully supplied${from}. ${verdict.binding?.displayName ?? "Another ingredient"} is what holds this machine back, not this one.`,
+        t("Fully supplied{p0}. {p1} is what holds this machine back, not this one.", {
+          p0: from,
+          p1: verdict.binding?.displayName ?? "Another ingredient",
+        }),
       ],
     };
   }
@@ -522,7 +587,10 @@ function explainInputPort(
       stateWord: "COVERED",
       tone: "steel",
       lines: [
-        `Fully supplied${from}. The machine runs at ${formatPct(verdict.pct)}% because that is all the machines it feeds are taking.`,
+        t(
+          "Fully supplied{p0}. The machine runs at {p1}% because that is all the machines it feeds are taking.",
+          { p0: from, p1: formatPct(verdict.pct) },
+        ),
       ],
     };
   }
@@ -530,7 +598,7 @@ function explainInputPort(
   return {
     stateWord: "COVERED",
     tone: "green",
-    lines: [`Gets the ${fmt(need)} it wants${from}.`],
+    lines: [t("Gets the {p0} it wants{p1}.", { p0: fmt(need), p1: from })],
   };
 }
 
@@ -554,6 +622,7 @@ export function buildEdgeStory(
   project: FactoryProject,
   result: ThroughputResult | undefined,
   edgeIds: string[],
+  t: MessageTranslator = englishMessage,
 ): EdgeStory | undefined {
   if (!result) {
     return undefined;
@@ -607,8 +676,8 @@ export function buildEdgeStory(
     giverNote = giverAtFullSpeed
       ? "at full speed"
       : capable < 0.995
-        ? `runs at ${formatPct(giverPct)}%, missing ingredients too`
-        : `runs at ${formatPct(giverPct)}%, could send more if asked`;
+        ? t("runs at {p0}%, missing ingredients too", { p0: formatPct(giverPct) })
+        : t("runs at {p0}%, could send more if asked", { p0: formatPct(giverPct) });
   }
 
   // ---- the receiving end(s) -------------------------------------------
@@ -624,7 +693,7 @@ export function buildEdgeStory(
     if (targetStorage) {
       to.push({
         name: describeStorage(targetStorage, storageRoles.get(edge.target)),
-        text: `takes whatever arrives: ${fmt(gets)}`,
+        text: t("takes whatever arrives: {p0}", { p0: fmt(gets) }),
       });
       continue;
     }
@@ -651,41 +720,46 @@ export function buildEdgeStory(
           (flow) => flow.resourceId === edge.resourceId,
         )?.amountPerSecond;
       shareNote = totalNeed
-        ? `, its share of ${fmt(totalNeed)} over ${siblings} lines`
-        : `, one of ${siblings} lines`;
+        ? t(", its share of {p0} over {p1} lines", { p0: fmt(totalNeed), p1: siblings })
+        : t(", one of {p0} lines", { p0: siblings });
     }
 
     to.push({
       name: receiverName,
       text:
         wanted > gets + Math.max(EPS, wanted * TOL)
-          ? `wants ${fmt(wanted)}, gets ${fmt(gets)}${shareNote}`
-          : `gets the ${fmt(gets)} it asks for${shareNote}`,
+          ? t("wants {p0}, gets {p1}{p2}", { p0: fmt(wanted), p1: fmt(gets), p2: shareNote })
+          : t("gets the {p0} it asks for{p1}", { p0: fmt(gets), p1: shareNote }),
     });
   }
 
   // ---- the verdict ------------------------------------------------------
   const supplyCapped = edges.some(
-    (edge) =>
-      !storagesById.has(edge.target) && result.edges[edge.id]?.constraint === "supply",
+    (edge) => !storagesById.has(edge.target) && result.edges[edge.id]?.constraint === "supply",
   );
 
   if (supplyCapped) {
-    const coverPct =
-      wantedByMachines > EPS ? (getsByMachines / wantedByMachines) * 100 : 100;
+    const coverPct = wantedByMachines > EPS ? (getsByMachines / wantedByMachines) * 100 : 100;
     const receiverPhrase =
       machineReceivers === 1 && lastMachineReceiver
-        ? `the ${lastMachineReceiver}`
-        : `the ${machineReceivers} machines it feeds`;
+        ? t("the {p0}", { p0: lastMachineReceiver })
+        : t("the {p0} machines it feeds", { p0: machineReceivers });
     const lines = [
-      `Carries all ${fmt(carries)} its maker has. That covers only ${formatPct(coverPct)}% of what ${receiverPhrase} wants.`,
+      t("Carries all {p0} its maker has. That covers only {p1}% of what {p2} wants.", {
+        p0: fmt(carries),
+        p1: formatPct(coverPct),
+        p2: receiverPhrase,
+      }),
     ];
     let action: EdgeStory["action"];
     if (sourceStorage) {
       lines.push("The buffer can't refill as fast as it drains.");
-      action = { text: `→ Feed ${giverName} faster, or add another source.`, tone: "fix" };
+      action = {
+        text: t("→ Feed {p0} faster, or add another source.", { p0: giverName }),
+        tone: "fix",
+      };
     } else if (giverAtFullSpeed) {
-      lines.push(`The ${giverName} is already at full speed.`);
+      lines.push(t("The {p0} is already at full speed.", { p0: giverName }));
       const missing = Math.max(0, wantedByMachines - getsByMachines);
       const sourceNode = nodesById.get(first.source);
       const key = makeResourceKey(first.resourceKind, first.resourceId);
@@ -702,13 +776,20 @@ export function buildEdgeStory(
           ? Math.min(9999, Math.ceil(missing / perMachine - EPS))
           : undefined;
       action = {
-        text: toAdd ? `→ Add +${toAdd} ${giverName}.` : `→ Add more ${giverName}.`,
+        text: toAdd
+          ? t("→ Add +{p0} {p1}.", { p0: toAdd, p1: giverName })
+          : t("→ Add more {p0}.", { p0: giverName }),
         tone: "fix",
       };
     } else {
-      lines.push(`The ${giverName} runs at only ${formatPct(giverPct)}%: it is missing ingredients too.`);
+      lines.push(
+        t("The {p0} runs at only {p1}%: it is missing ingredients too.", {
+          p0: giverName,
+          p1: formatPct(giverPct),
+        }),
+      );
       action = {
-        text: `→ The fix is upstream of the ${giverName}.`,
+        text: t("→ The fix is upstream of the {p0}.", { p0: giverName }),
         tone: "fix",
       };
     }
@@ -730,11 +811,11 @@ export function buildEdgeStory(
       carriesText: fmt(carries),
       from: { name: giverName, note: giverNote },
       to,
-      lines: [`Flows into the buffer at ${fmt(carries)}.`],
+      lines: [t("Flows into the buffer at {p0}.", { p0: fmt(carries) })],
     };
   }
 
-  const lines = [`Delivers exactly what's asked: ${fmt(carries)}.`];
+  const lines = [t("Delivers exactly what's asked: {p0}.", { p0: fmt(carries) })];
   const outlets = project.edges.filter(
     (candidate) =>
       candidate.source === first.source &&
@@ -745,7 +826,13 @@ export function buildEdgeStory(
     capacity = Math.max(capacity, result.edges[edge.id]?.sourceCapacityPerSecond ?? 0);
   }
   if (!sourceStorage && outlets === edges.length && capacity > carries * 1.05) {
-    lines.push(`The ${giverName} could send ${fmt(capacity)}, with ${fmt(capacity - carries)} spare.`);
+    lines.push(
+      t("The {p0} could send {p1}, with {p2} spare.", {
+        p0: giverName,
+        p1: fmt(capacity),
+        p2: fmt(capacity - carries),
+      }),
+    );
   }
   return {
     stateWord: "OK",

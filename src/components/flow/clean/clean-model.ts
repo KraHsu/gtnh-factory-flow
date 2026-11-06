@@ -1,4 +1,6 @@
 "use client";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
+import { useDisplayT } from "@/lib/i18n/game";
 
 import { useMemo } from "react";
 import type { FactoryNode, MachineConfigTierOption, Recipe } from "@/lib/model/types";
@@ -63,7 +65,13 @@ import { UP_TO_COLOR } from "./up-to-reason";
 import { cardLoop, LOOP_WORD, type LoopTone } from "./loops";
 import { glanceBar, type GlanceBar } from "./glance";
 import { isPinned, pinMachineKey, settingControls } from "./menus/settings-model";
-import { mcTextWidth, measureClean, measureRowFigure, measureRowName, useFontEpoch } from "./text-measure";
+import {
+  mcTextWidth,
+  measureClean,
+  measureRowFigure,
+  measureRowName,
+  useFontEpoch,
+} from "./text-measure";
 
 type VoltageTier = Parameters<typeof getVoltageTierIndex>[0];
 
@@ -361,6 +369,7 @@ export function buildPortView(
   node: Pick<FactoryNode, "portRates">,
   forcedAt: ReadonlyMap<string, number> | undefined,
   spillAt?: ReadonlyMap<string, string>,
+  t: MessageTranslator = englishMessage,
 ): CleanPortView {
   const portKey = makePortKey(nodeId, port.side === "input" ? "i" : "o", port.handleId);
   const forcedRate = forcedAt?.get(portKey);
@@ -381,7 +390,9 @@ export function buildPortView(
     chance !== undefined && chance < 1 ? `${Math.round(chance * 10000) / 100}%` : undefined;
   const consumeChance = (port.resource as { consumeChance?: number } | undefined)?.consumeChance;
   const consumeText =
-    consumeChance !== undefined && consumeChance < 1 ? `used up ${Math.round(consumeChance * 10000) / 100}% of runs` : undefined;
+    consumeChance !== undefined && consumeChance < 1
+      ? t("used up {p0}% of runs", { p0: Math.round(consumeChance * 10000) / 100 })
+      : undefined;
   return {
     key: port.key,
     nodeId,
@@ -392,7 +403,7 @@ export function buildPortView(
     unit,
     name: port.displayName,
     title: chanceText
-      ? `${port.displayName} (${chanceText} chance)`
+      ? t("{p0} ({p1} chance)", { p0: port.displayName, p1: chanceText })
       : consumeText
         ? `${port.displayName} (${consumeText})`
         : port.displayName,
@@ -489,7 +500,9 @@ export function cardPicture(
   const recipeMapIcon =
     isBeeProductionRecipe(recipe) || isCropProductionRecipe(recipe)
       ? undefined
-      : (mapIcons.get(recipe.source?.recipeMap ?? recipe.machineType) as MachineHandlerIcon | undefined);
+      : (mapIcons.get(recipe.source?.recipeMap ?? recipe.machineType) as
+          | MachineHandlerIcon
+          | undefined);
   const machineIcon =
     machineIconAtTier(machineIcons.get(face.selectedMachineHandler.id), pictureTier) ??
     recipeMapIcon;
@@ -627,7 +640,11 @@ type PinFields = Pick<FactoryNode, "solvePin" | "solvePinExact">;
 
 /** The patch that gives a card `rule` and `count` (every write of a count goes through `withPinRule`). */
 export function pinPatch(node: PinFields, rule: PinRule, count: number | undefined): PinFields {
-  const next = withPinRule({ solvePin: node.solvePin, solvePinExact: node.solvePinExact }, rule, count);
+  const next = withPinRule(
+    { solvePin: node.solvePin, solvePinExact: node.solvePinExact },
+    rule,
+    count,
+  );
   return { solvePin: next.solvePin, solvePinExact: next.solvePinExact };
 }
 
@@ -710,6 +727,7 @@ export function buildFootView(
   ports: { inputs: readonly CleanPortView[]; outputs: readonly CleanPortView[] },
   cardName: (id: string) => string | undefined = () => undefined,
   loop?: LoopTone,
+  t: MessageTranslator = englishMessage,
 ): CleanFootView | undefined {
   const fmt = formatSolvedMachines;
   if (count.rule === "upTo" && upTo) {
@@ -755,19 +773,23 @@ export function buildFootView(
         ? ["nothing wants more"]
         : reason === "BOTTLENECK"
           ? wants !== undefined
-            ? [`the line wants ${fmt(wants)}`, `wants ${fmt(wants)}`]
+            ? [t("the line wants {p0}", { p0: fmt(wants) }), t("wants {p0}", { p0: fmt(wants) })]
             : ["the line wants more"]
           : reason === "STARVED"
             ? resource
-              ? [`short of ${resource}`, "short of an input"]
+              ? [t("short of {p0}", { p0: resource }), "short of an input"]
               : ["short of an input"]
             : reason === "CLOGGED" || loop === "clog"
               ? resource
-                ? [`${resource} has nowhere to go`, `nowhere for ${resource}`, "an output backs up"]
+                ? [
+                    t("{p0} has nowhere to go", { p0: resource }),
+                    t("nowhere for {p0}", { p0: resource }),
+                    "an output backs up",
+                  ]
                 : ["an output backs up"]
               : reason === "UNUSED"
                 ? resource
-                  ? [`nothing takes ${resource}`, "nothing takes it"]
+                  ? [t("nothing takes {p0}", { p0: resource }), "nothing takes it"]
                   : ["nothing takes it"]
                 : reason === "LIMITED"
                   ? ["the plan holds it back", "held back"]
@@ -775,7 +797,10 @@ export function buildFootView(
     return {
       tone: loop ? LOOP_FOOT_TONE[loop] : reason ? FOOT_TONE[reason] : "plain",
       word,
-      say: fitLine(lines, room),
+      say: fitLine(
+        lines.map((line) => t(line)),
+        room,
+      ),
       frac,
       fill,
       ghost,
@@ -799,21 +824,28 @@ export function buildFootView(
     const first = forced[0]!;
     const rate = `${first.forced!.number}${first.forced!.unit ? ` ${first.forced!.unit}` : ""}`;
     const set = count.set ?? 0;
-    const keep = set === 1 ? "to keep it running" : `to keep all ${fmt(set)} running`;
+    const keep = set === 1 ? "to keep it running" : t("to keep all {p0} running", { p0: fmt(set) });
     const word = "FORCED IN";
     const room = FOOT_TEXT - measureClean(word, FOOT_SIZE) - FOOT_GAP;
     const lines =
       forced.length === 1
-        ? [`${rate} of ${first.name} ${keep}`, `${rate} of ${first.name}`, rate]
+        ? [
+            t("{p0} of {p1} {p2}", { p0: rate, p1: first.name, p2: keep }),
+            t("{p0} of {p1}", { p0: rate, p1: first.name }),
+            rate,
+          ]
         : [
-            `${rate} of ${first.name} and ${forced.length - 1} more`,
-            `${first.name} and ${forced.length - 1} more`,
-            `${forced.length} inputs`,
+            t("{p0} of {p1} and {p2} more", { p0: rate, p1: first.name, p2: forced.length - 1 }),
+            t("{p0} and {p1} more", { p0: first.name, p1: forced.length - 1 }),
+            t("{p0} inputs", { p0: forced.length }),
           ];
     return {
       tone: "forced",
       word,
-      say: fitLine(lines, room),
+      say: fitLine(
+        lines.map((line) => t(line)),
+        room,
+      ),
       frac: "",
       fill: 0,
       facts: {
@@ -926,6 +958,7 @@ export function useCleanCardModel(
   data: RecipeNodeData,
   selected: boolean,
 ): { view: CleanCardView; actions: CleanCardActions; context: CleanCardContext } {
+  const t = useDisplayT();
   const { projectNode, recipe, result } = data;
   useFontEpoch();
   const updateNode = useFactoryStore((state) => state.updateNode);
@@ -1053,7 +1086,7 @@ export function useCleanCardModel(
       stalled,
       title: stalled
         ? (powerReport.recipeGateReason ?? "This machine's tier is too low to run the recipe.")
-        : `${powerReport.tier} machine, ${formatCompact(powerReport.amps)}A`,
+        : t("{p0} machine, {p1}A", { p0: powerReport.tier, p1: formatCompact(powerReport.amps) }),
     };
   } else if (steamReport) {
     power = {
@@ -1100,11 +1133,15 @@ export function useCleanCardModel(
 
   // The rows an Up to card's reason names are lit in its colour (only while the card is Up to: `upTo` is its own).
   const inputs = withReasonPorts(
-    rails.inputs.map((port) => buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt)),
+    rails.inputs.map((port) =>
+      buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt, t),
+    ),
     countState.upTo,
   );
   const outputs = withReasonPorts(
-    rails.outputs.map((port) => buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt)),
+    rails.outputs.map((port) =>
+      buildPortView(projectNode.id, port, projectNode, forcedAt, spillAt, t),
+    ),
     countState.upTo,
   );
   const loop = cardLoop(plan?.loops, projectNode.id);
@@ -1114,6 +1151,7 @@ export function useCleanCardModel(
     { inputs, outputs },
     (id) => cardNameIn(liveProject, id),
     loop,
+    t,
   );
 
   const view: CleanCardView = {
@@ -1127,7 +1165,7 @@ export function useCleanCardModel(
           fixed: tierControl?.fixed === true,
           title: tierControl?.fixed
             ? "Fixed by the reactor mark"
-            : `Tier ${tierLabel}. Click up, right click down.`,
+            : t("Tier {p0}. Click up, right click down.", { p0: tierLabel }),
         }
       : undefined,
     amps:

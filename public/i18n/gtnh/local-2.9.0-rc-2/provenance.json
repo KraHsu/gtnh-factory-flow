@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/GTNewHorizons/GTNH-Translations",
+  "commit": "d63737908e87ad44a92457298ed46bf37bd245e5",
+  "translationLicense": "CC-BY-NC-SA (as declared in the Chinese translation README)",
+  "attribution": "GTNH Chinese translation contributors / ParaTranz project 4964",
+  "datasetVersion": "2.9.0-RC-2",
+  "method": "Paired language keys, exact names and official ore-prefix/material templates; ambiguous matches fall back to English.",
+  "coverage": {
+    "resources": 67718,
+    "translatedNames": 48733,
+    "translatedTooltipResources": 179,
+    "translatedTooltipLines": 725,
+    "languagePairs": 73838
+  },
+  "resourceIndexSha256": "f271f8975f2d213fda5976c9989b9eaa9694615cd377fc7cabb56666abe6daab",
+  "lookupIndexSha256": "841fbfc306ba521a89a25115bd76527f5109e1d29729ed2bda22bb6db9ef2d38"
+}

@@ -1,4 +1,5 @@
 "use client";
+import { useDisplayT } from "@/lib/i18n/game";
 
 import {
   useCallback,
@@ -27,7 +28,6 @@ export function elementUnderPointer(x: number, y: number): Element | null | unde
   return document.elementFromPoint(x, y);
 }
 
-
 export function MinecraftTooltip({
   label,
   content,
@@ -54,14 +54,19 @@ export function MinecraftTooltip({
   /** Allow a compact information control to expose its details with keyboard focus. */
   openOnFocus?: boolean;
 }) {
+  const t = useDisplayT();
   const lines = useMemo(
-    () => (Array.isArray(label) ? label : label ? label.split("\n") : []),
-    [label],
+    () => (Array.isArray(label) ? label : label ? label.split("\n") : []).map((line) => t(line)),
+    [label, t],
   );
   const hasContent = content !== undefined && content !== null;
-  const [position, setPosition] = useState<{ x: number; y: number; maxHeight?: number; belowCard?: boolean } | undefined>();
+  const [position, setPosition] = useState<
+    { x: number; y: number; maxHeight?: number; belowCard?: boolean } | undefined
+  >();
   const frameRef = useRef<number | undefined>(undefined);
-  const pendingPositionRef = useRef<{ x: number; y: number; maxHeight?: number; belowCard?: boolean } | undefined>(undefined);
+  const pendingPositionRef = useRef<
+    { x: number; y: number; maxHeight?: number; belowCard?: boolean } | undefined
+  >(undefined);
   const pointerRef = useRef<{ x: number; y: number } | undefined>(undefined);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const anchorRef = useRef<DOMRect | undefined>(undefined);
@@ -101,7 +106,9 @@ export function MinecraftTooltip({
     (pointerX: number, pointerY: number) => {
       const panelWidth = panelRef.current?.offsetWidth ?? (hasContent ? 340 : 320);
       const panelHeight = panelRef.current?.offsetHeight ?? (hasContent ? 240 : 80);
-      const anchorWidth = companion ? (panelRef.current?.firstElementChild as HTMLElement | null)?.offsetWidth ?? panelWidth : panelWidth;
+      const anchorWidth = companion
+        ? ((panelRef.current?.firstElementChild as HTMLElement | null)?.offsetWidth ?? panelWidth)
+        : panelWidth;
       // Shell pixels throughout: the panel is a body portal wearing .ui-zoom,
       // so its left/top and offset size are shell pixels, and the pointer and
       // window (real pixels) are divided by the interface scale (ui-scale.ts).
@@ -121,21 +128,43 @@ export function MinecraftTooltip({
           return {
             belowCard,
             maxHeight,
-            x: Math.max(4, Math.min(anchor.right / scale - anchorWidth, window.innerWidth / scale - panelWidth - 8)),
-            y: belowCard ? below : Math.max(4, anchor.top / scale - Math.min(naturalHeight, maxHeight) - 6),
+            x: Math.max(
+              4,
+              Math.min(
+                anchor.right / scale - anchorWidth,
+                window.innerWidth / scale - panelWidth - 8,
+              ),
+            ),
+            y: belowCard
+              ? below
+              : Math.max(4, anchor.top / scale - Math.min(naturalHeight, maxHeight) - 6),
           };
         }
-        const preferredY = placement === "above"
-          ? (above >= 4 ? above : below)
-          : (below + panelHeight <= window.innerHeight / scale - 8 || above < 4 ? below : above);
+        const preferredY =
+          placement === "above"
+            ? above >= 4
+              ? above
+              : below
+            : below + panelHeight <= window.innerHeight / scale - 8 || above < 4
+              ? below
+              : above;
         return {
-          x: Math.max(4, Math.min(anchor.right / scale - anchorWidth, window.innerWidth / scale - panelWidth - 8)),
+          x: Math.max(
+            4,
+            Math.min(
+              anchor.right / scale - anchorWidth,
+              window.innerWidth / scale - panelWidth - 8,
+            ),
+          ),
           y: Math.max(4, Math.min(preferredY, window.innerHeight / scale - panelHeight - 8)),
         };
       }
       return {
         x: Math.max(4, Math.min(pointerX / scale + 12, window.innerWidth / scale - panelWidth - 8)),
-        y: Math.max(4, Math.min(pointerY / scale + 12, window.innerHeight / scale - panelHeight - 8)),
+        y: Math.max(
+          4,
+          Math.min(pointerY / scale + 12, window.innerHeight / scale - panelHeight - 8),
+        ),
       };
     },
     [hasContent, placement, companion],
@@ -151,7 +180,12 @@ export function MinecraftTooltip({
       return;
     }
     const corrected = clampToViewport(pointer.x, pointer.y);
-    if (Math.abs(corrected.x - position.x) >= 2 || Math.abs(corrected.y - position.y) >= 2 || corrected.maxHeight !== position.maxHeight || corrected.belowCard !== position.belowCard) {
+    if (
+      Math.abs(corrected.x - position.x) >= 2 ||
+      Math.abs(corrected.y - position.y) >= 2 ||
+      corrected.maxHeight !== position.maxHeight ||
+      corrected.belowCard !== position.belowCard
+    ) {
       setPosition(corrected);
     }
   }, [clampToViewport, position, content]);
@@ -232,7 +266,9 @@ export function MinecraftTooltip({
       }
 
       setPosition((currentPosition) =>
-        currentPosition && currentPosition.maxHeight === nextPosition.maxHeight && currentPosition.belowCard === nextPosition.belowCard &&
+        currentPosition &&
+        currentPosition.maxHeight === nextPosition.maxHeight &&
+        currentPosition.belowCard === nextPosition.belowCard &&
         Math.abs(currentPosition.x - nextPosition.x) < 2 &&
         Math.abs(currentPosition.y - nextPosition.y) < 2
           ? currentPosition
@@ -300,7 +336,14 @@ export function MinecraftTooltip({
           if (placement !== "pointer") {
             anchorRef.current = readAnchorRect();
             const next = clampToViewport(pointer.x, pointer.y);
-            setPosition(current => current && current.maxHeight === next.maxHeight && Math.abs(current.x - next.x) < 2 && Math.abs(current.y - next.y) < 2 ? current : next);
+            setPosition((current) =>
+              current &&
+              current.maxHeight === next.maxHeight &&
+              Math.abs(current.x - next.x) < 2 &&
+              Math.abs(current.y - next.y) < 2
+                ? current
+                : next,
+            );
           }
           return;
         }
@@ -336,15 +379,25 @@ export function MinecraftTooltip({
       onMouseEnter={handleMouseMove}
       onMouseMove={handleMouseMove}
       onMouseLeave={clearTooltip}
-      onFocus={openOnFocus ? () => {
-        const rect = readAnchorRect();
-        if (!rect || (!hasContent && !lines.length)) return;
-        anchorRef.current = rect;
-        pointerRef.current = { x: rect.left + rect.width / 2, y: rect.bottom };
-        setPosition(clampToViewport(pointerRef.current.x, pointerRef.current.y));
-      } : undefined}
+      onFocus={
+        openOnFocus
+          ? () => {
+              const rect = readAnchorRect();
+              if (!rect || (!hasContent && !lines.length)) return;
+              anchorRef.current = rect;
+              pointerRef.current = { x: rect.left + rect.width / 2, y: rect.bottom };
+              setPosition(clampToViewport(pointerRef.current.x, pointerRef.current.y));
+            }
+          : undefined
+      }
       onBlur={openOnFocus ? clearTooltip : undefined}
-      onKeyDown={openOnFocus ? (event) => { if (event.key === "Escape") clearTooltip(); } : undefined}
+      onKeyDown={
+        openOnFocus
+          ? (event) => {
+              if (event.key === "Escape") clearTooltip();
+            }
+          : undefined
+      }
     >
       {children}
       {position && (lines.length > 0 || hasContent) && typeof document !== "undefined"
@@ -353,18 +406,45 @@ export function MinecraftTooltip({
               <div
                 ref={panelRef}
                 data-minecraft-tooltip={companion ? undefined : "true"}
-                className={companion ? `pointer-events-none fixed z-[9999] ui-zoom flex w-max flex-wrap gap-1 ${position.belowCard ? "items-start" : "items-end"}` : `${TOOLTIP_PANEL_CLASS} ui-zoom max-w-[640px] ${compact ? "px-2 py-1.5" : "px-3 py-2.5"}`}
-                data-card-placement={placement === "above-card" ? (position.belowCard ? "below" : "above") : undefined}
-                style={{ left: position.x, top: position.y, ...(placement !== "pointer" ? { maxWidth: window.innerWidth / getUiScale() - 16 } : {}), ...(placement === "above-card" ? { maxHeight: position.maxHeight, overflowY: "auto" } : {}) }}
+                className={
+                  companion
+                    ? `pointer-events-none fixed z-[9999] ui-zoom flex w-max flex-wrap gap-1 ${position.belowCard ? "items-start" : "items-end"}`
+                    : `${TOOLTIP_PANEL_CLASS} ui-zoom max-w-[640px] ${compact ? "px-2 py-1.5" : "px-3 py-2.5"}`
+                }
+                data-card-placement={
+                  placement === "above-card" ? (position.belowCard ? "below" : "above") : undefined
+                }
+                style={{
+                  left: position.x,
+                  top: position.y,
+                  ...(placement !== "pointer"
+                    ? { maxWidth: window.innerWidth / getUiScale() - 16 }
+                    : {}),
+                  ...(placement === "above-card"
+                    ? { maxHeight: position.maxHeight, overflowY: "auto" }
+                    : {}),
+                }}
               >
-                {companion ? <>
-                  <div data-minecraft-tooltip="true" className={`${TOOLTIP_PANEL_CLASS} !relative min-w-0 max-w-full px-3 py-2.5`}>
-                    {typeof content === "function" ? content() : content}
-                  </div>
-                  <div data-tooltip-companion className={`${TOOLTIP_PANEL_CLASS} !relative min-w-0 max-w-full px-3 py-2.5`}>
-                    {typeof companion === "function" ? companion() : companion}
-                  </div>
-                </> : typeof content === "function" ? content() : content}
+                {companion ? (
+                  <>
+                    <div
+                      data-minecraft-tooltip="true"
+                      className={`${TOOLTIP_PANEL_CLASS} !relative min-w-0 max-w-full px-3 py-2.5`}
+                    >
+                      {typeof content === "function" ? content() : content}
+                    </div>
+                    <div
+                      data-tooltip-companion
+                      className={`${TOOLTIP_PANEL_CLASS} !relative min-w-0 max-w-full px-3 py-2.5`}
+                    >
+                      {typeof companion === "function" ? companion() : companion}
+                    </div>
+                  </>
+                ) : typeof content === "function" ? (
+                  content()
+                ) : (
+                  content
+                )}
               </div>
             ) : (
               <div
@@ -378,7 +458,11 @@ export function MinecraftTooltip({
                 style={{ left: position.x, top: position.y }}
               >
                 {lines.map((line, index) => (
-                  <div key={`${line}-${index}`} className="mc-tip-line" data-tone={index === 0 ? "name" : undefined}>
+                  <div
+                    key={`${line}-${index}`}
+                    className="mc-tip-line"
+                    data-tone={index === 0 ? "name" : undefined}
+                  >
                     {line}
                   </div>
                 ))}

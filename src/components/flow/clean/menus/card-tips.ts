@@ -1,3 +1,4 @@
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
 import { useMemo } from "react";
 import type { FactoryNode, Recipe } from "@/lib/model/types";
 import {
@@ -84,7 +85,11 @@ export function useCardTipFacts(recipe: Recipe, node: FactoryNode): CardTipFacts
 const seconds = (s: number) => `${formatCompact(s)} s`;
 const times = (text: string) => text.replace(/^[x×]/, "×");
 
-export function machineNameTip(view: CleanCardView, f: CardTipFacts): TipSpec {
+export function machineNameTip(
+  view: CleanCardView,
+  f: CardTipFacts,
+  t: MessageTranslator = englishMessage,
+): TipSpec {
   const tip: NonNullable<TipSpec["rows"]> = [
     {
       label: view.count.pinned ? "Running machines" : "Required machines",
@@ -99,7 +104,10 @@ export function machineNameTip(view: CleanCardView, f: CardTipFacts): TipSpec {
   tip.push(
     f.steam
       ? { label: "Steam per machine", value: `${formatCompact(f.drawPerMachine)} L/s` }
-      : { label: "Draw per machine", value: `${formatCompact(f.drawPerMachine)} EU/t` },
+      : {
+          label: "Draw per machine",
+          value: t("{p0} EU/t", { p0: formatCompact(f.drawPerMachine) }),
+        },
   );
   if (f.parallels > 1)
     tip.push({ label: "Parallel operations", value: String(Math.round(f.parallels)) });
@@ -121,13 +129,20 @@ export function machineNameTip(view: CleanCardView, f: CardTipFacts): TipSpec {
   };
 }
 
-export function tierChipTip(view: CleanCardView, f: CardTipFacts): TipSpec {
+export function tierChipTip(
+  view: CleanCardView,
+  f: CardTipFacts,
+  t: MessageTranslator = englishMessage,
+): TipSpec {
   const tier = view.tier!;
   const rows: NonNullable<TipSpec["rows"]> = [{ label: "Configured tier", value: tier.label }];
   if (f.recipeTier && f.recipeTier !== "NONE")
     rows.push({ label: "Recipe tier", value: f.recipeTier });
   rows.push({ label: "Time per operation", value: seconds(f.seconds) });
-  rows.push({ label: "Draw per machine", value: `${formatCompact(f.drawPerMachine)} EU/t` });
+  rows.push({
+    label: "Draw per machine",
+    value: t("{p0} EU/t", { p0: formatCompact(f.drawPerMachine) }),
+  });
   return {
     id: `${view.nodeId}|tier`,
     title: tier.fixed ? "Fusion reactor power" : "Voltage tier",
@@ -145,7 +160,11 @@ export function tierChipTip(view: CleanCardView, f: CardTipFacts): TipSpec {
   };
 }
 
-export function powerRowTip(view: CleanCardView, f: CardTipFacts): TipSpec {
+export function powerRowTip(
+  view: CleanCardView,
+  f: CardTipFacts,
+  t: MessageTranslator = englishMessage,
+): TipSpec {
   const power = view.power!;
   const demand = power.stalled ? power.number : `${power.number} ${power.unit}`.trim();
   return f.steam
@@ -162,7 +181,10 @@ export function powerRowTip(view: CleanCardView, f: CardTipFacts): TipSpec {
         id: `${view.nodeId}|power`,
         title: "Power",
         rows: [
-          { label: "Draw per machine", value: `${formatCompact(f.drawPerMachine)} EU/t` },
+          {
+            label: "Draw per machine",
+            value: t("{p0} EU/t", { p0: formatCompact(f.drawPerMachine) }),
+          },
           { label: "Demand for this card", value: demand },
         ],
         notes: [
@@ -249,7 +271,11 @@ export function ruleTip(view: Pick<CleanCardView, "nodeId" | "count">): TipSpec 
 }
 
 /** The foot bar's tip: how much runs, the reason in full, and where to act. */
-export function footTip(nodeId: string, foot: CleanFootView): TipSpec {
+export function footTip(
+  nodeId: string,
+  foot: CleanFootView,
+  t: MessageTranslator = englishMessage,
+): TipSpec {
   const f = foot.facts;
   const n = formatSolvedMachines;
   const rows: NonNullable<TipSpec["rows"]> = [];
@@ -257,7 +283,12 @@ export function footTip(nodeId: string, foot: CleanFootView): TipSpec {
   if (f.reason === "FORCED") {
     for (const line of f.forced) rows.push({ label: "Forced in", value: line, tone: "warn" });
     notes.push({ text: "Set it to Up to and it runs what its inputs allow.", tone: "muted" });
-    return { id: `${nodeId}|foot`, title: `Exactly ${n(f.capacity)} running`, rows, notes };
+    return {
+      id: `${nodeId}|foot`,
+      title: t("Exactly {p0} running", { p0: n(f.capacity) }),
+      rows,
+      notes,
+    };
   }
   const usage = f.capacity > 0 ? Math.min(100, (100 * f.running) / f.capacity) : 0;
   rows.push({ label: "Usage", value: `${formatCompact(usage)}%` });
@@ -268,8 +299,8 @@ export function footTip(nodeId: string, foot: CleanFootView): TipSpec {
       : all
         ? f.capacity === 1
           ? "Running flat out"
-          : `All ${n(f.capacity)} running`
-        : `${n(f.running)} of ${n(f.capacity)} running`;
+          : t("All {p0} running", { p0: n(f.capacity) })
+        : t("{p0} of {p1} running", { p0: n(f.running), p1: n(f.capacity) });
   // A ring: what it is short of or backs up with, and that the ring stops itself.
   if (f.loop) {
     const dead = f.loop === "dead";
@@ -293,7 +324,7 @@ export function footTip(nodeId: string, foot: CleanFootView): TipSpec {
       if (f.wants !== undefined) {
         rows.push({ label: "Wants", value: `×${n(f.wants)}`, tone: "red" });
         notes.push({
-          text: `${n(f.wants - f.capacity)} more here would let the line run faster.`,
+          text: t("{p0} more here would let the line run faster.", { p0: n(f.wants - f.capacity) }),
           tone: "red",
         });
       }

@@ -1,5 +1,9 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { englishMessage, type MessageTranslator } from "@/lib/i18n/message";
+
+import { useDisplayT } from "@/lib/i18n/game";
+
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "./rail.css";
 import { fluidSwatchStyle } from "../fluid-swatch";
@@ -601,6 +605,7 @@ const LineRow = memo(function LineRow({
   item: Extract<Placed["item"], { t: "line" }>;
   state: RailState;
 }) {
+  const t = useT();
   const { line, section, amount, setters } = item;
   const [hot, setHot] = useState(false);
   const setHovered = useFactoryStore((s) => s.setHoveredFlowResourceKey);
@@ -653,7 +658,9 @@ const LineRow = memo(function LineRow({
     >
       <div className="rail-row" style={{ top: 0, height: ROW_H }}>
         <ResourceGlyph line={line} />
-        <span className="rail-name">{line.label}</span>
+        <span className="rail-name" data-resource-name={line.label}>
+          {t(line.label)}
+        </span>
         <span className="rail-num" data-zero={amount > 0 ? undefined : ""}>
           {number}
           {unitText ? <i>{unitText}</i> : null}
@@ -719,6 +726,7 @@ function DrawerControls({
   line: RailLine;
   state: RailState;
 }) {
+  const t = useDisplayT();
   const mult = rateMultiplierForKind(line.kind);
   const key = `drawer:${drawer.id}`;
   const wheeled = state.wheeled[key];
@@ -749,7 +757,7 @@ function DrawerControls({
         tip={() => ({
           title: "Rule",
           sub: RULE_NAME[drawer.rule],
-          notes: [{ text: ruleMeaning(drawer), tone: "muted" }],
+          notes: [{ text: ruleMeaning(drawer, t), tone: "muted" }],
           actions: [
             { input: "left", label: "Pick" },
             { input: "right", label: "Previous" },
@@ -801,21 +809,22 @@ function DrawerControls({
   );
 }
 
-function ruleMeaning(drawer: RailDrawer): string {
+function ruleMeaning(drawer: RailDrawer, t: MessageTranslator = englishMessage): string {
   const verb = drawer.source ? "draws from it" : "puts in it";
   switch (drawer.rule) {
     case "ignore":
-      return `No target: the plan ${verb} whatever it needs.`;
+      return t("No target: the plan {p0} whatever it needs.", { p0: verb });
     case "at-least":
-      return `The plan ${verb} at least the rate.`;
+      return t("The plan {p0} at least the rate.", { p0: verb });
     case "exact":
-      return `The plan ${verb} exactly the rate.`;
+      return t("The plan {p0} exactly the rate.", { p0: verb });
     case "at-most":
-      return `The plan ${verb} no more than the rate.`;
+      return t("The plan {p0} no more than the rate.", { p0: verb });
   }
 }
 
 function PortControls({ pin, line, state }: { pin: RailPin; line: RailLine; state: RailState }) {
+  const t = useDisplayT();
   const mult = rateMultiplierForKind(line.kind);
   const key = `port:${pin.nodeId}:${pin.handle}`;
   const wheeled = state.wheeled[key];
@@ -834,10 +843,13 @@ function PortControls({ pin, line, state }: { pin: RailPin; line: RailLine; stat
         }}
         onMiddle={() => setPortRate(pin.nodeId, pin.handle, 0)}
         tip={() => ({
-          title: `Set on the ${pin.machine}'s ${side}`,
+          title: t("Set on the {p0}'s {p1}", { p0: pin.machine, p1: side }),
           notes: [
             {
-              text: `The machine runs so this ${side} ${pin.output ? "gives" : "takes"} exactly it.`,
+              text: t("The machine runs so this {p0} {p1} exactly it.", {
+                p0: side,
+                p1: pin.output ? "gives" : "takes",
+              }),
               tone: "muted",
             },
           ],
@@ -848,7 +860,7 @@ function PortControls({ pin, line, state }: { pin: RailPin; line: RailLine; stat
         })}
       />
       <RateBox
-        label={`Rate set on the ${pin.machine}'s ${side}`}
+        label={t("Rate set on the {p0}'s {p1}", { p0: pin.machine, p1: side })}
         text={formatCompact(shown)}
         gold
         editing={state.editing === key}
@@ -866,7 +878,7 @@ function PortControls({ pin, line, state }: { pin: RailPin; line: RailLine; stat
           )
         }
         tip={() => ({
-          title: `Rate set on the ${pin.machine}'s ${side}`,
+          title: t("Rate set on the {p0}'s {p1}", { p0: pin.machine, p1: side }),
           actions: [
             { input: "left", label: "Type it (2.5k, 1/3)" },
             { input: "wheel", label: "+1, Ctrl 10, Shift 100" },
@@ -888,6 +900,7 @@ function OpenLineControls({
   sources: boolean;
   state: RailState;
 }) {
+  const t = useDisplayT();
   const mult = rateMultiplierForKind(line.kind);
   const key = `line:${sources ? "in" : "out"}:${line.key}`;
   const only = line.open.length === 1 ? line.open[0]! : undefined;
@@ -897,8 +910,11 @@ function OpenLineControls({
     notes: [
       {
         text: only
-          ? `Sets the ${only.machine}'s ${side}, as on its card.`
-          : `Makes a drawer for it, wired to the ${line.open.length} ${side}s waiting for it.`,
+          ? t("Sets the {p0}'s {p1}, as on its card.", { p0: only.machine, p1: side })
+          : t("Makes a drawer for it, wired to the {p0} {p1}s waiting for it.", {
+              p0: line.open.length,
+              p1: side,
+            }),
         tone: "muted",
       },
     ],
@@ -1005,6 +1021,7 @@ function MachineGlyph({ entry }: { entry: RailMachine }) {
 }
 
 function GroupRow({ name, entries }: { name: string; entries: RailMachine[] }) {
+  const t = useT();
   const [hot, setHot] = useState(false);
   const go = () =>
     walkCards(
@@ -1038,7 +1055,7 @@ function GroupRow({ name, entries }: { name: string; entries: RailMachine[] }) {
       <div className="rail-row" style={{ top: 0, height: ROW_H }}>
         <MachineGlyph entry={entries[0]!} />
         <span className="rail-name" style={{ color: hot ? "var(--ks-amber)" : "var(--ks-text)" }}>
-          {name}
+          {t(name)}
         </span>
       </div>
     </div>
@@ -1060,6 +1077,7 @@ function MachineChips({ nodeId }: { nodeId: string }) {
 }
 
 function MachineChipsFor({ data }: { data: RecipeNodeData }) {
+  const t = useDisplayT();
   const { view, actions } = useCleanCardModel(data, false);
   const nodeId = view.nodeId;
   const always = () => true;
@@ -1100,6 +1118,7 @@ const MachineRow = memo(function MachineRow({
   peak: boolean;
   state: RailState;
 }) {
+  const t = useDisplayT();
   useFontEpoch();
   const railWidth = useContext(RailWidthContext);
   const [hot, setHot] = useState(false);
@@ -1150,13 +1169,19 @@ const MachineRow = memo(function MachineRow({
     title: entry.label,
     sub:
       upTo && entry.pinned
-        ? `${machinesText(entry.count)} of ${machinesText(entry.pin!)} machines`
-        : `${machinesText(entry.count)} machines${entry.pinned ? " (exactly)" : ""}`,
+        ? t("{p0} of {p1} machines", {
+            p0: machinesText(entry.count),
+            p1: machinesText(entry.pin!),
+          })
+        : t("{p0} machines{p1}", {
+            p0: machinesText(entry.count),
+            p1: entry.pinned ? " (exactly)" : "",
+          }),
     notes: [
       ...(upTo && entry.upTo?.reason
         ? [
             {
-              text: `${UP_TO_WORD[entry.upTo.reason]}. ${upToSentence(entry.upTo) ?? ""}`.trim(),
+              text: `${t(UP_TO_WORD[entry.upTo.reason])}. ${upToSentence(entry.upTo, t) ?? ""}`.trim(),
               tone: "muted" as const,
             },
           ]
@@ -1239,8 +1264,8 @@ const MachineRow = memo(function MachineRow({
                     notes: [
                       {
                         text: upTo
-                          ? `Never more than ${machinesText(entry.pin!)}.`
-                          : `Exactly ${machinesText(entry.pin!)}.`,
+                          ? t("Never more than {p0}.", { p0: machinesText(entry.pin!) })
+                          : t("Exactly {p0}.", { p0: machinesText(entry.pin!) }),
                         tone: "muted",
                       },
                     ],
@@ -1257,7 +1282,7 @@ const MachineRow = memo(function MachineRow({
                         tone: "muted",
                       },
                     ],
-                    actions: [{ input: "left", label: `Pin it at ${base}` }],
+                    actions: [{ input: "left", label: t("Pin it at {p0}", { p0: base }) }],
                   }
             }
           />

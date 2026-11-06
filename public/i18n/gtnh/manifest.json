@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "datasets": {
+    "local-2.9.0-rc-2": {
+      "datasetHash": "a306a680a7bccb28fa2a98fb627787fbc4f6ccd8eb73814e8d9f178cba171b74",
+      "messages": "/i18n/gtnh/local-2.9.0-rc-2/zh-CN.2453ea75c7411755.json",
+      "search": "local-2.9.0-rc-2/resources.json.gz",
+      "coverage": {
+        "resources": 67718,
+        "translatedNames": 48733,
+        "translatedTooltipResources": 179,
+        "translatedTooltipLines": 725,
+        "languagePairs": 73838
+      }
+    }
+  }
+}

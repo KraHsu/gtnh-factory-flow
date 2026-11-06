@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useState } from "react";
 import { wheelChangesValues } from "@/lib/device-settings";
@@ -113,8 +113,8 @@ export function SpecialSheet({
                       aria-pressed={row.pinned === true}
                       aria-label={
                         row.pinned
-                          ? `Unpin ${row.label} from the card`
-                          : `Pin ${row.label} to the card`
+                          ? t("Unpin {p0} from the card", { p0: row.label })
+                          : t("Pin {p0} to the card", { p0: row.label })
                       }
                       onClick={() => {
                         if (!locked) row.onPin?.();

@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import "../clean.css";
 import "./drawer.css";
@@ -141,19 +141,22 @@ export function CleanDrawer({
   );
   const view = useMemo(
     () =>
-      buildDrawerView({
-        storage,
-        role,
-        label,
-        result,
-        unanchored,
-        unmet,
-        linked: role !== "idle",
-        spill,
-      }),
+      buildDrawerView(
+        {
+          storage,
+          role,
+          label,
+          result,
+          unanchored,
+          unmet,
+          linked: role !== "idle",
+          spill,
+        },
+        t,
+      ),
     // The rate and power dials change the strings (the units are read inside).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [storage, role, label, result, unanchored, unmet, spill, rateUnit, powerUnit, fontEpoch],
+    [storage, role, label, result, unanchored, unmet, spill, rateUnit, powerUnit, fontEpoch, t],
   );
   // "Set rate" blinks off the board's one clock (virtual/prompt-phase.ts).
   useEffect(() => {
@@ -489,8 +492,9 @@ export function CleanDrawer({
             className="cd-name"
             data-small={view.nameSmall || undefined}
             data-clip={view.nameClipped || undefined}
+            data-resource-name={view.label}
           >
-            {view.label}
+            {t(view.label)}
           </span>
           {view.hasRule || view.kind === "trash" ? (
             <div
@@ -510,7 +514,9 @@ export function CleanDrawer({
               {...tipAttrs(view.tips.rule)}
               aria-haspopup="menu"
               aria-expanded={rule.open}
-              aria-label={`Rule: ${view.kind === "trash" ? "Trash" : RULE_NAME[view.rule]}`}
+              aria-label={t("Rule: {p0}", {
+                p0: view.kind === "trash" ? "Trash" : RULE_NAME[view.rule],
+              })}
               onPointerDown={(event) => event.stopPropagation()}
               onMouseDown={middleDown}
               onAuxClick={middle}
@@ -543,7 +549,7 @@ export function CleanDrawer({
               {...(view.kind === "trash" ? tipAttrs(view.tips.body) : tipAttrs(view.tips.rate))}
               aria-label={
                 view.target
-                  ? `Your rate: ${view.target.number} ${view.target.unit}`
+                  ? t("Your rate: {p0} {p1}", { p0: view.target.number, p1: view.target.unit })
                   : "Your rate: none"
               }
               {...(editing ? {} : boxProps)}
@@ -668,6 +674,7 @@ export function CleanDrawerFace({
   role: StorageRole;
   net?: number;
 }) {
+  const t = useT();
   const category = useFactoryStore((state) =>
     getCategoryPresentation(state.project.recipes, storage.kind, storage.resourceId),
   );
@@ -675,15 +682,18 @@ export function CleanDrawerFace({
     category ?? { id: storage.resourceId, displayName: storage.displayName },
   );
   useFontEpoch();
-  const view = buildDrawerView({
-    storage,
-    role,
-    label,
-    result: { netPerSecond: net } as never,
-    unanchored: false,
-    unmet: false,
-    linked: true,
-  });
+  const view = buildDrawerView(
+    {
+      storage,
+      role,
+      label,
+      result: { netPerSecond: net } as never,
+      unanchored: false,
+      unmet: false,
+      linked: true,
+    },
+    t,
+  );
   return (
     <div className="cd" data-kind={view.kind}>
       <div className="cd-edge" aria-hidden />
@@ -695,7 +705,9 @@ export function CleanDrawerFace({
         <span className="cd-num" data-unit={view.unit} data-zero="">
           {view.number}
         </span>
-        <span className="cd-name">{view.label}</span>
+        <span className="cd-name" data-resource-name={view.label}>
+          {t(view.label)}
+        </span>
         {view.hasRule || view.kind === "trash" ? (
           <>
             <div className="cd-key" data-mark={view.ruleMark} data-any="" />

@@ -30,10 +30,47 @@ follows the browser; a saved choice takes precedence. `src/lib/i18n/index.ts` ow
 language selection, cross-tab updates, English fallback and named interpolation.
 `zh-CN.json` uses the English UI text as its keys. Use `useT()` in presentation
 components; translate model labels where they are displayed, never where they are
-used as identifiers. Missing strings fall back to English. Dataset item/machine
-names, mod tooltips, some generated solver explanations, older release notes and
-developer diagnostics retain the
-upstream language; item searches currently use the upstream English names/IDs.
+used as identifiers. Missing strings fall back to English. Developer diagnostics and
+older release notes retain the upstream language.
+
+Game names and tooltips use a separate, versioned display pack under
+`public/i18n/gtnh`. The default 2.9.0-RC-2 pack matches the published dataset hash.
+It reuses the pinned GTNH-Translations English/Chinese language keys and official
+material/ore-prefix templates. Ambiguous names and unrecognized text stay English.
+The current pack resolves 48,733 of 67,718 resource names (72.0%) and 725 tooltip
+lines on 179 resources; this is partial coverage, not a complete Chinese dataset.
+The source revision, method, coverage and upstream terms accompany the pack, and
+Help links to its attribution notice. Translations have their upstream terms;
+they are not relicensed under this application's code license.
+
+`game-catalog.ts` loads a matching pack lazily for Chinese, shares concurrent
+requests and ignores stale loads after a dataset change. UI components opt into
+`useDisplayT`; projects, history, calculations and exported recipes retain their
+canonical values. A missing or mismatched pack falls back to English. Pure
+explanation builders accept a translator and default to their English output.
+
+Chinese item queries use `/api/i18n/<version>/resources`, backed by the local
+resource index. The index retains original IDs, names and texture paths, and
+supports kind, mod, crop/bee filters, pagination and production/use counts from
+the matching recipe lookup index. English item queries still use the upstream
+API. Recipe-book name filters translate confirmed Chinese aliases back to the
+canonical English query. Unknown or ambiguous aliases are left unchanged.
+Chinese search currently supports the default RC-2 dataset; older datasets use
+English names and queries.
+
+To rebuild, check out the GTNH-Translations revision recorded in `provenance.json`
+and obtain the matching published resource and lookup indexes plus manifest:
+
+```sh
+node tools/i18n/build-gtnh-zh.mjs <translation-checkout> \
+  <resource-index.json.gz> <recipe-lookup-index.json.gz> <datasets.manifest.json>
+```
+
+The builder writes a display pack, a compressed canonical search index, coverage,
+source hashes and attribution. It does not regenerate recipes or recipe IDs.
+For names that language-key matching cannot confirm, the next source is a
+localized runtime export from the matching game instance. Do not guess labels by
+resource IDs or replace a complete recipe export just to translate text.
 
 The guided tour translates its notes, markup, controls and generated sample text.
 Tour targets resolve translated labels or stable control identifiers rather than

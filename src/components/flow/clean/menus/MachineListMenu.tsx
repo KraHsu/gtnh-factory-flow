@@ -1,5 +1,5 @@
 "use client";
-import { useT } from "@/lib/i18n";
+import { useDisplayT as useT } from "@/lib/i18n/game";
 
 import { useMemo } from "react";
 import type { MachineHandler } from "@/lib/model/types";
