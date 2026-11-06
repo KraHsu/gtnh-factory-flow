@@ -1,9 +1,11 @@
 # KraHsu public deployment
 
 This fork runs at https://gtnh.krahsu.top on **rain**. The IAM portal lists it as a
-public tool. Neither the planner nor its assets require a session. Plans stay in
-the browser; JSON files and plan codes provide portable backups. There is no IAM
-login, cloud account, community database or live collaboration in this deployment.
+public tool. Neither the planner nor its assets require a session. Local plans stay
+in the browser; JSON files and plan codes provide portable backups. Collaboration
+rooms are a separate choice: IAM authenticates room owners, and guests join using
+an eight-digit room number, password and nickname. Room plans persist on rain.
+The community account, community database and account-wide cloud sync remain off.
 
 ## Project map and execution flow
 
@@ -88,15 +90,17 @@ The font distribution includes its OFL license, provenance and shard hashes.
 
 ## Build and publish
 
-Node 20.9+ is required (rain uses its existing Node 24 runtime). Build on a workstation:
+The room service requires Node 24 (rain uses its existing Node 24 runtime). Build on a workstation:
 
 ```sh
 npm ci
 npm run typecheck
 npm test -- --maxWorkers=4
 npm run test:icons:browsers
+npm run build:rooms
 NEXT_PUBLIC_SITE_URL=https://gtnh.krahsu.top \
 NEXT_PUBLIC_PUBLIC_TOOL=1 \
+NEXT_PUBLIC_ROOMS=1 \
 GTNH_DATASET_BACKEND_URL=https://gtnhplanner.com npm run build
 ```
 
@@ -107,7 +111,7 @@ through the same origin. This deployment **depends on gtnhplanner.com for recipe
 queries and textures**. A self-contained dataset may instead be installed under
 `public/datasets/gtnh`, then rebuilt without `GTNH_DATASET_BACKEND_URL`.
 
-Package `.next/standalone/` plus `public/`, `.next/static/`, `deploy/`, `LICENSE`,
+Package `.next/standalone/` plus `public/`, `.next/static/`, `dist-live/rooms.mjs`, `deploy/`, `LICENSE`,
 this document and `release.json` containing `version` and the source revision.
 Upload to `/mnt/storage/gtnh-flow/releases/<release>/` and run:
 
@@ -127,16 +131,76 @@ wildcard certificate. The existing wildcard DNS resolves this hostname to rain.
 No authentication policy or other site's gateway is changed.
 The public gateway strips Cookie and Authorization headers before the planner,
 so the shared IAM session cookie is never forwarded to the dataset provider.
+Only `/api/rooms` goes to the room process with the browser cookie. `/live` goes
+to that process with WebSocket upgrade support and no cookie or Authorization.
+
+## Persistent rooms
+
+The header's Rooms key opens Join room, Create room and My rooms. Creation copies
+the current plan into a separate design; it never turns the original local plan
+into a shared plan. All participants, including the IAM owner, choose a nickname.
+Guests need no account. The owner can list and explicitly close their rooms after
+IAM authentication. Closing a browser or leaving a room never closes the room.
+
+`gtnh-rooms.service` runs `dist-live/rooms.mjs` on loopback port 8793 with Node 24.
+Its SQLite database and operation journals live under `/mnt/storage/gtnh-flow/rooms`
+outside release directories. This directory is private to the service user and is
+never included in an application release. SQLite uses WAL and FULL synchronization;
+the existing live engine journals operations before acknowledging them, flushes
+plans at most every eight seconds, and replays journals on startup. Idle rooms
+leave memory but remain in SQLite, without an automatic expiration date.
+
+`src/live/rooms` provides the room store, HTTP admission and IAM verification. It
+adapts the existing `PlanStore` and `LiveService`; the operations and wire protocol
+used by the upstream game remain unchanged. IAM owner requests validate only the
+`__Secure-krahsu-iam` cookie against the loopback Authelia endpoint and its protected
+IAM portal policy. Client identity headers and application community cookies never
+grant ownership. No IAM credentials reach the game dataset service.
+
+Passwords use salted scrypt; neither room listings nor admission responses include
+the password or its hash. Creation requires 8–128 password characters. Nicknames
+accept 1–24 characters and reject control characters. A successful admission issues
+a random room-scoped credential stored as a hash on the server. The browser keeps
+the credential in sessionStorage, sends it as a WebSocket subprotocol rather than
+in a URL, and restores it on reload. Credentials last 24 hours; participants then
+join again with their password and nickname. The room itself does not expire.
+
+The UI uses the existing live client, pending-operation recovery, inverse-based
+undo and cursor layer. Each participant sees other nicknamed cursors in board
+coordinates without moving anyone else's camera. Moving a cursor only updates the
+presence layer, never the project or solve. Concurrent changes to different fields
+merge; changes to the same field use server arrival order. This is not character-by-
+character collaborative text editing.
+
+Room creation and joining are rate limited, room credentials cannot access another
+room, and closing a room immediately disconnects its participants. The initial
+service admits up to 20 rooms in memory, 100 stored rooms per owner, and 100 unexpired
+participant credentials per room. It uses a 384 MiB Node heap and a 512 MiB systemd
+memory cap. The web process retains its separate cap.
+
+For local development, start the room process with an absolute `GTNH_ROOMS_DIR`,
+`GTNH_ROOMS_PORT` and `LIVE_ALLOWED_ORIGINS`. Set `NEXT_PUBLIC_ROOMS=1`,
+`NEXT_PUBLIC_LIVE_URL=ws://127.0.0.1:<room-port>/live`, and
+`GTNH_ROOMS_BACKEND_URL=http://127.0.0.1:<room-port>` for Next.js. Production uses the
+nginx routes and needs neither development URL. Production has no mock IAM path.
+
+`src/live/rooms/rooms.test.ts` drives real sockets and an on-disk database through
+owner disconnects, guest editing, cursor presence, crash recovery, duplicate batch
+replays, room isolation, expired credentials, leaving, closing, origin checks and
+IAM verification. `src/store/live-session.test.ts` also covers anonymous room clients.
 
 ## Operations and rollback
 
 ```sh
 ssh rain 'sudo systemctl status gtnh-flow --no-pager'
+ssh rain 'sudo systemctl status gtnh-rooms --no-pager'
 ssh rain 'sudo journalctl -u gtnh-flow -n 50 --no-pager'
 curl -fsS https://gtnh.krahsu.top/api/version
 ```
 
-To return to an earlier release, pass its directory to the same installer. For
+To return to an earlier release, pass its directory to the current installer,
+including when the earlier release predates rooms. The installer stops the room
+service for such a release and preserves its data for a later upgrade. For
 first-install removal, stop/disable `gtnh-flow`, remove only its dedicated nginx
 file and IAM catalog entry, run nginx validation and reload. Keep the backups and
 browser plan data. IAM loads its catalog for each request, so adding this public

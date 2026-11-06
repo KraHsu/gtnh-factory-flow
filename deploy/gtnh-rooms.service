@@ -1,0 +1,34 @@
+[Unit]
+Description=KraHsu GTNH persistent collaboration rooms
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/storage/gtnh-flow /mnt/storage/iam/runtime
+
+[Service]
+Type=simple
+User=charles
+Group=charles
+WorkingDirectory=/mnt/storage/gtnh-flow/current
+ExecStart=/mnt/storage/iam/runtime/node dist-live/rooms.mjs
+Environment=NODE_ENV=production
+Environment=GTNH_ROOMS_DIR=/mnt/storage/gtnh-flow/rooms
+Environment=GTNH_ROOMS_PORT=8793
+Environment=LIVE_ALLOWED_ORIGINS=https://gtnh.krahsu.top
+Environment=NODE_OPTIONS=--max-old-space-size=384
+EnvironmentFile=/etc/gtnh-flow.env
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=45
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/mnt/storage/gtnh-flow/rooms
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+MemoryMax=512M
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

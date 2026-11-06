@@ -32,6 +32,8 @@ import {
 import type { FactoryProject } from "@/lib/model/types";
 import { APP_VERSION } from "@/lib/version";
 import { useCommunityAuthStore } from "./community-auth-store";
+import { clearRoomConnection, roomsConfigured, useRoomConnection } from "@/lib/rooms/connection";
+import { ROOM_PROTOCOL } from "@/lib/rooms/types";
 import { useDesignStore } from "./design-store";
 import { useFactoryStore } from "./factory-store";
 import { syncLibraryNow } from "@/lib/library/library-sync";
@@ -285,13 +287,27 @@ export class LiveSession {
 
   constructor(options: LiveSessionOptions = {}) {
     this.createSocket =
-      options.createSocket ?? ((url) => new WebSocket(url) as unknown as LiveSocketLike);
+      options.createSocket ??
+      ((url) => {
+        const room = roomsConfigured() && useRoomConnection.getState().connection;
+        return new WebSocket(
+          url,
+          room ? [ROOM_PROTOCOL, room.token] : [],
+        ) as unknown as LiveSocketLike;
+      });
     this.url = options.url ?? liveSocketAddress;
   }
 
   start(): () => void {
     holdTabLock(THIS_TAB_ID);
     this.teardowns.push(useCommunityAuthStore.subscribe(() => this.onAuth()));
+    if (roomsConfigured())
+      this.teardowns.push(
+        useRoomConnection.subscribe(() => {
+          this.onAuth();
+          this.queueBinding();
+        }),
+      );
     this.teardowns.push(
       useDesignStore.subscribe((state, previous) => {
         if (
@@ -348,7 +364,9 @@ export class LiveSession {
   // The connection
 
   private onAuth(): void {
-    const username = useCommunityAuthStore.getState().user?.username;
+    const username = roomsConfigured()
+      ? useRoomConnection.getState().connection?.user.id
+      : useCommunityAuthStore.getState().user?.username;
     if (username === this.username) {
       return;
     }
@@ -457,6 +475,13 @@ export class LiveSession {
     if (code === 4001) {
       // Not signed in as far as the service can tell: wait for a new sign-in.
       this.authRefused = true;
+      if (roomsConfigured()) {
+        this.persistNow();
+        clearRoomConnection(true);
+        useLiveSession.setState({
+          notice: noticeOf("Your room session expired. Join again with your nickname."),
+        });
+      }
     } else {
       this.scheduleReconnect();
     }
@@ -600,7 +625,9 @@ export class LiveSession {
             leaveLibrary();
             openSharedPlan(ref, frame.name).catch((error: unknown) => {
               useLiveSession.setState({
-                notice: noticeOf(error instanceof Error ? error.message : "The plan could not be opened."),
+                notice: noticeOf(
+                  error instanceof Error ? error.message : "The plan could not be opened.",
+                ),
               });
             });
           },
@@ -688,6 +715,13 @@ export class LiveSession {
     const room = this.room;
     if (frame.code === "auth") {
       this.authRefused = true;
+      if (roomsConfigured()) {
+        this.persistNow();
+        clearRoomConnection(true);
+        useLiveSession.setState({
+          notice: noticeOf("Your room session expired. Join again with your nickname."),
+        });
+      }
       return;
     }
     if (!room || frame.doc !== room.doc) {
@@ -739,6 +773,14 @@ export class LiveSession {
     this.refusedDocs.add(room.doc);
     const design = useDesignStore.getState().designs.find((entry) => entry.id === room.designId);
     this.unbind();
+    if (roomsConfigured()) {
+      clearRoomConnection(true);
+      useLiveSession.setState({
+        notice: noticeOf("This room is unavailable. Join again with the room number and password."),
+      });
+      this.publish();
+      return;
+    }
     if (design?.cloud) {
       useLiveSession.setState({
         notice: noticeOf(
@@ -755,6 +797,20 @@ export class LiveSession {
   private onKicked(reason: "unshared" | "deleted"): void {
     const room = this.room;
     if (!room) {
+      return;
+    }
+    if (roomsConfigured()) {
+      this.persistNow();
+      this.unbind();
+      clearRoomConnection(true);
+      useLiveSession.setState({
+        notice: noticeOf(
+          reason === "deleted"
+            ? "This room was closed. Your local copy is still on this device."
+            : "Your room session ended. Join again with the room number and password.",
+        ),
+      });
+      this.publish();
       return;
     }
     this.refusedDocs.add(room.doc);
@@ -823,6 +879,12 @@ export class LiveSession {
     this.forgetRefusalsOfGoneDesigns(designs);
     if (publicView || !activeDesignId || useFactoryStore.getState().isReadOnly) {
       return undefined;
+    }
+    if (roomsConfigured()) {
+      const room = useRoomConnection.getState().connection;
+      return room?.designId === activeDesignId
+        ? { doc: docKey(room.room.ownerId, room.room.designId), designId: activeDesignId }
+        : undefined;
     }
     const design = designs.find((entry) => entry.id === activeDesignId);
     if (!design) {
@@ -986,7 +1048,11 @@ export class LiveSession {
       return;
     }
     const shaped = liveShape(next);
-    const ops = withRecipesTheyName(diffPlans(liveShape(previous), shaped), room.engine.view, shaped);
+    const ops = withRecipesTheyName(
+      diffPlans(liveShape(previous), shaped),
+      room.engine.view,
+      shaped,
+    );
     if (ops.length === 0) {
       return;
     }

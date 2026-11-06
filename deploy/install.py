@@ -15,12 +15,13 @@ import urllib.request
 ROOT = Path('/mnt/storage/gtnh-flow')
 CONF = Path('/opt/1panel/www/conf.d/gtnh.krahsu.top.conf')
 UNIT = Path('/etc/systemd/system/gtnh-flow.service')
+ROOM_UNIT = Path('/etc/systemd/system/gtnh-rooms.service')
 CATALOG = Path('/mnt/storage/iam/app/deploy/services.json')
 ENTRY = {
     'id': 'gtnh', 'name': '工厂蓝图', 'subtitle': 'GTNH 生产链规划器',
     'glyph': '工', 'category': '工具', 'url': 'https://gtnh.krahsu.top/',
-    'launch': 'https://gtnh.krahsu.top/', 'mode': 'public', 'protocol': '公开工具 · 本地保存',
-    'description': '搜索真实 GTNH 配方，连接生产链，计算机器数量与功耗。支持中英文。',
+    'launch': 'https://gtnh.krahsu.top/', 'mode': 'public', 'protocol': '公开工具 · 持久协作房间',
+    'description': 'GTNH 生产链规划器，支持中英文和多人编辑。IAM 登录创建房间，访客凭房间号和密码加入。',
     'healthPath': '/api/version',
 }
 
@@ -47,26 +48,40 @@ if __name__ == '__main__':
     assert os.geteuid() == 0 and os.path.ismount('/mnt/storage')
     assert release.is_relative_to(ROOT / 'releases')
     assert (release / 'server.js').is_file() and (release / '.next/BUILD_ID').is_file()
+    has_rooms = (release / 'dist-live/rooms.mjs').is_file()
+    assert has_rooms == (release / 'deploy/gtnh-rooms.service').is_file()
     assert Path('/mnt/storage/iam/runtime/node').is_file()
     first = not UNIT.exists()
+    first_rooms = not ROOM_UNIT.exists()
     if first:
         with socket.socket() as test: test.bind(('127.0.0.1', 8792))
+    if has_rooms and first_rooms:
+        with socket.socket() as test: test.bind(('127.0.0.1', 8793))
+    run('install', '-d', '-o', 'charles', '-g', 'charles', '-m', '700', str(ROOT / 'rooms'))
     previous = os.readlink(ROOT / 'current') if (ROOT / 'current').is_symlink() else None
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     backup = ROOT / 'backups' / stamp
     backup.mkdir(parents=True, mode=0o700)
-    for path in (CONF, UNIT, CATALOG):
+    for path in (CONF, UNIT, ROOM_UNIT, CATALOG):
         if path.exists(): shutil.copy2(path, backup / path.name)
-    (backup / 'previous.json').write_text(json.dumps({'current': previous, 'first': first}))
+    (backup / 'previous.json').write_text(json.dumps({'current': previous, 'first': first, 'first_rooms': first_rooms}))
     env = Path('/etc/gtnh-flow.env')
     if not env.exists():
         fd = os.open(env, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(fd, 'w') as out: out.write('COMMUNITY_HASH_SALT=' + secrets.token_hex(32) + '\n')
     try:
         shutil.copy2(release / 'deploy/gtnh-flow.service', UNIT)
+        if has_rooms:
+            shutil.copy2(release / 'deploy/gtnh-rooms.service', ROOM_UNIT)
+        elif not first_rooms:
+            run('systemctl', 'disable', '--now', 'gtnh-rooms')
+            ROOM_UNIT.unlink()
         link(release)
         run('systemctl', 'daemon-reload')
         run('systemctl', 'enable', 'gtnh-flow')
+        if has_rooms:
+            run('systemctl', 'enable', 'gtnh-rooms')
+            run('systemctl', 'restart', 'gtnh-rooms')
         run('systemctl', 'restart', 'gtnh-flow')
         expected = json.loads((release / 'release.json').read_text())['version']
         deadline = time.monotonic() + 90
@@ -76,6 +91,9 @@ if __name__ == '__main__':
                     assert json.load(response)['version'] == expected
                 with urllib.request.urlopen('http://127.0.0.1:8792/', timeout=5) as response:
                     assert b'GTNH' in response.read()
+                if has_rooms:
+                    with urllib.request.urlopen('http://127.0.0.1:8793/live/health', timeout=3) as response:
+                        assert json.load(response)['ok'] is True
                 break
             except Exception:
                 if time.monotonic() >= deadline: raise
@@ -84,23 +102,28 @@ if __name__ == '__main__':
         nginx(['-t'])
         nginx(['-s', 'reload'])
         entries = json.loads(CATALOG.read_text())
+        entry = ENTRY if has_rooms else {**ENTRY, 'protocol': '公开工具 · 本地保存',
+            'description': '搜索真实 GTNH 配方，连接生产链，计算机器数量与功耗。支持中英文。'}
         matches = [row for row in entries if row['id'] == 'gtnh']
         assert not matches or matches[0]['url'] == ENTRY['url'], 'Conflicting IAM entry'
-        if matches: entries = [ENTRY if row['id'] == 'gtnh' else row for row in entries]
-        else: entries.insert(next((i for i, row in enumerate(entries) if row['id'] == 'mj'), len(entries)), ENTRY)
+        if matches: entries = [entry if row['id'] == 'gtnh' else row for row in entries]
+        else: entries.insert(next((i for i, row in enumerate(entries) if row['id'] == 'mj'), len(entries)), entry)
         write_atomic(CATALOG, json.dumps(entries, ensure_ascii=False, indent=2) + '\n')
     except Exception:
         # Stop a first installation before removing its unit file. There may
         # be no unit yet if the failure happened while preparing it.
         if first:
             subprocess.run(['systemctl', 'disable', '--now', 'gtnh-flow'], check=False)
-        for path in (CONF, UNIT, CATALOG):
+        if first_rooms:
+            subprocess.run(['systemctl', 'disable', '--now', 'gtnh-rooms'], check=False)
+        for path in (CONF, UNIT, ROOM_UNIT, CATALOG):
             saved = backup / path.name
             if saved.exists(): shutil.copy2(saved, path)
-            elif path in (CONF, UNIT) and path.exists(): path.unlink()
+            elif path in (CONF, UNIT, ROOM_UNIT) and path.exists(): path.unlink()
         if previous: link(previous)
         run('systemctl', 'daemon-reload')
         if not first: run('systemctl', 'restart', 'gtnh-flow')
+        if not first_rooms: run('systemctl', 'restart', 'gtnh-rooms')
         nginx(['-t'])
         nginx(['-s', 'reload'])
         raise

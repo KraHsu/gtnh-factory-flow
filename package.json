@@ -9,6 +9,7 @@
     "live": "tsx src/live/main.ts",
     "build": "next build",
     "build:live": "esbuild src/live/main.ts --bundle --platform=node --format=esm --target=node20 --packages=external --outfile=dist-live/live.mjs --log-level=warning",
+    "build:rooms": "esbuild src/live/rooms/main.ts --bundle --platform=node --format=esm --target=node24 --external:bufferutil --external:utf-8-validate --banner:js='import { createRequire as roomBundleRequire } from \"node:module\"; const require = roomBundleRequire(import.meta.url);' --outfile=dist-live/rooms.mjs --log-level=warning",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",

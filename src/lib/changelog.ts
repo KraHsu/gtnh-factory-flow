@@ -40,6 +40,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.10.0",
+    date: "2026-11-06",
+    headline: "Persistent collaboration rooms",
+    notes: [
+      "Sign in with IAM to create a room from a copy of your current plan.",
+      "Teammates join with the room number, password and their own nickname.",
+      "Edit together and see other members' cursors on the board.",
+      "Rooms stay available and saved on the server when the owner closes their browser.",
+    ],
+  },
+  {
     version: "4.9.0",
     date: "2026-11-05",
     headline: "Chinese game names and bilingual search",

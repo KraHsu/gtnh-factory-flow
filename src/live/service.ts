@@ -68,6 +68,8 @@ export const SERVICE_LIMITS = {
   accountCacheMs: 60_000,
 };
 
+type ServiceLimits = Record<keyof typeof LIVE_LIMITS | keyof typeof SERVICE_LIMITS, number>;
+
 /** Minecraft names, as the game sends its player's and the names it sees. */
 const MC_NAME = /^[A-Za-z0-9_]{1,32}$/;
 /** How many names one `/live/nearby` ask may carry. */
@@ -76,6 +78,13 @@ const NEARBY_NAMES = 100;
 export interface LiveServiceOptions {
   store: PlanStore;
   journalDir: string;
+  /** Room deployments use room-scoped credentials instead of community accounts. */
+  authenticate?: (
+    request: IncomingMessage,
+  ) => Promise<{ id: string; username: string } | undefined>;
+  httpHandler?: (
+    request: IncomingMessage,
+  ) => Promise<{ status: number; body: unknown } | undefined>;
   /** Exact origins a browser may connect from; a client sending none (the game) is let in. */
   allowedOrigins: string[];
   /** Guards /internal/*; unset, they answer 503. */
@@ -83,7 +92,7 @@ export interface LiveServiceOptions {
   timing?: Partial<RoomTiming>;
   /** Plan size limit in JSON characters (default: the library's upload limit). */
   maxPlanChars?: number;
-  limits?: Partial<typeof LIVE_LIMITS & typeof SERVICE_LIMITS>;
+  limits?: Partial<ServiceLimits>;
   /** A connection silent this long is dropped (default 90 s). */
   idleMs?: number;
   /** Called on POST /internal/shutdown (how dev-local stops it where signals do not reach). */
@@ -239,7 +248,7 @@ export class LiveService {
   private readonly flushes: FlushQueue;
   private readonly cids = new Map<string, number>();
   private readonly timing: RoomTiming;
-  private readonly limits: typeof LIVE_LIMITS & typeof SERVICE_LIMITS;
+  private readonly limits: ServiceLimits;
   /** Each account's batch work budget, while it has connections. */
   private readonly budgets = new Map<string, TimeBudget>();
   private readonly origins: Set<string>;
@@ -393,10 +402,30 @@ export class LiveService {
     };
   }
 
+  /** Apply admission changes before a new room credential can open its socket. */
+  async refreshMembers(doc: string): Promise<void> {
+    const key = parseDocKey(doc);
+    const room = await this.rooms.get(doc)?.catch(() => undefined);
+    if (key && room) {
+      await room.enqueue(async () => {
+        await room.updateMembers(await this.options.store.members(key.ownerId, key.designId));
+      });
+    }
+  }
+
+  /** The persistent store must tombstone the document before this is called. */
+  async dropDocument(doc: string): Promise<void> {
+    const room = await this.rooms.get(doc)?.catch(() => undefined);
+    if (room) await room.drop("deleted");
+    else await this.journal.remove(doc);
+  }
+
   // -------------------------------------------------------------------------
   // HTTP
 
   private async handleHttp(req: IncomingMessage): Promise<{ status: number; body: unknown }> {
+    const handled = await this.options.httpHandler?.(req);
+    if (handled) return handled;
     const url = new URL(req.url ?? "/", "http://live.local");
     const method = (req.method ?? "GET").toUpperCase();
     if (method === "GET" && url.pathname === `${LIVE_PATH}/health`) {
@@ -472,7 +501,11 @@ export class LiveService {
    */
   private announceSharing(doc: string, body: InternalBody): void {
     const owner = body.owner as { id?: unknown; username?: unknown } | undefined;
-    if (Array.isArray(body.added) && isAccountId(owner?.id) && typeof owner?.username === "string") {
+    if (
+      Array.isArray(body.added) &&
+      isAccountId(owner?.id) &&
+      typeof owner?.username === "string"
+    ) {
       const frame: ServerFrame = {
         t: "shared",
         doc,
@@ -581,7 +614,16 @@ export class LiveService {
       refuse(429, "Too Many Requests");
       return;
     }
-    const session = this.session(req);
+    let supplied: { id: string; username: string } | undefined;
+    try {
+      supplied = await this.options.authenticate?.(req);
+    } catch {
+      refuse(503, "Service Unavailable");
+      return;
+    }
+    const session = this.options.authenticate
+      ? supplied && { userId: supplied.id }
+      : this.session(req);
     if (session && !this.upgradesByAccount.take(session.userId)) {
       refuse(429, "Too Many Requests");
       return;
@@ -592,7 +634,7 @@ export class LiveService {
     let lookupFailed = false;
     if (session && !tooMany()) {
       try {
-        user = await this.account(session.userId);
+        user = this.options.authenticate ? supplied : await this.account(session.userId);
       } catch (error) {
         lookupFailed = true;
         this.log(`sign-in check failed: ${String(error)}`);
@@ -651,7 +693,9 @@ export class LiveService {
         ws.send(text);
         if (ws.bufferedAmount > this.limits.bufferedBytes) {
           // Not reading what it is sent: everything waiting would sit in memory.
-          this.log(`connection ${conn.connId}: over ${this.limits.bufferedBytes} bytes unsent, dropped`);
+          this.log(
+            `connection ${conn.connId}: over ${this.limits.bufferedBytes} bytes unsent, dropped`,
+          );
           ws.terminate();
         }
       },
@@ -869,8 +913,7 @@ export class LiveService {
         if (
           !current.closed &&
           current.peers.has(conn) &&
-          (!last ||
-            (last.seq !== current.seq && Date.now() - last.at >= this.limits.resnapshotMs))
+          (!last || (last.seq !== current.seq && Date.now() - last.at >= this.limits.resnapshotMs))
         ) {
           const role = conn.userId === current.ownerId ? "owner" : "editor";
           conn.snapshots.set(doc, { seq: current.seq, at: Date.now() });

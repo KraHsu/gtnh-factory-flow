@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const datasetBackendUrl = process.env.GTNH_DATASET_BACKEND_URL?.replace(/\/+$/, "");
+const roomsBackendUrl = process.env.GTNH_ROOMS_BACKEND_URL?.replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -35,6 +36,12 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const appRewrites = [
+      ...(roomsBackendUrl
+        ? [
+            { source: "/api/rooms", destination: `${roomsBackendUrl}/api/rooms` },
+            { source: "/api/rooms/:path*", destination: `${roomsBackendUrl}/api/rooms/:path*` },
+          ]
+        : []),
       {
         source: "/umami",
         destination: "http://127.0.0.1:8582/umami",

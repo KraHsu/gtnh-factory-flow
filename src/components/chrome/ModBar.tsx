@@ -36,6 +36,8 @@ import { useLiveSession } from "@/store/live-session";
 import { closeFeedback, useFeedbackOpen } from "@/components/flow/clean/feedback/feedback-store";
 import { PlanShareDialog } from "@/components/live/PlanShareDialog";
 import { initialsOf, inkOn } from "@/components/live/LiveFaces";
+import { RoomControls } from "@/components/live/RoomControls";
+import { roomsConfigured, openRoomDialog } from "@/lib/rooms/connection";
 
 /** Live plans (sharing, presence, task boards): none of it shows without NEXT_PUBLIC_LIVE_URL. */
 const LIVE = isLiveConfigured();
@@ -160,7 +162,7 @@ export function ModBar({
   // The mod's Share menu has the same rows, in the same words. Labels only. People first, then the copies; a copy
   // posted to Community is the last row (never for a task board).
   const shareEntries: MenuEntry[] = [
-    ...(LIVE
+    ...(LIVE && !roomsConfigured()
       ? [
           {
             label: "Invite people...",
@@ -169,6 +171,9 @@ export function ModBar({
             onSelect: () => setInviting(true),
           } satisfies MenuEntry,
         ]
+      : []),
+    ...(roomsConfigured()
+      ? [{ label: "Collaboration rooms", onSelect: () => openRoomDialog("join") }]
       : []),
     { label: "Copy plan link", ruleAbove: LIVE, onSelect: () => void copyPlanLink(plan()) },
     { label: "Copy plan code", onSelect: () => void copyPlanCode(plan()) },
@@ -200,6 +205,7 @@ export function ModBar({
       >
         <ModTabs onPaste={() => setPasting(true)} onShare={onShare} />
         {LIVE ? <LivePresence tight={tight} /> : null}
+        <RoomControls pictures={pictures} />
         {compact ? (
           <>
             <BarKey
@@ -348,6 +354,7 @@ const LIVE_STATUS_TIP: Record<"live" | "connecting" | "offline", string> = {
  * at the end of the tab strip as the mod draws them. Nothing while the plan is not live.
  */
 function LivePresence({ tight }: { tight: boolean }) {
+  const t = useT();
   const status = useLiveSession((state) => state.status);
   const present = useLiveSession((state) => state.present);
   const pending = useLiveSession((state) => state.pending);
@@ -355,17 +362,18 @@ function LivePresence({ tight }: { tight: boolean }) {
   // A narrow bar keeps the first two faces and counts the rest.
   const shown = present.slice(0, tight ? 2 : 5);
   const more = present.length - shown.length;
-  const waiting = status !== "live" && pending > 0 ? ` (${pending} waiting)` : "";
+  const waiting =
+    status !== "live" && pending > 0 ? t(" ({count} waiting)", { count: pending }) : "";
   return (
     <div
       className="mb-live"
       data-live-status={status}
       {...tipAttrs({
         id: "bar|live",
-        title: `${LIVE_STATUS_TIP[status]}${waiting}`,
+        title: `${t(LIVE_STATUS_TIP[status])}${waiting}`,
         sub:
           present.length > 0
-            ? `Here now: ${present.map((person) => person.username).join(", ")}`
+            ? t("Here now: {names}", { names: present.map((person) => person.username).join(", ") })
             : undefined,
       })}
     >

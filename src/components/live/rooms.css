@@ -1,0 +1,141 @@
+.room-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #0008;
+}
+.room-dialog {
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  color: var(--foreground, #4c4f69);
+  background: var(--background, #eff1f5);
+  border: 1px solid var(--color-line, #bcc0cc);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 24px 80px #0004;
+  font-size: 15px;
+}
+.room-dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.room-dialog h2 {
+  margin: 0;
+  font-size: 21px;
+}
+.room-dialog h3 {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.room-dialog button,
+.room-dialog input,
+.room-dialog a {
+  font: inherit;
+}
+.room-dialog button,
+.room-dialog a.room-primary {
+  border: 1px solid var(--color-line, #bcc0cc);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.room-dialog button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.room-dialog nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 20px;
+}
+.room-dialog nav [aria-pressed="true"] {
+  color: var(--color-accent, #40a02b);
+  border-color: currentColor;
+}
+.room-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 20px;
+}
+.room-section p {
+  margin: 0;
+  line-height: 1.6;
+}
+.room-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.room-section input {
+  min-width: 0;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--color-line, #bcc0cc);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+.room-dialog .room-primary {
+  display: inline-block;
+  text-align: center;
+  background: var(--color-accent, #40a02b);
+  color: #fff;
+  border-color: transparent;
+}
+.room-muted {
+  opacity: 0.78;
+  font-size: 13px;
+}
+.room-error {
+  padding: 10px;
+  margin-top: 16px;
+  border: 1px solid #d20f39;
+  border-radius: 6px;
+  color: #d20f39;
+}
+.room-number {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.room-number strong {
+  letter-spacing: 0.1em;
+  font-size: 22px;
+}
+.room-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-line, #bcc0cc);
+}
+.room-list-item > div {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+.room-dialog .room-danger {
+  color: #d20f39;
+}
+@media (max-width: 440px) {
+  .room-dialog {
+    padding: 16px;
+  }
+  .room-dialog nav button {
+    padding: 6px 8px;
+  }
+}

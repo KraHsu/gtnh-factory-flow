@@ -94,6 +94,7 @@ import { applyOps, type LiveOp, type LivePlan, type LiveThing } from "@/lib/live
 import { LIVE_LIMITS, type ServerFrame } from "@/lib/live/protocol";
 import type { FactoryAnnotation, FactoryProject } from "@/lib/model/types";
 import { useCommunityAuthStore } from "./community-auth-store";
+import { useRoomConnection } from "@/lib/rooms/connection";
 import { useDesignStore } from "./design-store";
 import { useFactoryStore } from "./factory-store";
 import { liveUndoHandler, markDesignFresh } from "./live-edit-gate";
@@ -306,12 +307,45 @@ afterEach(async () => {
   stop?.();
   stop = undefined;
   useCommunityAuthStore.setState({ user: undefined });
+  useRoomConnection.setState({ connection: undefined, dialog: undefined });
   useDesignStore.setState({ designs: [], activeDesignId: undefined });
   vi.unstubAllEnvs();
   await settle();
 });
 
 describe("live editing in the store", () => {
+  it("edits a password room anonymously and disconnects when the room admission is cleared", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ROOMS", "1");
+    useRoomConnection.setState({
+      connection: {
+        designId: DESIGN,
+        token: "test-room-token",
+        expiresAt: Date.now() + 60_000,
+        user: { id: ANN, username: "房间昵称" },
+        room: {
+          code: "12345678",
+          name: "Room",
+          ownerId: ANN,
+          ownerName: "Owner",
+          designId: DESIGN,
+          createdAt: "2026-10-01T00:00:00.000Z",
+          updatedAt: "2026-10-01T00:00:00.000Z",
+        },
+      },
+    });
+    const plan = planWith(annotation("n1", "before"));
+    await openLiveDesign(plan, plan, false);
+    expect(useCommunityAuthStore.getState().user).toBeUndefined();
+    expect(useLiveSession.getState().status).toBe("live");
+    useFactoryStore.getState().updateAnnotation("n1", { text: "guest edit" });
+    await settle();
+    expect((service.plan.annotations as FactoryAnnotation[])[0]!.text).toBe("guest edit");
+    useRoomConnection.setState({ connection: undefined });
+    await settle();
+    expect(useLiveSession.getState().status).toBe("off");
+    expect(service.socket?.readyState).toBe(3);
+  });
+
   it("joins the open cloud design and lands its live plan on the canvas, as the same design", async () => {
     await openLiveDesign(planWith(annotation("n1", "old")), planWith(annotation("n1", "new")));
 
