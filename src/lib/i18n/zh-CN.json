@@ -1755,5 +1755,18 @@
   "More Chinese game names": "补充游戏名称汉化",
   "Built-in Minecraft and mod translations cover more item names, including planks, potions and tool parts.": "复用原版和模组内置汉化，补充木板、药水、工具部件等物品名称。",
   "Ore dictionary ingredients and their accepted items now have Chinese labels and explanations.": "补充矿物词典材料类别及其可接受物品的中文名称和说明。",
-  "Game language templates no longer leave formatting markers in item names.": "修正游戏语言模板，物品名称不再残留格式标记。"
+  "Game language templates no longer leave formatting markers in item names.": "修正游戏语言模板，物品名称不再残留格式标记。",
+  "Reconnect room": "重新连接房间",
+  "Remembered rooms": "已记住房间",
+  "Open room": "打开房间",
+  "Room plan": "房间方案",
+  "Remember this browser and join automatically": "记住此浏览器，下次自动加入",
+  "This is a room plan. Reconnect to continue editing with others. Your cached edits are kept here.": "这是房间方案。重新连接后可继续共同编辑，本机缓存的修改会保留。",
+  "This browser remembers your room and nickname. Opening this plan reconnects automatically.": "此浏览器已记住房间和昵称，重新打开方案时会自动连接。",
+  "This room is remembered only until you close the browser.": "当前房间仅在本次浏览器会话中保留。",
+  "Forget and leave room": "忘记并退出房间",
+  "Reopen rooms automatically": "自动恢复房间连接",
+  "Remember a room and nickname on this browser to reconnect when its plan opens, including after restarting the browser.": "在此浏览器记住房间和昵称，重新打开方案或重启浏览器后自动连接。",
+  "Room tabs are marked so cached room plans remain distinct from local plans.": "房间标签带有标识，区分房间缓存与普通本地方案。",
+  "Forget and leave removes remembered access; uncheck Remember this browser for a temporary visit.": "忘记并退出可移除已记住的访问；临时加入时可取消勾选记住此浏览器。"
 }

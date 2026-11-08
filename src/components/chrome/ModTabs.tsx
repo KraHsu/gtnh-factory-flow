@@ -39,6 +39,7 @@ import { libraryRows } from "./library-rows";
 import { copyPlanCode } from "./share-actions";
 import type { ShareMode } from "@/components/community/SharePlanDialog";
 import { isLiveConfigured } from "@/lib/live/live-config";
+import { roomsConfigured } from "@/lib/rooms/connection";
 import { ChecklistIcon } from "./pixel-icons";
 
 /** What the tab strip asks of the bar: the dialogs it does not own. */
@@ -588,7 +589,10 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
                   ? {}
                   : tipAttrs({
                       id: `tab|${design.id}`,
-                      title: design.name,
+                      title:
+                        roomsConfigured() && design.cloud
+                          ? `${t("Room plan")}: ${design.name}`
+                          : design.name,
                       sub: "Middle-click to close, right-click for more",
                     }))}
               >
@@ -602,6 +606,11 @@ export function ModTabs({ onPaste, onShare }: ModTabsActions) {
                   />
                 ) : (
                   <>
+                    {roomsConfigured() && design.cloud ? (
+                      <span className="mt-room" aria-label={t("Room plan")}>
+                        ♟
+                      </span>
+                    ) : null}
                     {design.taskBoard ? <ChecklistIcon className="mt-tasks" /> : null}
                     <span className="mt-name">
                       {design.name === "Untitled design" ? t("Untitled design") : design.name}

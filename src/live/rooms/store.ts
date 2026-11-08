@@ -70,6 +70,13 @@ export class RoomStore {
       CREATE INDEX IF NOT EXISTS room_guests_code ON room_guests(code, expires_at);
       CREATE INDEX IF NOT EXISTS rooms_owner ON rooms(owner_id, closed);
     `);
+    if (
+      !this.db
+        .prepare("PRAGMA table_info(room_guests)")
+        .all()
+        .some((column) => column.name === "remembered")
+    )
+      this.db.exec("ALTER TABLE room_guests ADD COLUMN remembered INTEGER NOT NULL DEFAULT 0");
   }
 
   close(): void {
@@ -136,6 +143,7 @@ export class RoomStore {
     password: string,
     nickname: string,
     plan: LivePlan,
+    remember = false,
   ): Promise<RoomAdmission> {
     if (this.list(identity).length >= 100)
       throw new RoomError(429, "You have reached the room limit.");
@@ -155,10 +163,15 @@ export class RoomStore {
       VALUES(?,?,?,?,?,?,?,?,?)`,
       )
       .run(code, randomUUID(), ownerId, name, hash, salt, JSON.stringify(plan), stamp, stamp);
-    return this.admit(this.row(code)!, nickname);
+    return this.admit(this.row(code)!, nickname, remember);
   }
 
-  async join(code: string, password: string, nickname: string): Promise<RoomAdmission> {
+  async join(
+    code: string,
+    password: string,
+    nickname: string,
+    remember = false,
+  ): Promise<RoomAdmission> {
     const row = this.row(code);
     // An unknown room performs the same password work and returns the same answer.
     const key = await this.key(password, (row?.password_salt as string) ?? "unavailable-room-salt");
@@ -167,34 +180,46 @@ export class RoomStore {
       throw new RoomError(403, "Room number or password is incorrect.");
     if (
       (this.db
-        .prepare("SELECT count(*) AS n FROM room_guests WHERE code=? AND expires_at>?")
+        .prepare(
+          "SELECT count(*) AS n FROM room_guests WHERE code=? AND (remembered=1 OR expires_at>?)",
+        )
         .get(code, Date.now())!.n as number) >= 100
     )
       throw new RoomError(429, "This room has reached its participant limit.");
-    return this.admit(row, nickname);
+    return this.admit(row, nickname, remember);
   }
 
-  private admit(row: Record<string, unknown>, nickname: string): RoomAdmission {
-    this.db.prepare("DELETE FROM room_guests WHERE expires_at<=?").run(Date.now());
+  private admit(row: Record<string, unknown>, nickname: string, remember: boolean): RoomAdmission {
+    this.db.prepare("DELETE FROM room_guests WHERE remembered=0 AND expires_at<=?").run(Date.now());
     const token = randomBytes(32).toString("base64url");
     const user = { id: randomUUID(), username: roomNickname(nickname) };
     const expiresAt = Date.now() + ROOM_SESSION_MS;
     this.db
-      .prepare("INSERT INTO room_guests(id,code,nickname,token_hash,expires_at) VALUES(?,?,?,?,?)")
-      .run(user.id, row.code as string, user.username, digest(token), expiresAt);
-    return { room: this.info(row), token, user, expiresAt, plan: JSON.parse(row.plan as string) };
+      .prepare(
+        "INSERT INTO room_guests(id,code,nickname,token_hash,expires_at,remembered) VALUES(?,?,?,?,?,?)",
+      )
+      .run(user.id, row.code as string, user.username, digest(token), expiresAt, remember ? 1 : 0);
+    return {
+      room: this.info(row),
+      token,
+      user,
+      expiresAt: remember ? null : expiresAt,
+      plan: JSON.parse(row.plan as string),
+    };
   }
 
-  resume(token: string): RoomAdmission {
+  resume(token: string, remember = false): RoomAdmission {
     const guest = this.guest(token);
     const row = guest && this.row(guest.code as string);
     if (!guest || !row)
       throw new RoomError(401, "Your room session expired. Join again with your nickname.");
+    if (remember && !guest.remembered)
+      this.db.prepare("UPDATE room_guests SET remembered=1 WHERE id=?").run(guest.id as string);
     return {
       room: this.info(row),
       token,
       user: { id: guest.id as string, username: guest.nickname as string },
-      expiresAt: guest.expires_at as number,
+      expiresAt: remember || guest.remembered ? null : (guest.expires_at as number),
       plan: JSON.parse(row.plan as string),
     };
   }
@@ -204,7 +229,7 @@ export class RoomStore {
     return this.db
       .prepare(
         `SELECT g.* FROM room_guests g JOIN rooms r ON r.code=g.code
-      WHERE g.token_hash=? AND g.expires_at>? AND r.closed=0`,
+      WHERE g.token_hash=? AND (g.remembered=1 OR g.expires_at>?) AND r.closed=0`,
       )
       .get(digest(token), Date.now());
   }
@@ -245,7 +270,9 @@ export class RoomStore {
           .get(id);
         if (owner) return owner as { id: string; username: string };
         const guest = this.db
-          .prepare("SELECT id,nickname AS username FROM room_guests WHERE id=? AND expires_at>?")
+          .prepare(
+            "SELECT id,nickname AS username FROM room_guests WHERE id=? AND (remembered=1 OR expires_at>?)",
+          )
           .get(id, Date.now());
         return guest as { id: string; username: string } | undefined;
       },
@@ -253,7 +280,7 @@ export class RoomStore {
         const row = this.db
           .prepare(
             `SELECT g.id FROM room_guests g JOIN rooms r ON r.code=g.code
-          WHERE g.id=? AND g.expires_at>? AND r.owner_id=? AND r.design_id=? AND r.closed=0`,
+          WHERE g.id=? AND (g.remembered=1 OR g.expires_at>?) AND r.owner_id=? AND r.design_id=? AND r.closed=0`,
           )
           .get(id, Date.now(), owner, design);
         return row ? "editor" : null;
@@ -314,7 +341,7 @@ export class RoomStore {
         this.db
           .prepare(
             `SELECT g.id,g.nickname AS username FROM room_guests g
-        JOIN rooms r ON r.code=g.code WHERE r.owner_id=? AND r.design_id=? AND r.closed=0 AND g.expires_at>?`,
+        JOIN rooms r ON r.code=g.code WHERE r.owner_id=? AND r.design_id=? AND r.closed=0 AND (g.remembered=1 OR g.expires_at>?)`,
           )
           .all(owner, design, Date.now()) as Array<{ id: string; username: string }>,
       usernames: async (ids) => {

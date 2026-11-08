@@ -167,10 +167,29 @@ grant ownership. No IAM credentials reach the game dataset service.
 Passwords use salted scrypt; neither room listings nor admission responses include
 the password or its hash. Creation requires 8–128 password characters. Nicknames
 accept 1–24 characters and reject control characters. A successful admission issues
-a random room-scoped credential stored as a hash on the server. The browser keeps
-the credential in sessionStorage, sends it as a WebSocket subprotocol rather than
-in a URL, and restores it on reload. Credentials last 24 hours; participants then
-join again with their password and nickname. The room itself does not expire.
+a random room-scoped credential stored as a hash on the server. Joining defaults
+to Remember this browser: its credential and nickname go into localStorage, without
+the password. Remembered access lasts until Forget and leave or the owner closes
+the room. Unchecking Remember keeps a temporary 24-hour admission in sessionStorage.
+Both kinds travel as a WebSocket subprotocol, never a URL. Existing valid tab
+admissions are upgraded when this release restores them; expired or lost credentials
+still require one password admission.
+
+Each room retains its own credential. The cached design keeps its existing `cloud`
+reference, and room tabs have a visible marker. Opening that design restores the
+matching admission before network requests finish, so the existing live engine
+queues offline edits instead of treating it as a local plan. A server snapshot
+then catches up remote changes and replays pending edits. Restoring never opens a
+second design or takes over an unrelated local plan. The Rooms dialog lists saved
+rooms for reopening closed tabs. Late responses from another room cannot replace
+the active connection or erase a newer credential.
+
+The SQLite migration only adds a `remembered` column to `room_guests`; existing
+24-hour admissions, room plans and journals are preserved. Remembered credentials
+remain scoped to one room and count toward its participant limit. Forget and leave
+revokes the credential on the server before deleting the browser's remembered access.
+A network error preserves access and pending edits. Closing a browser only disconnects
+its socket; it does not revoke remembered access or close the room.
 
 The UI uses the existing live client, pending-operation recovery, inverse-based
 undo and cursor layer. Each participant sees other nicknamed cursors in board

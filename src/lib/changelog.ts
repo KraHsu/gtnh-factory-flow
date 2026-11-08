@@ -40,6 +40,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.10.2",
+    date: "2026-11-08",
+    headline: "Reopen rooms automatically",
+    notes: [
+      "Remember a room and nickname on this browser to reconnect when its plan opens, including after restarting the browser.",
+      "Room tabs are marked so cached room plans remain distinct from local plans.",
+      "Forget and leave removes remembered access; uncheck Remember this browser for a temporary visit.",
+    ],
+  },
+  {
     version: "4.10.1",
     date: "2026-11-06",
     headline: "More Chinese game names",

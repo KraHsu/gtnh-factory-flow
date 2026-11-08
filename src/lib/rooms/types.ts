@@ -12,7 +12,8 @@ export interface RoomAdmission {
   room: RoomInfo;
   token: string;
   user: { id: string; username: string };
-  expiresAt: number;
+  /** Remembered browser access is revoked by leaving or closing the room. */
+  expiresAt: number | null;
   plan: unknown;
 }
 

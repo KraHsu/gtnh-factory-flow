@@ -84,6 +84,19 @@
   background: transparent;
   color: inherit;
 }
+.room-section .room-remember {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.room-remember input {
+  width: auto;
+}
+.mt-room {
+  flex-shrink: 0;
+  color: var(--color-accent, #40a02b);
+  margin-right: 4px;
+}
 .room-dialog .room-primary {
   display: inline-block;
   text-align: center;

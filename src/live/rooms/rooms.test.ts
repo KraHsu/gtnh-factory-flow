@@ -137,6 +137,63 @@ const createBody = () => ({
 });
 
 describe("persistent password rooms", () => {
+  it("migrates existing guests and keeps remembered access across expiry and process restarts until revoked", async () => {
+    const app = await start();
+    const temporary = (await app.request("", createBody(), true)).body as RoomAdmission;
+    // Model the previous release's table, including an already-issued credential.
+    app.store.db.exec("ALTER TABLE room_guests DROP COLUMN remembered");
+    await app.crash();
+    const reopened = await start(app.root);
+    expect(reopened.store.resume(temporary.token).expiresAt).toBeTypeOf("number");
+    const remembered = (
+      await reopened.request("/resume", { token: temporary.token, remember: true })
+    ).body as RoomAdmission;
+    expect(remembered.expiresAt).toBeNull();
+    expect(remembered.user).toEqual(temporary.user);
+    const joined = (
+      await reopened.request("/join", {
+        code: remembered.room.code,
+        password: createBody().password,
+        nickname: "记住的访客",
+        remember: true,
+      })
+    ).body as RoomAdmission;
+    expect(joined.expiresAt).toBeNull();
+    const transient = (
+      await reopened.request("/join", {
+        code: remembered.room.code,
+        password: createBody().password,
+        nickname: "临时访客",
+      })
+    ).body as RoomAdmission;
+    reopened.store.db.exec("UPDATE room_guests SET expires_at=0");
+    await reopened.crash();
+    const restored = await start(app.root);
+    expect((await restored.request("/resume", { token: joined.token })).status).toBe(200);
+    expect(
+      (await restored.request("/resume", { token: transient.token, remember: true })).status,
+    ).toBe(401);
+    const client = await restored.connect(joined);
+    client.send({
+      t: "ops",
+      doc: client.doc,
+      base: 0,
+      cid: "remembered-edit",
+      ops: [{ o: "meta", f: { description: "仍可编辑" } }],
+    });
+    expect((await client.next("ops")).seq).toBe(1);
+    expect(
+      restored.store.db
+        .prepare("SELECT token_hash FROM room_guests WHERE id=?")
+        .get(joined.user.id)!.token_hash,
+    ).not.toBe(joined.token);
+    await restored.request("/leave", { token: joined.token });
+    expect(await client.next("kicked")).toMatchObject({ reason: "unshared" });
+    expect((await restored.request("/resume", { token: joined.token })).status).toBe(401);
+    await restored.request(`/${remembered.room.code}`, undefined, true, "DELETE");
+    expect((await restored.request("/resume", { token: remembered.token })).status).toBe(401);
+  });
+
   it("keeps an empty room on disk after the last browser leaves and lets a new visitor continue it", async () => {
     const app = await start();
     const admission = (await app.request("", createBody(), true)).body as RoomAdmission;

@@ -79,6 +79,7 @@ export function createRoomHttp(options: RoomHttpOptions) {
           body.password as string,
           nickname,
           plan.data as unknown as LivePlan,
+          body.remember === true,
         );
         return { status: 201, body: admission };
       }
@@ -97,13 +98,18 @@ export function createRoomHttp(options: RoomHttpOptions) {
           !takeMemoryToken(`rooms:join:${address}`, 30, 60_000)
         )
           throw new RoomError(429, "Too many join attempts. Try again in a few minutes.");
-        const admission = await options.store.join(code, body.password, nickname);
+        const admission = await options.store.join(
+          code,
+          body.password,
+          nickname,
+          body.remember === true,
+        );
         await options.refreshMembers(docKey(admission.room.ownerId, admission.room.designId));
         return { status: 200, body: admission };
       }
       if (method === "POST" && url.pathname === "/api/rooms/resume") {
         const body = await readBody(request);
-        return { status: 200, body: options.store.resume(token(body)) };
+        return { status: 200, body: options.store.resume(token(body), body.remember === true) };
       }
       if (method === "POST" && url.pathname === "/api/rooms/leave") {
         const body = await readBody(request);

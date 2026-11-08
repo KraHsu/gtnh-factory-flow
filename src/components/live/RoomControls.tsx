@@ -4,8 +4,20 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { useT } from "@/lib/i18n";
 import { useDialogA11y } from "@/lib/hooks/use-dialog-a11y";
-import { roomsConfigured, openRoomDialog, useRoomConnection } from "@/lib/rooms/connection";
-import { enterRoom, leaveRoom, restoreRoom, roomRequest } from "@/lib/rooms/client";
+import {
+  roomsConfigured,
+  openRoomDialog,
+  useRoomConnection,
+  REMEMBERED_ROOMS_KEY,
+  refreshSavedRooms,
+} from "@/lib/rooms/connection";
+import {
+  enterRoom,
+  leaveRoom,
+  restoreRoom,
+  roomRequest,
+  openRememberedRoom,
+} from "@/lib/rooms/client";
 import type { RoomAdmission, RoomIdentity, RoomInfo } from "@/lib/rooms/types";
 import { useDesignStore } from "@/store/design-store";
 import { useFactoryStore } from "@/store/factory-store";
@@ -19,6 +31,10 @@ export function RoomControls({ pictures }: { pictures: boolean }) {
   const dialog = useRoomConnection((state) => state.dialog);
   const connection = useRoomConnection((state) => state.connection);
   const hydrated = useDesignStore((state) => state.isHydrated);
+  const activeId = useDesignStore((state) => state.activeDesignId);
+  const roomPlan = useDesignStore((state) =>
+    Boolean(state.designs.find((design) => design.id === state.activeDesignId)?.cloud),
+  );
   useEffect(() => {
     if (!roomsConfigured() || !hydrated) return;
     const parameter = new URL(location.href).searchParams.get("rooms");
@@ -29,17 +45,47 @@ export function RoomControls({ pictures }: { pictures: boolean }) {
       history.replaceState(null, "", url);
     }
     void restoreRoom();
-  }, [hydrated]);
+  }, [hydrated, activeId]);
+  useEffect(() => {
+    if (!roomsConfigured()) return;
+    const changed = (event: StorageEvent) => {
+      if (event.key === REMEMBERED_ROOMS_KEY || event.key === null) {
+        refreshSavedRooms();
+        void restoreRoom();
+      }
+    };
+    const online = () => {
+      void restoreRoom();
+    };
+    window.addEventListener("storage", changed);
+    window.addEventListener("online", online);
+    return () => {
+      window.removeEventListener("storage", changed);
+      window.removeEventListener("online", online);
+    };
+  }, []);
   if (!roomsConfigured()) return null;
   return (
     <>
       <BarKey
         id="rooms"
-        label={pictures ? undefined : t("Rooms")}
+        label={
+          pictures
+            ? undefined
+            : t(roomPlan && connection?.designId !== activeId ? "Reconnect room" : "Rooms")
+        }
         icon={pictures}
         ariaLabel={t("Collaboration rooms")}
         tip={t("Create a room or join with a room number, password and nickname")}
-        onClick={() => openRoomDialog(connection ? "current" : "join")}
+        onClick={() =>
+          openRoomDialog(
+            roomPlan && connection?.designId !== activeId
+              ? "join"
+              : connection
+                ? "current"
+                : "join",
+          )
+        }
       >
         {pictures ? <span aria-hidden>♟</span> : undefined}
       </BarKey>
@@ -52,7 +98,11 @@ function RoomDialog() {
   const t = useT();
   const dialog = useRoomConnection((state) => state.dialog)!;
   const connection = useRoomConnection((state) => state.connection);
+  const saved = useRoomConnection((state) => state.saved);
   const activeId = useDesignStore((state) => state.activeDesignId);
+  const activeRoom = useDesignStore(
+    (state) => state.designs.find((design) => design.id === state.activeDesignId)?.cloud,
+  );
   const hydrated = useDesignStore((state) => state.isHydrated);
   const status = useLiveSession((state) => state.status);
   const pending = useLiveSession((state) => state.pending);
@@ -62,6 +112,7 @@ function RoomDialog() {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
+  const [remember, setRemember] = useState(true);
   const [name, setName] = useState(() => useFactoryStore.getState().project.name);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -133,9 +184,10 @@ function RoomDialog() {
               name,
               password,
               nickname,
+              remember,
               plan: withoutRuntimeTables(useFactoryStore.getState().project),
             })
-          : await roomRequest<RoomAdmission>("/join", { code, password, nickname });
+          : await roomRequest<RoomAdmission>("/join", { code, password, nickname, remember });
       await enterRoom(admission);
       setPassword("");
     });
@@ -198,6 +250,35 @@ function RoomDialog() {
         ) : null}
         {(dialog === "join" || (dialog === "create" && identity)) && (
           <form onSubmit={submit} className="room-section">
+            {dialog === "join" && activeRoom && connection?.designId !== activeId && (
+              <p className="room-muted" role="status">
+                {t(
+                  "This is a room plan. Reconnect to continue editing with others. Your cached edits are kept here.",
+                )}
+              </p>
+            )}
+            {dialog === "join" && saved.length > 0 && (
+              <section aria-label={t("Remembered rooms")}>
+                <h3>{t("Remembered rooms")}</h3>
+                {saved.map((room) => (
+                  <article className="room-list-item" key={room.room.code}>
+                    <div>
+                      <strong>{room.room.name}</strong>
+                      <span>
+                        {room.room.code} · {room.user.username}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void run(() => openRememberedRoom(room))}
+                    >
+                      {t("Open room")}
+                    </button>
+                  </article>
+                ))}
+              </section>
+            )}
             {connection && (
               <p className="room-muted">
                 {t("Joining another room disconnects this tab from the current room.")}
@@ -271,6 +352,15 @@ function RoomDialog() {
                 "Your nickname appears beside your cursor. The room stays available when its owner goes offline.",
               )}
             </p>
+            <label className="room-remember">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(event) => setRemember(event.target.checked)}
+                disabled={busy}
+              />
+              {t("Remember this browser and join automatically")}
+            </label>
             <button type="submit" className="room-primary" disabled={busy || !hydrated}>
               {t(
                 busy ? "Connecting…" : dialog === "create" ? "Create and enter room" : "Enter room",
@@ -312,6 +402,13 @@ function RoomDialog() {
             )}
             <p className="room-muted">
               {t(
+                connection.expiresAt === null
+                  ? "This browser remembers your room and nickname. Opening this plan reconnects automatically."
+                  : "This room is remembered only until you close the browser.",
+              )}
+            </p>
+            <p className="room-muted">
+              {t(
                 "Closing your browser does not close the room. Everyone can keep editing without the owner online.",
               )}
             </p>
@@ -331,7 +428,7 @@ function RoomDialog() {
               </button>
             )}
             <button disabled={busy || pending > 0} onClick={() => void run(leaveRoom)}>
-              {t(pending ? "Waiting for edits to sync…" : "Leave room")}
+              {t(pending ? "Waiting for edits to sync…" : "Forget and leave room")}
             </button>
           </div>
         )}
