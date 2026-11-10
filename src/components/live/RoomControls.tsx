@@ -24,6 +24,8 @@ import { useFactoryStore } from "@/store/factory-store";
 import { withoutRuntimeTables } from "@/lib/import-export/plan-code";
 import { useLiveSession } from "@/store/live-session";
 import { BarKey } from "../chrome/bar-parts";
+import { ChecklistIcon } from "../chrome/pixel-icons";
+import { RoomChecklist } from "./RoomChecklist";
 import "./rooms.css";
 
 export function RoomControls({ pictures }: { pictures: boolean }) {
@@ -89,6 +91,18 @@ export function RoomControls({ pictures }: { pictures: boolean }) {
       >
         {pictures ? <span aria-hidden>♟</span> : undefined}
       </BarKey>
+      {roomPlan && (
+        <BarKey
+          id="room-todos"
+          label={pictures ? undefined : t("To-do list")}
+          icon={pictures}
+          ariaLabel={t("Room checklist")}
+          tip={t("Add, edit and complete to-dos with everyone in this room")}
+          onClick={() => openRoomDialog("todos")}
+        >
+          {pictures ? <ChecklistIcon className="room-todo-icon" /> : undefined}
+        </BarKey>
+      )}
       {dialog ? <RoomDialog /> : null}
     </>
   );
@@ -223,6 +237,11 @@ function RoomDialog() {
               {t("Current room")}
             </button>
           )}
+          {activeRoom && (
+            <button type="button" aria-pressed={dialog === "todos"} onClick={() => change("todos")}>
+              {t("To-do list")}
+            </button>
+          )}
           <button type="button" aria-pressed={dialog === "join"} onClick={() => change("join")}>
             {t("Join room")}
           </button>
@@ -238,6 +257,7 @@ function RoomDialog() {
             {t(error)}
           </p>
         )}
+        {dialog === "todos" && activeRoom && <RoomChecklist key={activeId} />}
         {(dialog === "create" || dialog === "mine") && !identity ? (
           <div className="room-section">
             <p>

@@ -15,7 +15,7 @@ export type RoomConnection = Omit<RoomAdmission, "plan"> & { designId: string };
 export const useRoomConnection = create<{
   connection?: RoomConnection;
   saved: RoomConnection[];
-  dialog: "join" | "create" | "mine" | "current" | undefined;
+  dialog: "join" | "create" | "mine" | "current" | "todos" | undefined;
 }>(() => ({ dialog: undefined, saved: [] }));
 
 function storage(persistent: boolean): Storage | undefined {
@@ -96,7 +96,9 @@ export function forgetRoomConnection(connection: RoomConnection): void {
   refreshSavedRooms();
 }
 
-export function openRoomDialog(dialog: "join" | "create" | "mine" | "current" = "join"): void {
+export function openRoomDialog(
+  dialog: "join" | "create" | "mine" | "current" | "todos" = "join",
+): void {
   useRoomConnection.setState({ dialog });
 }
 

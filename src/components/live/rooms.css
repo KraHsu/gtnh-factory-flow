@@ -144,6 +144,80 @@
 .room-dialog .room-danger {
   color: #d20f39;
 }
+.room-todo-icon {
+  width: 14px;
+  height: 16px;
+}
+.room-todo-heading,
+.room-todo-actions,
+.room-todo-delete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.room-todo-heading {
+  justify-content: space-between;
+}
+.room-todo-heading h3,
+.room-checklist h4 {
+  margin: 0;
+}
+.room-todo-heading span,
+.room-checklist h4 span {
+  font-size: 13px;
+  opacity: 0.78;
+}
+.room-todo-add,
+.room-todo-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.room-todo-editor {
+  padding: 12px;
+  border: 1px solid var(--color-line, #bcc0cc);
+  border-radius: 6px;
+}
+.room-todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+.room-todo-list > li {
+  padding: 12px 0;
+  border-top: 1px solid var(--color-line, #bcc0cc);
+}
+.room-todo-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+.room-todo-row > input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 7px 0 0;
+  accent-color: var(--color-accent, #40a02b);
+}
+.room-todo-text {
+  padding-top: 5px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.room-todo-list [data-completed] .room-todo-text > span {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+.room-todo-row button {
+  padding: 5px 8px;
+  font-size: 13px;
+}
+.room-todo-delete {
+  padding-top: 10px;
+  font-size: 13px;
+}
 @media (max-width: 440px) {
   .room-dialog {
     padding: 16px;

@@ -204,6 +204,27 @@ service admits up to 20 rooms in memory, 100 stored rooms per owner, and 100 une
 participant credentials per room. It uses a 384 MiB Node heap and a 512 MiB systemd
 memory cap. The web process retains its separate cap.
 
+### Room checklist
+
+Every room plan exposes To-do list in the top bar and the Rooms dialog. All admitted
+participants can add and edit task titles, complete or reopen tasks, and confirm
+deletion. Pending and completed items are shown separately with a completion count.
+The checklist follows the active room; local plans do not show this entry.
+
+`RoomChecklist.tsx` uses the existing project `tasks` collection and `editTasks` with
+the pure task helpers. Each edit becomes the existing live engine's per-task ops,
+with the room's durable journal, SQLite plan flush, offline queue and own-edit undo.
+No new database, room schema, protocol or project view is introduced, and task edits
+do not affect the factory calculation. Existing rooms begin with their current tasks,
+or an empty checklist. Plans copied into new rooms carry their own task copies.
+
+Edits require the active design, admission and live document binding to agree. A
+cached room without valid access is readable until it reconnects. A bound offline
+room can keep edits in its pending queue. Draft titles remain local until Save;
+remote title changes are shown without replacing the draft, and a deleted task's
+draft cannot recreate it. Switching rooms resets the dialog's drafts. Titles use
+the existing 120-character task limit, and existing task details are preserved.
+
 For local development, start the room process with an absolute `GTNH_ROOMS_DIR`,
 `GTNH_ROOMS_PORT` and `LIVE_ALLOWED_ORIGINS`. Set `NEXT_PUBLIC_ROOMS=1`,
 `NEXT_PUBLIC_LIVE_URL=ws://127.0.0.1:<room-port>/live`, and

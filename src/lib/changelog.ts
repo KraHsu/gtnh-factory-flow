@@ -40,6 +40,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "4.11.0",
+    date: "2026-11-10",
+    headline: "Shared room checklists",
+    notes: [
+      "Open To-do list in a room to add, edit, complete or reopen shared tasks.",
+      "Everyone in the room can update the checklist. It stays with the room when browsers close.",
+      "Checklist edits sync live and wait safely on this device while offline.",
+    ],
+  },
+  {
     version: "4.10.2",
     date: "2026-11-08",
     headline: "Reopen rooms automatically",

@@ -137,6 +137,101 @@ const createBody = () => ({
 });
 
 describe("persistent password rooms", () => {
+  it("shares independent checklist edits between guests, keeps them after a crash, and isolates other rooms", async () => {
+    const app = await start();
+    const admission = (await app.request("", { ...createBody(), remember: true }, true))
+      .body as RoomAdmission;
+    const guest = (
+      await app.request("/join", {
+        code: admission.room.code,
+        password: createBody().password,
+        nickname: "清单编辑者",
+        remember: true,
+      })
+    ).body as RoomAdmission;
+    const other = (
+      await app.request("", { ...createBody(), name: "另一个房间", remember: true }, true)
+    ).body as RoomAdmission;
+    const a = await app.connect(admission),
+      b = await app.connect(guest);
+    a.send({
+      t: "ops",
+      doc: a.doc,
+      base: 0,
+      cid: "add-owner-task",
+      ops: [
+        {
+          o: "put",
+          c: "tasks",
+          id: "task-a",
+          v: { id: "task-a", title: "搭建高炉", status: "todo", order: "a0" },
+        },
+      ],
+    });
+    b.send({
+      t: "ops",
+      doc: b.doc,
+      base: 0,
+      cid: "add-guest-task",
+      ops: [
+        {
+          o: "put",
+          c: "tasks",
+          id: "task-b",
+          v: { id: "task-b", title: "准备电路", status: "todo", order: "a1", createdBy: "forged" },
+        },
+      ],
+    });
+    for (const client of [a, b]) {
+      await client.next("ops");
+      await client.next("ops");
+    }
+    a.send({
+      t: "ops",
+      doc: a.doc,
+      base: 2,
+      cid: "edit-title",
+      ops: [{ o: "patch", c: "tasks", id: "task-a", f: { title: "搭建电力高炉" } }],
+    });
+    b.send({
+      t: "ops",
+      doc: b.doc,
+      base: 2,
+      cid: "complete-other-task",
+      ops: [{ o: "patch", c: "tasks", id: "task-b", f: { status: "done" } }],
+    });
+    for (const client of [a, b]) {
+      await client.next("ops");
+      await client.next("ops");
+    }
+    a.send({ t: "join", doc: docKey(other.room.ownerId, other.room.designId) });
+    expect(await a.next("error")).toMatchObject({ code: "forbidden" });
+    await app.crash();
+    const restored = await start(app.root);
+    const rejoined = await restored.connect(guest);
+    expect(rejoined.snapshot.seq).toBe(4);
+    expect(rejoined.snapshot.plan.tasks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "task-a", title: "搭建电力高炉", status: "todo" }),
+        expect.objectContaining({
+          id: "task-b",
+          title: "准备电路",
+          status: "done",
+          createdBy: guest.user.id,
+        }),
+      ]),
+    );
+    expect((await restored.connect(other)).snapshot.plan.tasks ?? []).toEqual([]);
+    rejoined.send({
+      t: "ops",
+      doc: rejoined.doc,
+      base: 4,
+      cid: "reopen-task",
+      ops: [{ o: "patch", c: "tasks", id: "task-b", f: { status: "todo" } }],
+    });
+    expect((await rejoined.next("ops")).seq).toBe(5);
+  });
+
   it("migrates existing guests and keeps remembered access across expiry and process restarts until revoked", async () => {
     const app = await start();
     const temporary = (await app.request("", createBody(), true)).body as RoomAdmission;
